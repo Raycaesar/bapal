@@ -335,6 +335,10 @@ function evaluateFormula() {
   currentFormula
     .html('<strong>Current formula:</strong><br>$' + wff.latex() + '$')
     .classed('inactive', false);
+  // new
+  if (typeof MathJax !== 'undefined') {
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, evalOutput.node()]);
+  }
 
   // display truth evaluation
   var latexTrue  =  trueStates.length ? '$w_{' +  trueStates.join('},$ $w_{') + '}$' : '$\\varnothing$',
@@ -354,40 +358,41 @@ function evaluateFormula() {
    * i.e. [{ prop: 'p' }, { prop: 'q' }, { agent: 'b' }]
    */
 function getWffAgentsAndProps(json) {
-  if (json.prop)
-    return [{ prop: json.prop }];
-  else if (json.neg)
-    return getWffAgentsAndProps(json.neg);
-  else if (json.nec)
-    return getWffAgentsAndProps(json.nec);
-  else if (json.poss)
-    return getWffAgentsAndProps(json.poss);
-  else if (json.kno_start &&
-           json.kno_start.kno_end &&
-           json.kno_start.kno_end[0].prop &&
-           json.kno_start.kno_end.length === 2
-  ) {
-    const agent = json.kno_start.kno_end[0].prop;
-    return [{ agent }].concat(getWffAgentsAndProps(json.kno_start.kno_end[1]));
+  var results = [];
+  if (!json) return results;
+
+  if (json.prop) {
+    results.push({ prop: json.prop });
+  } else if (json.neg) {
+    results = results.concat(getWffAgentsAndProps(json.neg));
+  } else if (json.nec) {
+    results = results.concat(getWffAgentsAndProps(json.nec));
+  } else if (json.poss) {
+    results = results.concat(getWffAgentsAndProps(json.poss));
+  } else if (json.bapal) {
+    results = results.concat(getWffAgentsAndProps(json.bapal));
+  } else if (json.conj || json.disj || json.impl || json.equi) {
+    var key = json.conj ? 'conj' : (json.disj ? 'disj' : (json.impl ? 'impl' : 'equi'));
+    results = results.concat(getWffAgentsAndProps(json[key][0]));
+    results = results.concat(getWffAgentsAndProps(json[key][1]));
+  } else if (json.annce_start && json.annce_start.annce_end) {
+    // annce_end[0] is the announced formula, annce_end[1] is the body
+    results = results.concat(getWffAgentsAndProps(json.annce_start.annce_end[0]));
+    results = results.concat(getWffAgentsAndProps(json.annce_start.annce_end[1]));
+  } else if (json.kno_start && json.kno_start.kno_end) {
+    // kno_end[0] is the agent prop, kno_end[1] is the formula
+    if (json.kno_start.kno_end[0] && json.kno_start.kno_end[0].prop) {
+      results.push({ agent: json.kno_start.kno_end[0].prop });
+    }
+    results = results.concat(getWffAgentsAndProps(json.kno_start.kno_end[1]));
   }
-  else if (json.annce_start &&
-             json.annce_start.annce_end &&
-             json.annce_start.annce_end.length === 2
-  ) {
-    const announcement = getWffAgentsAndProps(json.annce_start.annce_end[0]);
-    return announcement.concat(getWffAgentsAndProps(json.annce_start.annce_end[1]));
-  }
-  else if (json.conj && json.conj.length === 2)
-    return getWffAgentsAndProps(json.conj[0]).concat(getWffAgentsAndProps(json.conj[1]));
-  else if (json.disj && json.disj.length === 2)
-    return getWffAgentsAndProps(json.disj[0]).concat(getWffAgentsAndProps(json.disj[1]));
-  else if (json.impl && json.impl.length === 2)
-    return getWffAgentsAndProps(json.impl[0]).concat(getWffAgentsAndProps(json.impl[1]));
-  else if (json.equi && json.equi.length === 2)
-    return getWffAgentsAndProps(json.equi[0]).concat(getWffAgentsAndProps(json.equi[1]));
-  else
-    throw new Error('Invalid JSON for formula!');
+
+  // 使用原生 JS 方法去重并返回数组
+  return results.filter(function(item, pos) {
+    return results.indexOf(item) == pos;
+  });
 }
+
 
 // set selected node and notify panel of changes
 function setSelectedNode(node) {

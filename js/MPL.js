@@ -19,6 +19,7 @@ var MPL = (function (FormulaParser) {
     { symbol: '~',  key: 'neg',  precedence: 6 },
     { symbol: '\u25a1', key: 'nec',  precedence: 6 },
     { symbol: '<>', key: 'poss', precedence: 6 },
+    { symbol: '^',  key: 'bapal', precedence: 6 }, // bapal operator
     { symbol: '[', key: 'annce_start', precedence: 5 },
     { symbol: 'K{', key: 'kno_start', precedence: 4 }
   ];
@@ -47,7 +48,10 @@ var MPL = (function (FormulaParser) {
    * Converts an MPL wff from JSON to ASCII.
    * @private
    */
-  function _jsonToASCII(json) {
+
+function _jsonToASCII(json) {
+    if (!json) throw new Error('Empty JSON node!');
+
     if (json.prop)
       return json.prop;
     else if (json.neg)
@@ -56,30 +60,32 @@ var MPL = (function (FormulaParser) {
       return '\u25a1' + _jsonToASCII(json.nec);
     else if (json.poss)
       return '<>' + _jsonToASCII(json.poss);
-    else if (json.kno_start &&
-             json.kno_start.kno_end &&
-             json.kno_start.kno_end[0].prop &&
-             json.kno_start.kno_end.length === 2
-    ) {
-      const agents = json.kno_start.kno_end[0].prop.split('');
-      return 'K{' + agents.join(',') + '}' + _jsonToASCII(json.kno_start.kno_end[1]);
-    }
-    else if (json.annce_start &&
-             json.annce_start.annce_end &&
-             json.annce_start.annce_end.length === 2
-    ) {
-      const announcement = _jsonToASCII(json.annce_start.annce_end[0]);
-      return '[' + announcement + ']' + _jsonToASCII(json.annce_start.annce_end[1]);
-    } else if (json.conj && json.conj.length === 2)
+    else if (json.bapal)
+      return '^' + _jsonToASCII(json.bapal);
+    
+    // binary operators: parser produces [left, right] arrays
+    else if (json.conj)
       return '(' + _jsonToASCII(json.conj[0]) + ' & ' + _jsonToASCII(json.conj[1]) + ')';
-    else if (json.disj && json.disj.length === 2)
+    else if (json.disj)
       return '(' + _jsonToASCII(json.disj[0]) + ' | ' + _jsonToASCII(json.disj[1]) + ')';
-    else if (json.impl && json.impl.length === 2)
+    else if (json.impl)
       return '(' + _jsonToASCII(json.impl[0]) + ' -> ' + _jsonToASCII(json.impl[1]) + ')';
-    else if (json.equi && json.equi.length === 2)
+    else if (json.equi)
       return '(' + _jsonToASCII(json.equi[0]) + ' <-> ' + _jsonToASCII(json.equi[1]) + ')';
-    else
+
+    // announcement operator [φ]ψ — annce_end holds [announcement, formula]
+    else if (json.annce_start && json.annce_start.annce_end) {
+      return '[' + _jsonToASCII(json.annce_start.annce_end[0]) + ']' + _jsonToASCII(json.annce_start.annce_end[1]);
+    }
+
+    // knowledge operator K{a}φ — kno_end holds [agent-prop, formula]
+    else if (json.kno_start && json.kno_start.kno_end) {
+      return 'K{' + _jsonToASCII(json.kno_start.kno_end[0]) + '}' + _jsonToASCII(json.kno_start.kno_end[1]);
+    }
+    
+    else {
       throw new Error('Invalid JSON for formula!');
+    }
   }
 
   /**
@@ -90,6 +96,7 @@ var MPL = (function (FormulaParser) {
     return ascii.replace(/~/g,      '\\lnot{}')
                 .replace(/\u25a1/g,   '\\Box{}')
                 .replace(/<>/g,     '\\Diamond{}')
+                .replace(/\^/g,     '\\langle!\\rangle{}') /*new line*/
                 .replace(/K\{/g,     'K_{')
                 .replace(/\}/g,     '}')
                 .replace(/ & /g,    '\\land{}')
@@ -102,10 +109,12 @@ var MPL = (function (FormulaParser) {
    * Converts an MPL wff from ASCII to Unicode.
    * @private
    */
+
   function _asciiToUnicode(ascii) {
     return ascii.replace(/~/g,    '\u00ac')
                 .replace(/\u25a1/g, '\u25a1')
                 .replace(/<>/g,   '\u25ca')
+                .replace(/\^/g,   '\u27e8!\u27e9') //new for bapal
                 // .replace(/K\[/g,  'K[') don't change from ascii for knowledge operator
                 // .replace(/\]/g,   ']')  don't change from ascii for knowledge operator
                 .replace(/&/g,    '\u2227')
@@ -492,6 +501,33 @@ var MPL = (function (FormulaParser) {
       return model.getSuccessorsOf(state).every((succ) => _truth(model, succ.target, json.nec));
     else if (json.poss)
       return model.getSuccessorsOf(state).some((succ) => _truth(model, succ.target, json.poss));
+    else if (json.bapal) {
+      const states = model.getRawStates();
+      // 排除掉模型中被 removeState 变成 null 的点
+      if (!states[state]) return false;
+
+      const currentAssignment = JSON.stringify(states[state].assignment);
+      const uniqueValuations = [];
+      states.forEach(s => {
+        if (s) {
+          const valStr = JSON.stringify(s.assignment);
+          if (!uniqueValuations.includes(valStr)) uniqueValuations.push(valStr);
+        }
+      });
+
+      const powerSet = (arr) => arr.reduce((a, v) => a.concat(a.map(r => [v, ...r])), [[]]);
+      const possibleSubsets = powerSet(uniqueValuations).filter(sub => sub.includes(currentAssignment));
+
+      return possibleSubsets.some(subsetValuations => {
+        const postModel = model.deepCopy();
+        postModel.getRawStates().forEach((stateW, w) => {
+          if (stateW && !subsetValuations.includes(JSON.stringify(stateW.assignment))) {
+            postModel.removeState(w);
+          }
+        });
+        return _truth(postModel, state, json.bapal);
+      });
+    }
     else
       throw new Error('Invalid formula!');
   }
