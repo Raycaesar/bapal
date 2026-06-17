@@ -467,6 +467,10 @@ function _jsonToASCII(json) {
    * Evaluate the truth of an MPL wff (in JSON representation) at a given state within a given model.
    * @private
    */
+  function _valuationKey(assignment) {
+    return Object.keys(assignment).sort().join(',');
+  }
+
   function _truth(model, state, json) {
     if (json.prop)
       return model.valuation(json.prop, state);
@@ -506,11 +510,11 @@ function _jsonToASCII(json) {
       // 排除掉模型中被 removeState 变成 null 的点
       if (!states[state]) return false;
 
-      const currentAssignment = JSON.stringify(states[state].assignment);
+      const currentAssignment = _valuationKey(states[state].assignment);
       const uniqueValuations = [];
       states.forEach(s => {
         if (s) {
-          const valStr = JSON.stringify(s.assignment);
+          const valStr = _valuationKey(s.assignment);
           if (!uniqueValuations.includes(valStr)) uniqueValuations.push(valStr);
         }
       });
@@ -521,7 +525,7 @@ function _jsonToASCII(json) {
       return possibleSubsets.some(subsetValuations => {
         const postModel = model.deepCopy();
         postModel.getRawStates().forEach((stateW, w) => {
-          if (stateW && !subsetValuations.includes(JSON.stringify(stateW.assignment))) {
+          if (stateW && !subsetValuations.includes(_valuationKey(stateW.assignment))) {
             postModel.removeState(w);
           }
         });
