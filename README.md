@@ -10,6 +10,14 @@ The Epistemic Logic Playground is a graphical semantic calculator for Dynamic Ep
 
 See it in action at [vezwork.github.io/modallogic](https://vezwork.github.io/modallogic)!
 
+### Tests
+
+Run the Node-based semantic regression checks with:
+
+```sh
+node scripts/check-logic-regressions.js
+```
+
 ### Reusable code
 * The core part of the code is MPL.js, a library for parsing and evaluating well-formed formulas of modal propositional logic. See the API Reference [here](API-Reference.md).
 * I've also extracted the directed graph editing code so that it can be easily repurposed. You can find it [here](http://bl.ocks.org/rkirsling/5001347).

@@ -32,6 +32,11 @@
                   <button class="btn btn-secondary" onclick="setCurrentAgent(3)">d</button>
                   <button class="btn btn-secondary" onclick="setCurrentAgent(4)">e</button>
                 </div>
+                <div class="s5-mode mt-2">
+                  <button id="s5-mode-toggle" class="btn btn-secondary btn-sm" onclick="toggleS5Mode()">
+                    S5 mode: Off
+                  </button>
+                </div>
               </div>
               <div class="var-count mt-3">
                 Number of propositional variables:<br>
@@ -92,6 +97,7 @@
                       <li>use <code>(A -&gt; B)</code> for $(A\rightarrow{}B)$</li>
                       <li>use <code>K{a,b,c}A</code> for $K_{a,b,c}A$</li>
                       <li>use <code>[A]B</code> for $[A]B$</li>
+                      <li>use <code>^A</code> for &#9671;A (BAPAL)</li>
                     </ul>
                   </li>
                 </ul>
@@ -162,21 +168,23 @@
         </svg>
         <p>
         Alongside propositional variables, we have the classical logical connectives:
+        </p>
         <ul>
           <li>$\lnot A$ (not) which is true when $A$ is false,</li>
           <li>$A \land B$ (and) which is true when both $A$ and $B$ are true,</li>
           <li>$A \lor B$ (or) which is true when $A$ is true, or $B$ is true, or both are true,</li>
           <li>and $A \rightarrow B$ (conditional) which is true if $B$ is true whenever $A$ is true.</li>
         </ul>
+        <p>
         We can apply the logical connectives, along with parantheses,
         to propositional variables to build up complex formulas. For example
         <a href="https://vezwork.github.io/modallogic/index.html?model=;AqS?formula=(p-q)&(q-p)">$(p \rightarrow q) \land (q \rightarrow p)$ is a formula which is true when $p = q$</a>,
         or <a href="https://vezwork.github.io/modallogic/index.html?model=;AqS?formula=p|~p">$p \lor \lnot p$ is a formula which is always true!</a>
+        </p>
         <div class="alert alert-primary mt-3">
           pro tip: $(p \rightarrow q) \land (q \rightarrow p)$ can
           be written shorthand as <code>(p &lt;-&gt; q)</code> in the playground.
         </div>
-        </p>
         <h3>Worlds, Agents, and Epistemic Logic</h3>
         <p>
         Epistemic Logic is designed for reasoning about the knowledge of someone (we call that someone an agent).
@@ -189,6 +197,7 @@
         <p>
         Here's <a href="https://vezwork.github.io/modallogic/index.html?model=ApS1a,0a,;AS0a,1a,">an example model</a> for when an agent $a$ doesn't know if they are in
         a situation where $p$, or a situation where $\lnot p$:
+        </p>
         <svg viewbox="290 200 100 100" width="300" height="100" style="display: block; margin: 0 auto;">
           <defs><marker id="mid-arrow-a" viewBox="-2 -5 10 10" refX="0" markerWidth="10" markerHeight="10" orient="0"><text class="agent-text agent-a">a</text></marker></defs>
           <defs><marker id="end-arrow-a" viewBox="0 -5 10 10" refX="6" markerWidth="4" markerHeight="4" orient="auto"><path d="M0,-5L10,0L0,5" class="agent-a"></path></marker></defs>
@@ -196,24 +205,28 @@
           <g><path class="link agent-a" d="M255.32746765464503,269.9349482346648Q287.66351853041107 269.967473900772,319.9995694061771 269.9999995668793Q352.3356202819432 270.0325252329866,384.6716711577092 270.0650508990939" style="marker-end: url(&quot;#end-arrow-a&quot;); marker-mid: url(&quot;#mid-arrow-a&quot;); marker-start: url(&quot;#start-arrow-a&quot;);"></path><path class="link agent-a" d="M234.32747827813984,269.9138251035397Q219.57956117754583 254.6638598185298,234.82747827813984 239.9138251035397Q250.07539537873384 254.6638598185298,235.32747827813984 269.9138251035397" style="marker-start: url(&quot;#start-arrow-a&quot;); marker-end: url(&quot;#end-arrow-a&quot;); marker-mid: url(&quot;#mid-arrow-a&quot;);"></path><path class="link agent-a" d="M405.6716605342144,270.08617403021896Q390.9237434336204 254.83620874520906,406.1716605342144 240.08617403021896Q421.41957763480843 254.83620874520906,406.6716605342144 270.08617403021896" style="marker-start: url(&quot;#start-arrow-a&quot;); marker-end: url(&quot;#end-arrow-a&quot;); marker-mid: url(&quot;#mid-arrow-a&quot;);"></path></g>
           <g><g class="" transform="translate(234.32747827813984,269.9138251035397)"><circle class="node" r="15" style="fill: rgb(44, 170, 255);"></circle><text x="0" y="4" class="id" fill="white">0</text><text x="18" y="4" class="shadow">p</text><text x="18" y="4">p</text></g><g transform="translate(405.6716605342144,270.08617403021896)"><circle class="node" r="15" style="fill: rgb(255, 127, 14); stroke-width: 3px; stroke: transparent;" transform=""></circle><text x="0" y="4" class="id" fill="white">1</text><text x="18" y="4" class="shadow">¬p</text><text x="18" y="4">¬p</text></g></g>
         </svg>
-        </p>
         <p>
         When you enter a classical formula into the playground, the formula is evaluated at each world as if that
         world was just a classical logic by itself. Epistemic logic introduces a new logical connective which takes advantage of agents' relations
         between worlds:
+        </p>
         <ul>
           <li>$K_b A$ (knowledge of an agent $b$) which is true at a world when $A$ is true at all worlds connected to that
             world by $b$ arrows.</li>
           <li>along with $K_{a,b,c} A$ which is shorthand for $K_a A\land K_b A\land K_c A$.</li>
         </ul>
+        <p>
         Now, I understand if this definition isn't intuitive, it's not obvious what $K_b A$ has
         to do with knowledge. In order to start intuitively understanding, let's consider our previous
         example.
         We can write a formula to check whether an agent $a$ knows that they are in
         a situation where $p$ or that they know they are in a situation where $\lnot p$:
+        </p>
         <div class="mt-2 mb-2" style="display: block; text-align: center;"><a href="https://vezwork.github.io/modallogic/index.html?model=ApS1a,0a,;AS0a,1a,?formula=K{a}p|(K{a}(~p))">$K_a p \lor K_a \lnot p$.</a></div>
+        <p>
         This formula is false, by definition of $K_a$, at both worlds because they are each connected to both a world
         where $p$ is false and a world where $p$ is true.
+        </p>
         <svg viewbox="290 200 100 100" width="300" height="100" style="display: block; margin: 0 auto;">
           <defs><marker id="mid-arrow-a" viewBox="-2 -5 10 10" refX="0" markerWidth="10" markerHeight="10" orient="0"><text class="agent-text agent-a">a</text></marker></defs>
           <defs><marker id="end-arrow-a" viewBox="0 -5 10 10" refX="6" markerWidth="4" markerHeight="4" orient="auto"><path d="M0,-5L10,0L0,5" class="agent-a"></path></marker></defs>
@@ -221,6 +234,7 @@
           <g><path class="link agent-a" d="M255.32746765464503,269.9349482346648Q287.66351853041107 269.967473900772,319.9995694061771 269.9999995668793Q352.3356202819432 270.0325252329866,384.6716711577092 270.0650508990939" style="marker-end: url(&quot;#end-arrow-a&quot;); marker-mid: url(&quot;#mid-arrow-a&quot;); marker-start: url(&quot;#start-arrow-a&quot;);"></path><path class="link agent-a" d="M234.32747827813984,269.9138251035397Q219.57956117754583 254.6638598185298,234.82747827813984 239.9138251035397Q250.07539537873384 254.6638598185298,235.32747827813984 269.9138251035397" style="marker-start: url(&quot;#start-arrow-a&quot;); marker-end: url(&quot;#end-arrow-a&quot;); marker-mid: url(&quot;#mid-arrow-a&quot;);"></path><path class="link agent-a" d="M405.6716605342144,270.08617403021896Q390.9237434336204 254.83620874520906,406.1716605342144 240.08617403021896Q421.41957763480843 254.83620874520906,406.6716605342144 270.08617403021896" style="marker-start: url(&quot;#start-arrow-a&quot;); marker-end: url(&quot;#end-arrow-a&quot;); marker-mid: url(&quot;#mid-arrow-a&quot;);"></path></g>
           <g><g class="" transform="translate(234.32747827813984,269.9138251035397)"><circle class="node" r="15" style="fill: #ff9896;"></circle><text x="0" y="4" class="id" fill="white">0</text><text x="18" y="4" class="shadow">p</text><text x="18" y="4">p</text></g><g transform="translate(405.6716605342144,270.08617403021896)"><circle class="node" r="15" style="fill: #ff9896; stroke-width: 3px; stroke: transparent;" transform=""></circle><text x="0" y="4" class="id" fill="white">1</text><text x="18" y="4" class="shadow">¬p</text><text x="18" y="4">¬p</text></g></g>
         </svg>
+        <p>
         In an intuitive sense, agent $a$ does not know what $p$ is because they cannot distinguish between
         the world where $p$ is true and the world where $p$ is false.
         </p>
@@ -231,14 +245,14 @@
         <p>
           Finally, for the sake of representing knowledge, in Epistemic logic it is expected that all agent's relations between worlds are
           equivalence relations, i.e. each agent's relation is:
-          <ul>
-            <li><b>reflexive</b>, so each world is related to itself;</li>
-            <li><b>symmetric</b>, if a world $0$ is related to a world $1$, then world $1$ is also related to world $0$;</li>
-            <li>and <b>transitive</b>, if a world $0$ is related to a world $1$, and world $1$ is related to world $2$ then
-              world $0$ has to be related to world $2$ as well.
-            </li>
-          </ul>
         </p>
+        <ul>
+          <li><b>reflexive</b>, so each world is related to itself;</li>
+          <li><b>symmetric</b>, if a world $0$ is related to a world $1$, then world $1$ is also related to world $0$;</li>
+          <li>and <b>transitive</b>, if a world $0$ is related to a world $1$, and world $1$ is related to world $2$ then
+            world $0$ has to be related to world $2$ as well.
+          </li>
+        </ul>
         <h3>Dynamic Epistemic Logic - Public Announcement</h3>
         <p>
         Dynamic Epistemic Logic introduces announcement, a mechanism for publicly announcing facts that
@@ -247,27 +261,71 @@
         </p>
         <p>
         Dynamic Epistemic Logic also introduces a logical connective:
+        </p>
         <ul>
           <li>$[A]B$ (public announcement of $A$) which is true at a world if $B$ is true after $A$ is announced, or if the world
             is removed by the announcement.</li>
         </ul>
+        <p>
         Try out the announcement button and the announcement connective in the playground.
         </p>
       </section>
-      <div class="card mb-3">
-  <div class="card-body">
-    <h5 class="card-title">Boolean Arbitrary Announcement Logic (BAPAL)</h5>
-    <p class="card-text">
-      This playground now supports the existential <strong>BAPAL</strong> operator <code>^phi</code>.
-      Unlike standard APAL, BAPAL quantifies only over propositional, or Boolean, announcement formulas.
-    </p>
-    <ul>
-      <li><code>^phi</code>: "There exists a Boolean formula &alpha; such that after announcing &alpha;, phi is true."</li>
-      <li>Boolean announcements can distinguish worlds only up to their propositional valuation.</li>
-    </ul>
-    <p class="text-muted">Usage Example: <code>^K{a}~K{b}p</code></p>
-  </div>
-</div>
+      <section class="text-section">
+        <h2>Boolean Arbitrary Public Announcement Logic (BAPAL)</h2>
+        <p>
+          Public Announcement Logic (PAL) has formulas of the form <code>[A]B</code>, meaning:
+          after publicly announcing <code>A</code>, formula <code>B</code> holds. Arbitrary Public
+          Announcement Logic (APAL) adds quantification over possible public announcements. Its
+          existential announcement operator says, roughly, that there is some true announcement
+          which, after being publicly announced, makes the target formula true.
+        </p>
+        <p>
+          Boolean Arbitrary Public Announcement Logic (BAPAL) restricts those arbitrary
+          announcements to Boolean, or propositional, formulas. A Boolean announcement is built only
+          from propositional atoms and Boolean connectives such as negation, conjunction,
+          disjunction, implication, and equivalence. It does not contain knowledge operators like
+          <code>K{a}</code>, public announcement operators like <code>[A]B</code>, or the BAPAL
+          operator <code>^A</code>.
+        </p>
+        <p>
+          Because Boolean announcements depend only on propositional valuations, they cannot separate
+          two worlds that assign the same truth values to all propositional atoms. In finite models,
+          quantifying over Boolean announcements can therefore be implemented by quantifying over
+          unions of propositional valuation classes.
+        </p>
+        <p>
+          This app uses <code>^A</code> as input syntax for the existential BAPAL diamond. It means:
+          there exists a Boolean announcement &alpha;, true at the current world, such that after
+          publicly announcing &alpha;, <code>A</code> is true. This is an implementation of the
+          existential Boolean-announcement operator, not ordinary exponentiation and not a TeX
+          superscript. Informally, <code>^K{a}p</code> corresponds to the logical reading
+          &#9671;K<sub>a</sub>p.
+        </p>
+        <h3>Syntax</h3>
+        <ul>
+          <li>use <code>~A</code> for negation</li>
+          <li>use <code>(A &amp; B)</code> for conjunction</li>
+          <li>use <code>(A | B)</code> for disjunction</li>
+          <li>use <code>(A -&gt; B)</code> for implication</li>
+          <li>use <code>(A &lt;-&gt; B)</code> for equivalence</li>
+          <li>use <code>K{a}A</code> for agent <code>a</code> knows <code>A</code></li>
+          <li>use <code>K{a,b,c}A</code> as shorthand for each listed agent knowing <code>A</code></li>
+          <li>use <code>[A]B</code> for public announcement</li>
+          <li>use <code>^A</code> for the existential BAPAL diamond &#9671;A</li>
+        </ul>
+        <h3>Examples</h3>
+        <ul>
+          <li><code>^K{a}p</code>: there is a Boolean announcement after which agent <code>a</code> knows <code>p</code>.</li>
+          <li><code>^~K{a}p</code>: there is a Boolean announcement after which agent <code>a</code> does not know <code>p</code>.</li>
+          <li><code>^K{a}~K{b}p</code>: there is a Boolean announcement after which agent <code>a</code> knows that agent <code>b</code> does not know <code>p</code>.</li>
+        </ul>
+        <p>
+          Further reading: Hans van Ditmarsch and Tim French,
+          <a href="https://doi.org/10.46298/lmcs-18(1:20)2022">"Quantifying over Boolean Announcements"</a>,
+          <em>Logical Methods in Computer Science</em>, 2022. The paper studies BAPAL as a
+          restriction of APAL where quantification is over Boolean announcements.
+        </p>
+      </section>
       <section class="text-section">
         <h2>Project Information</h2>
         <p>
@@ -278,12 +336,12 @@
         </p>
         <p class="mb-4">
         More resources on Epistemic Logic and this project:
+        </p>
         <ul>
           <li><a href="https://github.com/vezwork/modallogic">This project on GitHub</a></li>
           <li><a href="https://github.com/vezwork/modallogic/issues/new">Having issues with this project or have a suggestion? Submit an issue here!</a></li>
           <li><a href="https://plato.stanford.edu/entries/dynamic-epistemic/appendix-A-kripke.html">Kripke models for modal logic (Stanford Encyclopedia of Philosophy)</a></li>
         </ul>
-        </p>
       </section>
     </div>
   </body>

@@ -449,6 +449,51 @@ function _jsonToASCII(json) {
     }
 
     /**
+     * Stores reflexive loops for all worlds and closes the connected component
+     * containing the given states under symmetry and transitivity. Returns the
+     * affected component state indices.
+     */
+    this.closeEquivalenceClass = function(agent, seedStates) {
+      if (!agent) return [];
+
+      const seeds = (seedStates || []).filter(stateIndex => _states[stateIndex]);
+      if (seeds.length === 0) return [];
+
+      const component = new Set(seeds);
+      const queue = seeds.slice();
+
+      while (queue.length > 0) {
+        const current = queue.shift();
+
+        _states.forEach((state, sourceIndex) => {
+          if (!state) return;
+
+          const related =
+            this.isSuccessor(current, sourceIndex, agent) ||
+            this.isSuccessor(sourceIndex, current, agent);
+
+          if (related && !component.has(sourceIndex)) {
+            component.add(sourceIndex);
+            queue.push(sourceIndex);
+          }
+        });
+      }
+
+      _states.forEach((state, stateIndex) => {
+        if (state) this.addTransition(stateIndex, stateIndex, agent);
+      });
+
+      const classStates = [...component].sort((a, b) => a - b);
+      classStates.forEach(sourceIndex => {
+        classStates.forEach(targetIndex => {
+          this.addTransition(sourceIndex, targetIndex, agent);
+        });
+      });
+
+      return classStates;
+    }
+
+    /**
      * Returns an identical, but seperate, copy of this MPL model.
      */
     this.deepCopy = function() {

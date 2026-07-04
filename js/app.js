@@ -20,8 +20,10 @@ var propvars = ['p','q','r','s','t'],
 
 let epistemicAgents = ['a', 'b', 'c', 'd', 'e'];
 let currentEpistemicAgent = 'a';
+let s5ModeEnabled = false;
 
 const agentButtons = d3.selectAll('#edit-pane .agent-btns button');
+const s5ModeToggle = d3.select('#s5-mode-toggle');
 
 const model = new MPL.Model();
 let modelString = ';AS0a,';
@@ -435,6 +437,17 @@ function setCurrentAgent(agentNumber) {
   });
 }
 
+function toggleS5Mode() {
+  s5ModeEnabled = !s5ModeEnabled;
+  updateS5ModeToggle();
+}
+
+function updateS5ModeToggle() {
+  s5ModeToggle
+    .classed('active', s5ModeEnabled)
+    .text('S5 mode: ' + (s5ModeEnabled ? 'On' : 'Off'));
+}
+
 // set # of vars currently in use and notify panel of changes
 function setVarCount(count) {
   varCount = count;
@@ -670,33 +683,8 @@ function restart() {
       d3.select(this).attr('transform', '');
 
       // add transition to model
-      model.addTransition(mousedown_node.id, mouseup_node.id, currentEpistemicAgent);
+      var link = addRelationForCurrentMode(mousedown_node.id, mouseup_node.id, currentEpistemicAgent);
       onStateModified();
-
-      // add link to graph (update if exists)
-      // note: links are strictly source < target; arrows separately specified by booleans
-      var source, target, direction;
-      if(mousedown_node.id < mouseup_node.id) {
-        source = mousedown_node;
-        target = mouseup_node;
-        direction = 'right';
-      } else {
-        source = mouseup_node;
-        target = mousedown_node;
-        direction = 'left';
-      }
-
-      var link = links.filter(function(l) {
-        return (l.source === source && l.target === target && l.agent === currentEpistemicAgent);
-      })[0];
-
-      if(link) {
-        link[direction] = true;
-      } else {
-        link = {source: source, target: target, left: false, right: false, agent: currentEpistemicAgent};
-        link[direction] = true;
-        links.push(link);
-      }
 
       // select new link
       selected_link = link;
@@ -790,6 +778,9 @@ function mousedown() {
 
   // add state to model
   model.addState();
+  if (s5ModeEnabled) {
+    model.addTransition(node.id, node.id, currentEpistemicAgent);
+  }
   onStateModified();
 
   restart();
@@ -837,6 +828,95 @@ function rotate90deg([x, y]) {
 
 function rotateByAngle([x, y], angle) {
   return [Math.cos(angle)*x - Math.sin(angle)*y, Math.sin(angle)*x + Math.cos(angle)*y]
+}
+
+function getNodeById(id) {
+  return nodes.filter(function(node) { return node.id === id; })[0];
+}
+
+function getLinkForPair(sourceId, targetId, agent) {
+  const lowerId = Math.min(sourceId, targetId);
+  const higherId = Math.max(sourceId, targetId);
+
+  return links.filter(function(link) {
+    return link.agent === agent &&
+      link.source.id === lowerId &&
+      link.target.id === higherId;
+  })[0];
+}
+
+function ensureVisualLink(sourceId, targetId, agent, bothDirections) {
+  if (sourceId === targetId) return null;
+
+  const lowerId = Math.min(sourceId, targetId);
+  const higherId = Math.max(sourceId, targetId);
+  const source = getNodeById(lowerId);
+  const target = getNodeById(higherId);
+  if (!source || !target) return null;
+
+  let link = getLinkForPair(sourceId, targetId, agent);
+  if (!link) {
+    link = {source: source, target: target, left: false, right: false, agent: agent};
+    links.push(link);
+  }
+
+  if (bothDirections) {
+    link.left = true;
+    link.right = true;
+  } else if (sourceId < targetId) {
+    link.right = true;
+  } else {
+    link.left = true;
+  }
+
+  return link;
+}
+
+function hideVisualSelfLoops(agent, stateIds) {
+  const stateIdSet = new Set(stateIds);
+  links
+    .filter(function(link) {
+      return link.agent === agent &&
+        link.source === link.target &&
+        stateIdSet.has(link.source.id);
+    })
+    .forEach(function(link) {
+      if (selected_link === link) selected_link = null;
+      links.splice(links.indexOf(link), 1);
+    });
+}
+
+function syncS5ClassVisuals(agent, classStateIds) {
+  hideVisualSelfLoops(agent, classStateIds);
+
+  classStateIds.forEach(function(sourceId) {
+    classStateIds.forEach(function(targetId) {
+      if (sourceId < targetId) {
+        ensureVisualLink(sourceId, targetId, agent, true);
+      }
+    });
+  });
+}
+
+function addRelationForCurrentMode(sourceId, targetId, agent) {
+  if (!s5ModeEnabled) {
+    model.addTransition(sourceId, targetId, agent);
+    return ensureVisualLink(sourceId, targetId, agent, false);
+  }
+
+  model.addTransition(sourceId, targetId, agent);
+  model.addTransition(targetId, sourceId, agent);
+  const classStateIds = model.closeEquivalenceClass(agent, [sourceId, targetId]);
+  syncS5ClassVisuals(agent, classStateIds);
+
+  return getLinkForPair(sourceId, targetId, agent);
+}
+
+function enforceS5ForLink(link) {
+  model.addTransition(link.source.id, link.target.id, link.agent);
+  model.addTransition(link.target.id, link.source.id, link.agent);
+  const classStateIds = model.closeEquivalenceClass(link.agent, [link.source.id, link.target.id]);
+  syncS5ClassVisuals(link.agent, classStateIds);
 }
 
 function mouseup() {
@@ -911,6 +991,12 @@ function keydown() {
       break;
     case 66: // B
       if(selected_link) {
+        if(s5ModeEnabled) {
+          enforceS5ForLink(selected_link);
+          onStateModified();
+          restart();
+          break;
+        }
         var sourceId = selected_link.source.id,
             targetId = selected_link.target.id;
         const agent = selected_link.agent;
@@ -929,6 +1015,12 @@ function keydown() {
       break;
     case 76: // L
       if(selected_link) {
+        if(s5ModeEnabled) {
+          enforceS5ForLink(selected_link);
+          onStateModified();
+          restart();
+          break;
+        }
         var sourceId = selected_link.source.id,
             targetId = selected_link.target.id;
         const agent = selected_link.agent;
@@ -947,6 +1039,14 @@ function keydown() {
       break;
     case 82: // R
       if(selected_node) {
+        if(s5ModeEnabled) {
+          model.addTransition(selected_node.id, selected_node.id, currentEpistemicAgent);
+          const classStateIds = model.closeEquivalenceClass(currentEpistemicAgent, [selected_node.id]);
+          syncS5ClassVisuals(currentEpistemicAgent, classStateIds);
+          onStateModified();
+          restart();
+          break;
+        }
         // toggle node reflexivity
         const reflexiveLink = links.filter(l => l.source === selected_node && l.target === selected_node && l.agent === currentEpistemicAgent)[0];
         if(reflexiveLink) {
@@ -958,6 +1058,12 @@ function keydown() {
           links.push({source: selected_node, target: selected_node, left: true, right: true, agent: currentEpistemicAgent});
         }
       } else if(selected_link) {
+        if(s5ModeEnabled) {
+          enforceS5ForLink(selected_link);
+          onStateModified();
+          restart();
+          break;
+        }
         var sourceId = selected_link.source.id,
             targetId = selected_link.target.id;
         const agent = selected_link.agent;
@@ -1072,6 +1178,7 @@ evalInput.select('input')
   });
 
 // app starts here
+updateS5ModeToggle();
 setAppMode(MODE.EDIT);
 
 setVarCount(varCount);
