@@ -24,6 +24,7 @@ let s5ModeEnabled = false;
 
 const agentButtons = d3.selectAll('#edit-pane .agent-btns button');
 const s5ModeToggle = d3.select('#s5-mode-toggle');
+const s5ModeState = d3.select('#s5-mode-state');
 
 const model = new MPL.Model();
 let modelString = ';AS0a,';
@@ -438,14 +439,19 @@ function setCurrentAgent(agentNumber) {
 }
 
 function toggleS5Mode() {
-  s5ModeEnabled = !s5ModeEnabled;
+  setS5Mode(!s5ModeEnabled);
+}
+
+function setS5Mode(enabled) {
+  s5ModeEnabled = !!enabled;
   updateS5ModeToggle();
 }
 
 function updateS5ModeToggle() {
   s5ModeToggle
-    .classed('active', s5ModeEnabled)
-    .text('S5 mode: ' + (s5ModeEnabled ? 'On' : 'Off'));
+    .property('checked', s5ModeEnabled)
+    .attr('aria-checked', s5ModeEnabled ? 'true' : 'false');
+  s5ModeState.text(s5ModeEnabled ? 'On' : 'Off');
 }
 
 // set # of vars currently in use and notify panel of changes

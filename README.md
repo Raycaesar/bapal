@@ -16,6 +16,16 @@ Run the Node-based semantic regression checks with:
 
 ```sh
 node scripts/check-logic-regressions.js
+node scripts/check-bapal-regression.js
+```
+
+Generate a reproducible random BAPAL evaluation report with:
+
+```sh
+node scripts/random-bapal-evaluation.js
+node scripts/random-bapal-evaluation.js --s5
+node scripts/random-bapal-evaluation.js --arbitrary
+node scripts/random-bapal-evaluation.js --seed 12345
 ```
 
 ### Reusable code

@@ -33,9 +33,12 @@
                   <button class="btn btn-secondary" onclick="setCurrentAgent(4)">e</button>
                 </div>
                 <div class="s5-mode mt-2">
-                  <button id="s5-mode-toggle" class="btn btn-secondary btn-sm" onclick="toggleS5Mode()">
-                    S5 mode: Off
-                  </button>
+                  <label class="s5-switch" for="s5-mode-toggle">
+                    <span class="s5-switch-label">S5 mode</span>
+                    <input id="s5-mode-toggle" type="checkbox" role="switch" onchange="setS5Mode(this.checked)">
+                    <span class="s5-switch-slider" aria-hidden="true"></span>
+                    <span id="s5-mode-state" class="s5-switch-state">Off</span>
+                  </label>
                 </div>
               </div>
               <div class="var-count mt-3">
@@ -127,14 +130,14 @@
           <li class="mb-1">
             When a world is selected:
             <ul>
-              <li><strong>R</strong> toggles reflexivity for the current agent</li>
+              <li><strong>R</strong> toggles reflexivity for the current agent in ordinary mode; in S5 mode it adds the current agent's reflexive S5 relation and keeps loops visually hidden</li>
               <li><strong>Delete</strong> removes the world</li>
             </ul>
           </li>
           <li class="mb-1">
             When a transition is selected:
             <ul>
-              <li><strong>L</strong>(eft), <strong>R</strong>(ight), <strong>B</strong>(oth) change direction</li>
+              <li><strong>L</strong>(eft), <strong>R</strong>(ight), <strong>B</strong>(oth) change direction in ordinary mode; in S5 mode relation editing is automatically closed under S5 instead of treated as one-way arrow editing</li>
               <li><strong>Delete</strong> removes the transition</li>
             </ul>
           </li>
@@ -300,6 +303,33 @@
           existential Boolean-announcement operator, not ordinary exponentiation and not a TeX
           superscript. Informally, <code>^K{a}p</code> corresponds to the logical reading
           &#9671;K<sub>a</sub>p.
+        </p>
+        <h3>S5 Mode</h3>
+        <p>
+          BAPAL is normally interpreted on epistemic models where each agent's accessibility
+          relation is an equivalence relation. S5 mode is a model-construction aid for building
+          such relations.
+        </p>
+        <p>
+          When S5 mode is off, the playground behaves like the old graph editor: you manually draw
+          directed arrows and can adjust their directions. When S5 mode is on, you do not need to
+          add a forward arrow, a backward arrow, and self-loops one by one. Dragging a relation
+          between two worlds for the current agent automatically treats them as belonging to the
+          same equivalence class, and the app stores the required reflexive, symmetric, and
+          transitive relations in the underlying model.
+        </p>
+        <p>
+          Reflexive self-loops are assumed and stored in S5 mode, but they are hidden in the graph
+          by default to avoid visual clutter. To introduce a new agent, for example if agent
+          <code>a</code> is already present and you want to add agent <code>b</code> with only
+          reflexive S5 relations and no non-trivial edges, select agent <code>b</code>, select a
+          world, and press <strong>R</strong>. In S5 mode, this adds the reflexive
+          <code>b</code> relation needed for that agent. The graph may not show loops, but the
+          model stores them.
+        </p>
+        <p>
+          The Reflexive / Symmetric / Transitive checkboxes report properties of the stored model,
+          not merely the visible graph.
         </p>
         <h3>Syntax</h3>
         <ul>

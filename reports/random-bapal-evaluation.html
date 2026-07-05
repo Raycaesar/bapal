@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Random BAPAL Evaluation</title>
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.45; margin: 32px; }
+      code { background: #f5f5f5; padding: 1px 4px; }
+      table { border-collapse: collapse; margin: 16px 0; width: 100%; }
+      th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; vertical-align: top; }
+      th { background: #eee; }
+      .true { background: #d7f5d0; text-align: center; }
+      .false { background: #ffd6d6; text-align: center; }
+    </style>
+  </head>
+  <body>
+    <h1>Random BAPAL Evaluation</h1>
+    <p><strong>Mode:</strong> s5<br>
+    <strong>Seed:</strong> 12345<br>
+    <strong>Model string:</strong> <code>ApqS0a,1a,2a,0b,3b,;AqrS0a,1a,2a,1b,;ArS0a,1a,2a,2b,;AqsS3a,4a,0b,3b,;AprS3a,4a,4b,</code></p>
+
+    <p>
+      Playground links encode formulas using the app's current URL convention:
+      <code>-&gt;</code> is written as <code>-</code> in the query string and restored by
+      <code>index.html</code> on load. The formula text in this report is the authoritative ASCII
+      formula if a browser handles a URL differently.
+    </p>
+
+    <h2>World Valuations</h2>
+    <table>
+      <thead><tr><th>World</th><th>True propositions</th></tr></thead>
+      <tbody><tr><td>w0</td><td>p, q</td></tr>
+<tr><td>w1</td><td>q, r</td></tr>
+<tr><td>w2</td><td>r</td></tr>
+<tr><td>w3</td><td>q, s</td></tr>
+<tr><td>w4</td><td>p, r</td></tr></tbody>
+    </table>
+
+    <h2>Agent Relations</h2>
+    <table>
+      <thead><tr><th>Agent</th><th>Stored directed relations</th></tr></thead>
+      <tbody><tr><td>a</td><td>0 -&gt; 0, 0 -&gt; 1, 0 -&gt; 2, 1 -&gt; 0, 1 -&gt; 1, 1 -&gt; 2, 2 -&gt; 0, 2 -&gt; 1, 2 -&gt; 2, 3 -&gt; 3, 3 -&gt; 4, 4 -&gt; 3, 4 -&gt; 4</td></tr>
+<tr><td>b</td><td>0 -&gt; 0, 0 -&gt; 3, 1 -&gt; 1, 2 -&gt; 2, 3 -&gt; 0, 3 -&gt; 3, 4 -&gt; 4</td></tr></tbody>
+    </table>
+
+    <h2>Formulas</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>ASCII</th><th>Unicode</th><th>LaTeX</th><th>Length</th>
+          <th>w0</th><th>w1</th><th>w2</th><th>w3</th><th>w4</th>
+          <th>Satisfiable</th><th>Globally true</th><th>Playground</th>
+        </tr>
+      </thead>
+      <tbody><tr>
+      <td>1</td>
+      <td><code>^~K{b}s</code></td>
+      <td><code>⟨!⟩¬K{b}s</code></td>
+      <td><code>\langle!\rangle{}\lnot{}K_{b}s</code></td>
+      <td>4</td>
+      <td class="true">T</td><td class="true">T</td><td class="true">T</td><td class="true">T</td><td class="true">T</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td><a href="../index.html?model=ApqS0a,1a,2a,0b,3b,;AqrS0a,1a,2a,1b,;ArS0a,1a,2a,2b,;AqsS3a,4a,0b,3b,;AprS3a,4a,4b,?formula=^~K{b}s">open</a></td>
+    </tr>
+<tr>
+      <td>2</td>
+      <td><code>^~r</code></td>
+      <td><code>⟨!⟩¬r</code></td>
+      <td><code>\langle!\rangle{}\lnot{}r</code></td>
+      <td>3</td>
+      <td class="true">T</td><td class="false">F</td><td class="false">F</td><td class="true">T</td><td class="false">F</td>
+      <td>yes</td>
+      <td>no</td>
+      <td><a href="../index.html?model=ApqS0a,1a,2a,0b,3b,;AqrS0a,1a,2a,1b,;ArS0a,1a,2a,2b,;AqsS3a,4a,0b,3b,;AprS3a,4a,4b,?formula=^~r">open</a></td>
+    </tr>
+<tr>
+      <td>3</td>
+      <td><code>^K{b}s</code></td>
+      <td><code>⟨!⟩K{b}s</code></td>
+      <td><code>\langle!\rangle{}K_{b}s</code></td>
+      <td>3</td>
+      <td class="false">F</td><td class="false">F</td><td class="false">F</td><td class="true">T</td><td class="false">F</td>
+      <td>yes</td>
+      <td>no</td>
+      <td><a href="../index.html?model=ApqS0a,1a,2a,0b,3b,;AqrS0a,1a,2a,1b,;ArS0a,1a,2a,2b,;AqsS3a,4a,0b,3b,;AprS3a,4a,4b,?formula=^K{b}s">open</a></td>
+    </tr>
+<tr>
+      <td>4</td>
+      <td><code>^~K{a}K{b}(q | K{b}s)</code></td>
+      <td><code>⟨!⟩¬K{a}K{b}(q ∨ K{b}s)</code></td>
+      <td><code>\langle!\rangle{}\lnot{}K_{a}K_{b}(q\lor{}K_{b}s)</code></td>
+      <td>8</td>
+      <td class="true">T</td><td class="true">T</td><td class="true">T</td><td class="true">T</td><td class="true">T</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td><a href="../index.html?model=ApqS0a,1a,2a,0b,3b,;AqrS0a,1a,2a,1b,;ArS0a,1a,2a,2b,;AqsS3a,4a,0b,3b,;AprS3a,4a,4b,?formula=^~K{a}K{b}(q|K{b}s)">open</a></td>
+    </tr>
+<tr>
+      <td>5</td>
+      <td><code>^(r -&gt; ~q)</code></td>
+      <td><code>⟨!⟩(r → ¬q)</code></td>
+      <td><code>\langle!\rangle{}(r\rightarrow{}\lnot{}q)</code></td>
+      <td>5</td>
+      <td class="true">T</td><td class="false">F</td><td class="true">T</td><td class="true">T</td><td class="true">T</td>
+      <td>yes</td>
+      <td>no</td>
+      <td><a href="../index.html?model=ApqS0a,1a,2a,0b,3b,;AqrS0a,1a,2a,1b,;ArS0a,1a,2a,2b,;AqsS3a,4a,0b,3b,;AprS3a,4a,4b,?formula=^(r-~q)">open</a></td>
+    </tr>
+<tr>
+      <td>6</td>
+      <td><code>^(q &amp; (q -&gt; s))</code></td>
+      <td><code>⟨!⟩(q ∧ (q → s))</code></td>
+      <td><code>\langle!\rangle{}(q\land{}(q\rightarrow{}s))</code></td>
+      <td>6</td>
+      <td class="false">F</td><td class="false">F</td><td class="false">F</td><td class="true">T</td><td class="false">F</td>
+      <td>yes</td>
+      <td>no</td>
+      <td><a href="../index.html?model=ApqS0a,1a,2a,0b,3b,;AqrS0a,1a,2a,1b,;ArS0a,1a,2a,2b,;AqsS3a,4a,0b,3b,;AprS3a,4a,4b,?formula=^(q&amp;(q-s))">open</a></td>
+    </tr>
+<tr>
+      <td>7</td>
+      <td><code>^(r -&gt; s)</code></td>
+      <td><code>⟨!⟩(r → s)</code></td>
+      <td><code>\langle!\rangle{}(r\rightarrow{}s)</code></td>
+      <td>4</td>
+      <td class="true">T</td><td class="false">F</td><td class="false">F</td><td class="true">T</td><td class="false">F</td>
+      <td>yes</td>
+      <td>no</td>
+      <td><a href="../index.html?model=ApqS0a,1a,2a,0b,3b,;AqrS0a,1a,2a,1b,;ArS0a,1a,2a,2b,;AqsS3a,4a,0b,3b,;AprS3a,4a,4b,?formula=^(r-s)">open</a></td>
+    </tr>
+<tr>
+      <td>8</td>
+      <td><code>^(r &lt;-&gt; K{a}r)</code></td>
+      <td><code>⟨!⟩(r ↔ K{a}r)</code></td>
+      <td><code>\langle!\rangle{}(r\leftrightarrow{}K_{a}r)</code></td>
+      <td>5</td>
+      <td class="true">T</td><td class="true">T</td><td class="true">T</td><td class="true">T</td><td class="true">T</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td><a href="../index.html?model=ApqS0a,1a,2a,0b,3b,;AqrS0a,1a,2a,1b,;ArS0a,1a,2a,2b,;AqsS3a,4a,0b,3b,;AprS3a,4a,4b,?formula=^(r&lt;-K{a}r)">open</a></td>
+    </tr>
+<tr>
+      <td>9</td>
+      <td><code>^q</code></td>
+      <td><code>⟨!⟩q</code></td>
+      <td><code>\langle!\rangle{}q</code></td>
+      <td>2</td>
+      <td class="true">T</td><td class="true">T</td><td class="false">F</td><td class="true">T</td><td class="false">F</td>
+      <td>yes</td>
+      <td>no</td>
+      <td><a href="../index.html?model=ApqS0a,1a,2a,0b,3b,;AqrS0a,1a,2a,1b,;ArS0a,1a,2a,2b,;AqsS3a,4a,0b,3b,;AprS3a,4a,4b,?formula=^q">open</a></td>
+    </tr>
+<tr>
+      <td>10</td>
+      <td><code>^K{a}q</code></td>
+      <td><code>⟨!⟩K{a}q</code></td>
+      <td><code>\langle!\rangle{}K_{a}q</code></td>
+      <td>3</td>
+      <td class="true">T</td><td class="true">T</td><td class="false">F</td><td class="true">T</td><td class="false">F</td>
+      <td>yes</td>
+      <td>no</td>
+      <td><a href="../index.html?model=ApqS0a,1a,2a,0b,3b,;AqrS0a,1a,2a,1b,;ArS0a,1a,2a,2b,;AqsS3a,4a,0b,3b,;AprS3a,4a,4b,?formula=^K{a}q">open</a></td>
+    </tr></tbody>
+    </table>
+  </body>
+</html>

@@ -199,16 +199,12 @@ function _jsonToASCII(json) {
       if (!_states[source]) return;
 
       const successors = _states[source].successors;
-      let index;
-      if (agent) {
-        index = successors.findIndex((el) => el.target === target && el.agent === agent);
-      } else {
-        index = successors.findIndex((el) => el.target === target);
-      }
-      const isTransitionFound = index !== -1;
-
-      if (isTransitionFound) {
-        successors.splice(index, 1);
+      for (let index = successors.length - 1; index >= 0; index--) {
+        const successor = successors[index];
+        const matchesAgent = agent ? successor.agent === agent : true;
+        if (successor.target === target && matchesAgent) {
+          successors.splice(index, 1);
+        }
       }
     };
 
