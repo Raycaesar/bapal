@@ -39,6 +39,7 @@
                     <span class="s5-switch-slider" aria-hidden="true"></span>
                     <span id="s5-mode-state" class="s5-switch-state">Off</span>
                   </label>
+                  <div id="s5-edit-message" class="alert alert-info mt-2 mb-0 inactive"></div>
                 </div>
               </div>
               <div class="var-count mt-3">
@@ -91,18 +92,15 @@
               </div>
               <div class="instructions">
                 <ul class="unstyled pl-4">
-                  <li>
-                    When entering a formula:
-                    <ul class="pl-2">
-                      <li>use <code>~A</code> for $\lnot{}A$</li>
-                      <li>use <code>(A &amp; B)</code> for $(A\land{}B)$</li>
-                      <li>use <code>(A | B)</code> for $(A\lor{}B)$</li>
-                      <li>use <code>(A -&gt; B)</code> for $(A\rightarrow{}B)$</li>
-                      <li>use <code>K{a,b,c}A</code> for $K_{a,b,c}A$</li>
-                      <li>use <code>[A]B</code> for $[A]B$</li>
-                      <li>use <code>^A</code> for &#9671;A (BAPAL)</li>
-                    </ul>
-                  </li>
+                  <li>use <code>~A</code> for $\lnot{}A$</li>
+                  <li>use <code>(A &amp; B)</code> for $A\land{}B$</li>
+                  <li>use <code>(A | B)</code> for $A\lor{}B$</li>
+                  <li>use <code>(A -&gt; B)</code> for $A\rightarrow{}B$</li>
+                  <li>use <code>(A &lt;-&gt; B)</code> for $A\leftrightarrow{}B$</li>
+                  <li>use <code>K{a}A</code> for agent <code>a</code> knows <code>A</code></li>
+                  <li>use <code>K{abc}A</code> for agents <code>a</code>, <code>b</code>, and <code>c</code> each know <code>A</code></li>
+                  <li>use <code>[A]B</code> for public announcement</li>
+                  <li>use <code>^A</code> for &#9671;&#7517;A, the existential Boolean-announcement diamond</li>
                 </ul>
               </div>
             </div>
@@ -137,8 +135,9 @@
           <li class="mb-1">
             When a transition is selected:
             <ul>
-              <li><strong>L</strong>(eft), <strong>R</strong>(ight), <strong>B</strong>(oth) change direction in ordinary mode; in S5 mode relation editing is automatically closed under S5 instead of treated as one-way arrow editing</li>
-              <li><strong>Delete</strong> removes the transition</li>
+              <li><strong>L</strong>(eft), <strong>R</strong>(ight), <strong>B</strong>(oth) change direction in ordinary mode</li>
+              <li><strong>Delete</strong> removes the transition in ordinary mode</li>
+              <li>In S5 mode, selected-transition <strong>Delete</strong>/<strong>L</strong>/<strong>R</strong>/<strong>B</strong> are ignored because S5 relations are stored as equivalence classes. Switch S5 mode off to edit individual arrows.</li>
             </ul>
           </li>
           <li class="mb-1">Copy the URL from your browser's URL bar to share your model!</li>
@@ -297,12 +296,14 @@
           unions of propositional valuation classes.
         </p>
         <p>
-          This app uses <code>^A</code> as input syntax for the existential BAPAL diamond. It means:
+          This app uses <code>^A</code> as the ASCII input syntax for the existential
+          Boolean-announcement diamond &#9671;&#7517;A. The superscript &beta; marks
+          Boolean announcement and is not an agent. It means:
           there exists a Boolean announcement &alpha;, true at the current world, such that after
           publicly announcing &alpha;, <code>A</code> is true. This is an implementation of the
           existential Boolean-announcement operator, not ordinary exponentiation and not a TeX
           superscript. Informally, <code>^K{a}p</code> corresponds to the logical reading
-          &#9671;K<sub>a</sub>p.
+          &#9671;&#7517;K<sub>a</sub>p.
         </p>
         <h3>S5 Mode</h3>
         <p>
@@ -317,6 +318,13 @@
           between two worlds for the current agent automatically treats them as belonging to the
           same equivalence class, and the app stores the required reflexive, symmetric, and
           transitive relations in the underlying model.
+        </p>
+        <p>
+          In S5 mode, selected-transition <strong>Delete</strong>, <strong>L</strong>, <strong>R</strong>, and
+          <strong>B</strong> are ignored so they cannot silently turn an equivalence relation into
+          a one-way or partially deleted relation. Switch S5 mode off if you want ordinary
+          individual-arrow editing. Deleting a selected world is still allowed; the remaining
+          stored relations keep their S5 properties.
         </p>
         <p>
           Reflexive self-loops are assumed and stored in S5 mode, but they are hidden in the graph
@@ -339,9 +347,9 @@
           <li>use <code>(A -&gt; B)</code> for implication</li>
           <li>use <code>(A &lt;-&gt; B)</code> for equivalence</li>
           <li>use <code>K{a}A</code> for agent <code>a</code> knows <code>A</code></li>
-          <li>use <code>K{a,b,c}A</code> as shorthand for each listed agent knowing <code>A</code></li>
+          <li>use <code>K{abc}A</code> as shorthand for each listed agent knowing <code>A</code></li>
           <li>use <code>[A]B</code> for public announcement</li>
-          <li>use <code>^A</code> for the existential BAPAL diamond &#9671;A</li>
+          <li>use <code>^A</code> for the existential Boolean-announcement diamond &#9671;&#7517;A</li>
         </ul>
         <h3>Examples</h3>
         <ul>

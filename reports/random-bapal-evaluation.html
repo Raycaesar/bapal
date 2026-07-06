@@ -20,10 +20,10 @@
     <strong>Model string:</strong> <code>ApqS0a,1a,2a,0b,3b,;AqrS0a,1a,2a,1b,;ArS0a,1a,2a,2b,;AqsS3a,4a,0b,3b,;AprS3a,4a,4b,</code></p>
 
     <p>
-      Playground links encode formulas using the app's current URL convention:
-      <code>-&gt;</code> is written as <code>-</code> in the query string and restored by
-      <code>index.html</code> on load. The formula text in this report is the authoritative ASCII
-      formula if a browser handles a URL differently.
+      Playground links use standard query parameters with encoded model and formula values.
+      BAPAL formulas use <code>^A</code> as the ASCII input syntax for the existential
+      Boolean-announcement diamond <code>◇ᵝA</code>; β marks Boolean announcement,
+      not an agent.
     </p>
 
     <h2>World Valuations</h2>
@@ -55,112 +55,112 @@
       <tbody><tr>
       <td>1</td>
       <td><code>^~K{b}s</code></td>
-      <td><code>⟨!⟩¬K{b}s</code></td>
-      <td><code>\langle!\rangle{}\lnot{}K_{b}s</code></td>
+      <td><code>◇ᵝ¬K{b}s</code></td>
+      <td><code>\Diamond_{\beta}{}\lnot{}K_{b}s</code></td>
       <td>4</td>
       <td class="true">T</td><td class="true">T</td><td class="true">T</td><td class="true">T</td><td class="true">T</td>
       <td>yes</td>
       <td>yes</td>
-      <td><a href="../index.html?model=ApqS0a,1a,2a,0b,3b,;AqrS0a,1a,2a,1b,;ArS0a,1a,2a,2b,;AqsS3a,4a,0b,3b,;AprS3a,4a,4b,?formula=^~K{b}s">open</a></td>
+      <td><a href="../index.html?model=ApqS0a%2C1a%2C2a%2C0b%2C3b%2C%3BAqrS0a%2C1a%2C2a%2C1b%2C%3BArS0a%2C1a%2C2a%2C2b%2C%3BAqsS3a%2C4a%2C0b%2C3b%2C%3BAprS3a%2C4a%2C4b%2C&amp;formula=%5E~K%7Bb%7Ds">open</a></td>
     </tr>
 <tr>
       <td>2</td>
       <td><code>^~r</code></td>
-      <td><code>⟨!⟩¬r</code></td>
-      <td><code>\langle!\rangle{}\lnot{}r</code></td>
+      <td><code>◇ᵝ¬r</code></td>
+      <td><code>\Diamond_{\beta}{}\lnot{}r</code></td>
       <td>3</td>
       <td class="true">T</td><td class="false">F</td><td class="false">F</td><td class="true">T</td><td class="false">F</td>
       <td>yes</td>
       <td>no</td>
-      <td><a href="../index.html?model=ApqS0a,1a,2a,0b,3b,;AqrS0a,1a,2a,1b,;ArS0a,1a,2a,2b,;AqsS3a,4a,0b,3b,;AprS3a,4a,4b,?formula=^~r">open</a></td>
+      <td><a href="../index.html?model=ApqS0a%2C1a%2C2a%2C0b%2C3b%2C%3BAqrS0a%2C1a%2C2a%2C1b%2C%3BArS0a%2C1a%2C2a%2C2b%2C%3BAqsS3a%2C4a%2C0b%2C3b%2C%3BAprS3a%2C4a%2C4b%2C&amp;formula=%5E~r">open</a></td>
     </tr>
 <tr>
       <td>3</td>
       <td><code>^K{b}s</code></td>
-      <td><code>⟨!⟩K{b}s</code></td>
-      <td><code>\langle!\rangle{}K_{b}s</code></td>
+      <td><code>◇ᵝK{b}s</code></td>
+      <td><code>\Diamond_{\beta}{}K_{b}s</code></td>
       <td>3</td>
       <td class="false">F</td><td class="false">F</td><td class="false">F</td><td class="true">T</td><td class="false">F</td>
       <td>yes</td>
       <td>no</td>
-      <td><a href="../index.html?model=ApqS0a,1a,2a,0b,3b,;AqrS0a,1a,2a,1b,;ArS0a,1a,2a,2b,;AqsS3a,4a,0b,3b,;AprS3a,4a,4b,?formula=^K{b}s">open</a></td>
+      <td><a href="../index.html?model=ApqS0a%2C1a%2C2a%2C0b%2C3b%2C%3BAqrS0a%2C1a%2C2a%2C1b%2C%3BArS0a%2C1a%2C2a%2C2b%2C%3BAqsS3a%2C4a%2C0b%2C3b%2C%3BAprS3a%2C4a%2C4b%2C&amp;formula=%5EK%7Bb%7Ds">open</a></td>
     </tr>
 <tr>
       <td>4</td>
       <td><code>^~K{a}K{b}(q | K{b}s)</code></td>
-      <td><code>⟨!⟩¬K{a}K{b}(q ∨ K{b}s)</code></td>
-      <td><code>\langle!\rangle{}\lnot{}K_{a}K_{b}(q\lor{}K_{b}s)</code></td>
+      <td><code>◇ᵝ¬K{a}K{b}(q ∨ K{b}s)</code></td>
+      <td><code>\Diamond_{\beta}{}\lnot{}K_{a}K_{b}(q\lor{}K_{b}s)</code></td>
       <td>8</td>
       <td class="true">T</td><td class="true">T</td><td class="true">T</td><td class="true">T</td><td class="true">T</td>
       <td>yes</td>
       <td>yes</td>
-      <td><a href="../index.html?model=ApqS0a,1a,2a,0b,3b,;AqrS0a,1a,2a,1b,;ArS0a,1a,2a,2b,;AqsS3a,4a,0b,3b,;AprS3a,4a,4b,?formula=^~K{a}K{b}(q|K{b}s)">open</a></td>
+      <td><a href="../index.html?model=ApqS0a%2C1a%2C2a%2C0b%2C3b%2C%3BAqrS0a%2C1a%2C2a%2C1b%2C%3BArS0a%2C1a%2C2a%2C2b%2C%3BAqsS3a%2C4a%2C0b%2C3b%2C%3BAprS3a%2C4a%2C4b%2C&amp;formula=%5E~K%7Ba%7DK%7Bb%7D(q%20%7C%20K%7Bb%7Ds)">open</a></td>
     </tr>
 <tr>
       <td>5</td>
       <td><code>^(r -&gt; ~q)</code></td>
-      <td><code>⟨!⟩(r → ¬q)</code></td>
-      <td><code>\langle!\rangle{}(r\rightarrow{}\lnot{}q)</code></td>
+      <td><code>◇ᵝ(r → ¬q)</code></td>
+      <td><code>\Diamond_{\beta}{}(r\rightarrow{}\lnot{}q)</code></td>
       <td>5</td>
       <td class="true">T</td><td class="false">F</td><td class="true">T</td><td class="true">T</td><td class="true">T</td>
       <td>yes</td>
       <td>no</td>
-      <td><a href="../index.html?model=ApqS0a,1a,2a,0b,3b,;AqrS0a,1a,2a,1b,;ArS0a,1a,2a,2b,;AqsS3a,4a,0b,3b,;AprS3a,4a,4b,?formula=^(r-~q)">open</a></td>
+      <td><a href="../index.html?model=ApqS0a%2C1a%2C2a%2C0b%2C3b%2C%3BAqrS0a%2C1a%2C2a%2C1b%2C%3BArS0a%2C1a%2C2a%2C2b%2C%3BAqsS3a%2C4a%2C0b%2C3b%2C%3BAprS3a%2C4a%2C4b%2C&amp;formula=%5E(r%20-%3E%20~q)">open</a></td>
     </tr>
 <tr>
       <td>6</td>
       <td><code>^(q &amp; (q -&gt; s))</code></td>
-      <td><code>⟨!⟩(q ∧ (q → s))</code></td>
-      <td><code>\langle!\rangle{}(q\land{}(q\rightarrow{}s))</code></td>
+      <td><code>◇ᵝ(q ∧ (q → s))</code></td>
+      <td><code>\Diamond_{\beta}{}(q\land{}(q\rightarrow{}s))</code></td>
       <td>6</td>
       <td class="false">F</td><td class="false">F</td><td class="false">F</td><td class="true">T</td><td class="false">F</td>
       <td>yes</td>
       <td>no</td>
-      <td><a href="../index.html?model=ApqS0a,1a,2a,0b,3b,;AqrS0a,1a,2a,1b,;ArS0a,1a,2a,2b,;AqsS3a,4a,0b,3b,;AprS3a,4a,4b,?formula=^(q&amp;(q-s))">open</a></td>
+      <td><a href="../index.html?model=ApqS0a%2C1a%2C2a%2C0b%2C3b%2C%3BAqrS0a%2C1a%2C2a%2C1b%2C%3BArS0a%2C1a%2C2a%2C2b%2C%3BAqsS3a%2C4a%2C0b%2C3b%2C%3BAprS3a%2C4a%2C4b%2C&amp;formula=%5E(q%20%26%20(q%20-%3E%20s))">open</a></td>
     </tr>
 <tr>
       <td>7</td>
       <td><code>^(r -&gt; s)</code></td>
-      <td><code>⟨!⟩(r → s)</code></td>
-      <td><code>\langle!\rangle{}(r\rightarrow{}s)</code></td>
+      <td><code>◇ᵝ(r → s)</code></td>
+      <td><code>\Diamond_{\beta}{}(r\rightarrow{}s)</code></td>
       <td>4</td>
       <td class="true">T</td><td class="false">F</td><td class="false">F</td><td class="true">T</td><td class="false">F</td>
       <td>yes</td>
       <td>no</td>
-      <td><a href="../index.html?model=ApqS0a,1a,2a,0b,3b,;AqrS0a,1a,2a,1b,;ArS0a,1a,2a,2b,;AqsS3a,4a,0b,3b,;AprS3a,4a,4b,?formula=^(r-s)">open</a></td>
+      <td><a href="../index.html?model=ApqS0a%2C1a%2C2a%2C0b%2C3b%2C%3BAqrS0a%2C1a%2C2a%2C1b%2C%3BArS0a%2C1a%2C2a%2C2b%2C%3BAqsS3a%2C4a%2C0b%2C3b%2C%3BAprS3a%2C4a%2C4b%2C&amp;formula=%5E(r%20-%3E%20s)">open</a></td>
     </tr>
 <tr>
       <td>8</td>
       <td><code>^(r &lt;-&gt; K{a}r)</code></td>
-      <td><code>⟨!⟩(r ↔ K{a}r)</code></td>
-      <td><code>\langle!\rangle{}(r\leftrightarrow{}K_{a}r)</code></td>
+      <td><code>◇ᵝ(r ↔ K{a}r)</code></td>
+      <td><code>\Diamond_{\beta}{}(r\leftrightarrow{}K_{a}r)</code></td>
       <td>5</td>
       <td class="true">T</td><td class="true">T</td><td class="true">T</td><td class="true">T</td><td class="true">T</td>
       <td>yes</td>
       <td>yes</td>
-      <td><a href="../index.html?model=ApqS0a,1a,2a,0b,3b,;AqrS0a,1a,2a,1b,;ArS0a,1a,2a,2b,;AqsS3a,4a,0b,3b,;AprS3a,4a,4b,?formula=^(r&lt;-K{a}r)">open</a></td>
+      <td><a href="../index.html?model=ApqS0a%2C1a%2C2a%2C0b%2C3b%2C%3BAqrS0a%2C1a%2C2a%2C1b%2C%3BArS0a%2C1a%2C2a%2C2b%2C%3BAqsS3a%2C4a%2C0b%2C3b%2C%3BAprS3a%2C4a%2C4b%2C&amp;formula=%5E(r%20%3C-%3E%20K%7Ba%7Dr)">open</a></td>
     </tr>
 <tr>
       <td>9</td>
       <td><code>^q</code></td>
-      <td><code>⟨!⟩q</code></td>
-      <td><code>\langle!\rangle{}q</code></td>
+      <td><code>◇ᵝq</code></td>
+      <td><code>\Diamond_{\beta}{}q</code></td>
       <td>2</td>
       <td class="true">T</td><td class="true">T</td><td class="false">F</td><td class="true">T</td><td class="false">F</td>
       <td>yes</td>
       <td>no</td>
-      <td><a href="../index.html?model=ApqS0a,1a,2a,0b,3b,;AqrS0a,1a,2a,1b,;ArS0a,1a,2a,2b,;AqsS3a,4a,0b,3b,;AprS3a,4a,4b,?formula=^q">open</a></td>
+      <td><a href="../index.html?model=ApqS0a%2C1a%2C2a%2C0b%2C3b%2C%3BAqrS0a%2C1a%2C2a%2C1b%2C%3BArS0a%2C1a%2C2a%2C2b%2C%3BAqsS3a%2C4a%2C0b%2C3b%2C%3BAprS3a%2C4a%2C4b%2C&amp;formula=%5Eq">open</a></td>
     </tr>
 <tr>
       <td>10</td>
       <td><code>^K{a}q</code></td>
-      <td><code>⟨!⟩K{a}q</code></td>
-      <td><code>\langle!\rangle{}K_{a}q</code></td>
+      <td><code>◇ᵝK{a}q</code></td>
+      <td><code>\Diamond_{\beta}{}K_{a}q</code></td>
       <td>3</td>
       <td class="true">T</td><td class="true">T</td><td class="false">F</td><td class="true">T</td><td class="false">F</td>
       <td>yes</td>
       <td>no</td>
-      <td><a href="../index.html?model=ApqS0a,1a,2a,0b,3b,;AqrS0a,1a,2a,1b,;ArS0a,1a,2a,2b,;AqsS3a,4a,0b,3b,;AprS3a,4a,4b,?formula=^K{a}q">open</a></td>
+      <td><a href="../index.html?model=ApqS0a%2C1a%2C2a%2C0b%2C3b%2C%3BAqrS0a%2C1a%2C2a%2C1b%2C%3BArS0a%2C1a%2C2a%2C2b%2C%3BAqsS3a%2C4a%2C0b%2C3b%2C%3BAprS3a%2C4a%2C4b%2C&amp;formula=%5EK%7Ba%7Dq">open</a></td>
     </tr></tbody>
     </table>
   </body>

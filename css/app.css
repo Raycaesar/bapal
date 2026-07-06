@@ -73,7 +73,9 @@ h3 {
 #app-body .panel .tab-pane {
   height: 100%;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding-right: 6px;
 }
 
 div.var-count {
@@ -182,10 +184,7 @@ table.propvars td.var-name {
 }
 
 .instructions {
-  position: absolute;
-  bottom: 0;
-  padding-top: 20px;
-  margin-top: 20px;
+  margin-top: 16px;
 }
 
 .instructions > ul {

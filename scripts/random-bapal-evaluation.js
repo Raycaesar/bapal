@@ -241,12 +241,8 @@ function collectRelations(model) {
   return relations;
 }
 
-function playgroundFormulaParam(ascii) {
-  return ascii.split(' ').join('').replace(/->/g, '-');
-}
-
 function playgroundUrl(modelString, ascii) {
-  return `../index.html?model=${modelString}?formula=${playgroundFormulaParam(ascii)}`;
+  return `../index.html?model=${encodeURIComponent(modelString)}&formula=${encodeURIComponent(ascii)}`;
 }
 
 function htmlEscape(value) {
@@ -310,10 +306,10 @@ function writeHtmlReport({ mode, seed, model, assignments, relations, results })
     <strong>Model string:</strong> <code>${htmlEscape(modelString)}</code></p>
 
     <p>
-      Playground links encode formulas using the app's current URL convention:
-      <code>-&gt;</code> is written as <code>-</code> in the query string and restored by
-      <code>index.html</code> on load. The formula text in this report is the authoritative ASCII
-      formula if a browser handles a URL differently.
+      Playground links use standard query parameters with encoded model and formula values.
+      BAPAL formulas use <code>^A</code> as the ASCII input syntax for the existential
+      Boolean-announcement diamond <code>◇ᵝA</code>; β marks Boolean announcement,
+      not an agent.
     </p>
 
     <h2>World Valuations</h2>
@@ -396,9 +392,15 @@ function main() {
   writeHtmlReport(payload);
 }
 
-try {
-  main();
-} catch (error) {
-  console.error('FAIL:', error.message);
-  process.exit(1);
+if (require.main === module) {
+  try {
+    main();
+  } catch (error) {
+    console.error('FAIL:', error.message);
+    process.exit(1);
+  }
 }
+
+module.exports = {
+  playgroundUrl,
+};

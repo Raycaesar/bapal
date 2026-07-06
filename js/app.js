@@ -25,13 +25,23 @@ let s5ModeEnabled = false;
 const agentButtons = d3.selectAll('#edit-pane .agent-btns button');
 const s5ModeToggle = d3.select('#s5-mode-toggle');
 const s5ModeState = d3.select('#s5-mode-state');
+const s5EditMessage = d3.select('#s5-edit-message');
+const s5RelationEditMessage = 'S5 mode keeps relations as equivalence classes. Switch S5 mode off to edit individual arrows.';
 
 const model = new MPL.Model();
 let modelString = ';AS0a,';
 
-const modelParam = window.location.search.match(/\?model=(.*)/);
-if (modelParam) modelString = modelParam[1];
-const formulaParam = window.location.search.match(/\?formula=(.*)/);
+const params = new URLSearchParams(window.location.search);
+let modelParam = params.get('model');
+let formulaParam = params.get('formula');
+let legacyFormulaParam = false;
+if (modelParam && !formulaParam && modelParam.includes('?formula=')) {
+  const legacyParts = modelParam.split('?formula=');
+  modelParam = legacyParts[0];
+  formulaParam = legacyParts.slice(1).join('?formula=');
+  legacyFormulaParam = true;
+}
+if (modelParam) modelString = modelParam;
 
 model.loadFromModelString(modelString);
 
@@ -444,6 +454,7 @@ function toggleS5Mode() {
 
 function setS5Mode(enabled) {
   s5ModeEnabled = !!enabled;
+  hideS5RelationEditMessage();
   updateS5ModeToggle();
 }
 
@@ -452,6 +463,24 @@ function updateS5ModeToggle() {
     .property('checked', s5ModeEnabled)
     .attr('aria-checked', s5ModeEnabled ? 'true' : 'false');
   s5ModeState.text(s5ModeEnabled ? 'On' : 'Off');
+}
+
+function showS5RelationEditMessage() {
+  s5EditMessage
+    .text(s5RelationEditMessage)
+    .classed('inactive', false);
+}
+
+function hideS5RelationEditMessage() {
+  s5EditMessage
+    .text('')
+    .classed('inactive', true);
+}
+
+function ignoreS5SelectedRelationEdit() {
+  if (!s5ModeEnabled || !selected_link) return false;
+  showS5RelationEditMessage();
+  return true;
 }
 
 // set # of vars currently in use and notify panel of changes
@@ -729,11 +758,15 @@ function restart() {
 // Set the reflexive, symmetric, and transitive checkboxes to the correct state whenever the model
 // changes. Also update the URL with the shareable model and formula state.
 function onStateModified() {
-  const modelString = '?model=' + model.getModelString();
-  let formulaString = '?formula=' + evalInput.select('input').node().value;
-  formulaString = formulaString.split(' ').join(''); //remove spaces
-  formulaString = formulaString.split('>').join(''); //remove > (> doesn't work in URLs)
-  history.pushState({}, '', location.pathname + modelString + formulaString);
+  const params = new URLSearchParams();
+  params.set('model', model.getModelString());
+
+  const formulaValue = evalInput.select('input').node().value;
+  if (formulaValue) {
+    params.set('formula', formulaValue);
+  }
+
+  history.pushState({}, '', location.pathname + '?' + params.toString());
 
   const reflexiveCheckEl = document.getElementById('reflexive-check');
   const symmetricCheckEl = document.getElementById('symmetric-check');
@@ -918,13 +951,6 @@ function addRelationForCurrentMode(sourceId, targetId, agent) {
   return getLinkForPair(sourceId, targetId, agent);
 }
 
-function enforceS5ForLink(link) {
-  model.addTransition(link.source.id, link.target.id, link.agent);
-  model.addTransition(link.target.id, link.source.id, link.agent);
-  const classStateIds = model.closeEquivalenceClass(link.agent, [link.source.id, link.target.id]);
-  syncS5ClassVisuals(link.agent, classStateIds);
-}
-
 function mouseup() {
   if(mousedown_node) {
     // release and hide drag line
@@ -987,6 +1013,7 @@ function keydown() {
         nodes.splice(nodes.indexOf(selected_node), 1);
         spliceLinksForNode(selected_node);
       } else if(selected_link) {
+        if (ignoreS5SelectedRelationEdit()) break;
         removeLinkFromModel(selected_link);
         links.splice(links.indexOf(selected_link), 1);
       }
@@ -997,12 +1024,7 @@ function keydown() {
       break;
     case 66: // B
       if(selected_link) {
-        if(s5ModeEnabled) {
-          enforceS5ForLink(selected_link);
-          onStateModified();
-          restart();
-          break;
-        }
+        if (ignoreS5SelectedRelationEdit()) break;
         var sourceId = selected_link.source.id,
             targetId = selected_link.target.id;
         const agent = selected_link.agent;
@@ -1021,12 +1043,7 @@ function keydown() {
       break;
     case 76: // L
       if(selected_link) {
-        if(s5ModeEnabled) {
-          enforceS5ForLink(selected_link);
-          onStateModified();
-          restart();
-          break;
-        }
+        if (ignoreS5SelectedRelationEdit()) break;
         var sourceId = selected_link.source.id,
             targetId = selected_link.target.id;
         const agent = selected_link.agent;
@@ -1064,12 +1081,7 @@ function keydown() {
           links.push({source: selected_node, target: selected_node, left: true, right: true, agent: currentEpistemicAgent});
         }
       } else if(selected_link) {
-        if(s5ModeEnabled) {
-          enforceS5ForLink(selected_link);
-          onStateModified();
-          restart();
-          break;
-        }
+        if (ignoreS5SelectedRelationEdit()) break;
         var sourceId = selected_link.source.id,
             targetId = selected_link.target.id;
         const agent = selected_link.agent;
@@ -1189,9 +1201,11 @@ setAppMode(MODE.EDIT);
 
 setVarCount(varCount);
 
-if (formulaParam && formulaParam[1].length > 0) {
-  let formulaValue = formulaParam[1];
-  formulaValue = formulaValue.split('-').join('->');
+if (formulaParam && formulaParam.length > 0) {
+  let formulaValue = formulaParam;
+  if (legacyFormulaParam) {
+    formulaValue = formulaValue.split('-').join('->');
+  }
   evalInput.select('input').node().value = formulaValue;
   setAppMode(MODE.EVAL);
   evaluateFormula();

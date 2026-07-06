@@ -96,7 +96,7 @@ function _jsonToASCII(json) {
     return ascii.replace(/~/g,      '\\lnot{}')
                 .replace(/\u25a1/g,   '\\Box{}')
                 .replace(/<>/g,     '\\Diamond{}')
-                .replace(/\^/g,     '\\langle!\\rangle{}') /*new line*/
+                .replace(/\^/g,     '\\Diamond_{\\beta}{}')
                 .replace(/K\{/g,     'K_{')
                 .replace(/\}/g,     '}')
                 .replace(/ & /g,    '\\land{}')
@@ -114,7 +114,7 @@ function _jsonToASCII(json) {
     return ascii.replace(/~/g,    '\u00ac')
                 .replace(/\u25a1/g, '\u25a1')
                 .replace(/<>/g,   '\u25ca')
-                .replace(/\^/g,   '\u27e8!\u27e9') //new for bapal
+                .replace(/\^/g,   '\u25c7\u1d5d')
                 // .replace(/K\[/g,  'K[') don't change from ascii for knowledge operator
                 // .replace(/\]/g,   ']')  don't change from ascii for knowledge operator
                 .replace(/&/g,    '\u2227')

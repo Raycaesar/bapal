@@ -8,6 +8,8 @@ This project is based on the open-source <a href="http://rkirsling.github.io/mod
 
 The Epistemic Logic Playground is a graphical semantic calculator for Dynamic Epistemic logic, built using [D3](http://d3js.org/), [MathJax](http://www.mathjax.org/), and [Bootstrap](http://getbootstrap.com/).
 
+BAPAL formulas use `^A` as the ASCII input syntax for the existential Boolean-announcement diamond `◇ᵝA`. The superscript β means Boolean announcement and should not be confused with agent `b`.
+
 See it in action at [vezwork.github.io/modallogic](https://vezwork.github.io/modallogic)!
 
 ### Tests
@@ -15,8 +17,11 @@ See it in action at [vezwork.github.io/modallogic](https://vezwork.github.io/mod
 Run the Node-based semantic regression checks with:
 
 ```sh
+node scripts/check-all.js
 node scripts/check-logic-regressions.js
 node scripts/check-bapal-regression.js
+node scripts/check-s5-closure.js
+node scripts/check-report-links.js
 ```
 
 Generate a reproducible random BAPAL evaluation report with:

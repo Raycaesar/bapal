@@ -43,8 +43,8 @@ function testBapalParsingAndPrinting() {
       },
     },
   });
-  assert.strictEqual(formula.unicode(), '⟨!⟩K{a}p');
-  assert.strictEqual(formula.latex(), '\\langle!\\rangle{}K_{a}p');
+  assert.strictEqual(formula.unicode(), '◇ᵝK{a}p');
+  assert.strictEqual(formula.latex(), '\\Diamond_{\\beta}{}K_{a}p');
 }
 
 function testBapalDistinguishesDifferentValuations() {
