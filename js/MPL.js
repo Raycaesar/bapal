@@ -494,8 +494,30 @@ function _jsonToASCII(json) {
      */
     this.deepCopy = function() {
       const copy = new MPL.Model();
+      const statesToRemove = [];
       copy.copied = true;
-      copy.loadFromModelString(this.getModelString());
+
+      _states.forEach((state, stateIndex) => {
+        if (state) {
+          copy.addState(state.assignment);
+        } else {
+          copy.addState({});
+          statesToRemove.push(stateIndex);
+        }
+      });
+
+      _states.forEach((state, sourceIndex) => {
+        if (!state) return;
+
+        state.successors.forEach(successor => {
+          copy.addTransition(sourceIndex, successor.target, successor.agent);
+        });
+      });
+
+      statesToRemove.forEach(stateIndex => {
+        copy.removeState(stateIndex);
+      });
+
       return copy;
     }
 

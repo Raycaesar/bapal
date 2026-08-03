@@ -1,5 +1,11 @@
 # MPL.js: API Reference
 
+> **Stage 0 warning — legacy and incomplete API reference**
+>
+> This document is inherited from the earlier Modal Logic / Epistemic Logic Playground and is incomplete for the current BAPAL Playground. It is not the normative BAPAL specification; current normative behavior is documented in [`docs/BAPAL_PLAYGROUND_SPEC.md`](docs/BAPAL_PLAYGROUND_SPEC.md). Multi-character identifier support is not currently guaranteed for PAL or BAPAL. The inherited ordinary `□` and `<>` operators are not the universal and existential BAPAL operators. This reference is scheduled to be replaced during Stage 1 extraction of the typed semantic core.
+>
+> **CORRECTION / DEPRECATION:** The legacy table and examples below claim that ASCII `[]A` is accepted as the ordinary box. That claim is false for the audited baseline: the raw parser accepts the literal `□A` token instead. Any `[]p` examples below are retained only as legacy documentation and must not be treated as accepted current syntax. The ordinary `□` and `<>` modalities remain distinct from BAPAL; existential BAPAL input is `^A`.
+
 MPL is a library for parsing and evaluating well-formed formulas (wffs) of modal propositional logic.
 
 MPL has a single dependency, [formula-parser](https://www.npmjs.com/package/formula-parser).
