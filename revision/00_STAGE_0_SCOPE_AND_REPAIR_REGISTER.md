@@ -12,7 +12,7 @@
   - [BAPAL Architecture and Correctness-First Roadmap](../audit/03_BAPAL_ARCHITECTURE_AND_ROADMAP.md)
 - **Normative contract:** [BAPAL Playground Semantic and Product Specification](../docs/BAPAL_PLAYGROUND_SPEC.md)
 
-**Stage 0 status: OPEN.** Round 1 is **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**. This register does not independently verify, close, or certify that repair, and every later round remains scheduled. The audit reports remain read-only historical evidence about the audited commit.
+**Stage 0 status: OPEN.** Round 1 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04**. Round 2 is **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**, so P1-01 is not yet closed. P1-02 through P1-07 remain open; Round 3 is next only after Round 2 closure. The original three audit reports remain read-only historical evidence about the audited baseline; Audit 04 supplies the narrow Round 1 closure evidence.
 
 ## 2. Stage 0 objective
 
@@ -44,11 +44,11 @@ Representation, parser, UI, and test-infrastructure repairs must be checked agai
 
 ## 4. Planned repair rounds
 
-Round 1 is **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**. Rounds 2–8 remain **SCHEDULED**. No repair is independently certified by this register, and Stage 0 remains open.
+Round 1 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04**. Round 2 is **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**. P1-01 remains open pending that audit, P1-02 through P1-07 remain open, Rounds 3–8 remain scheduled, and Stage 0 remains open.
 
 ### Round 1 — P0 structural model copying
 
-**Status: IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT.**
+**Status: CLOSED AT `55f557c` — WORK MAX AUDIT 04.**
 
 **Scope**
 
@@ -71,9 +71,18 @@ Round 1 is **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**. Rounds 2–8 rema
 
 **Excluded from this round:** parser/printer repair and S5 repair.
 
+**Closure evidence**
+
+- the dedicated structural-copy regression suite, with all 11 groups passing;
+- the independent Work Max targeted harness over exact keys, raw labels, null indices, multi-digit targets, repeated copies, mutations, and truth preservation;
+- minimized before/after formulas: `foo` remained true; `[(p | ~p)]foo` changed from false to true; `^foo` changed from an exception to true; and `^~foo` changed from an exception to false;
+- [`audit/04_BAPAL_STAGE_0_ROUND_1_CLOSURE_AUDIT.md`](../audit/04_BAPAL_STAGE_0_ROUND_1_CLOSURE_AUDIT.md), which closes P0-01 only for internal semantic copying.
+
+The legacy compact serializer/import/share limitation remains open and was not repaired by Round 1.
+
 ### Round 2 — Parser/printer closure
 
-**Status: SCHEDULED — NEXT PLANNED IMPLEMENTATION ROUND.**
+**Status: IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT.**
 
 **Scope**
 
@@ -90,7 +99,19 @@ Round 1 is **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**. Rounds 2–8 rema
 
 **Excluded from this round:** redesign of the entire parser, model copying, and S5 behavior.
 
+**Local implementation evidence — not closure certification**
+
+- The minimized baseline path parsed `[(K{a}p)]q`, printed the invalid raw form `[K{a}p]q`, and failed raw reparsing with `Error: Invalid JSON for formula!`; the local printer retains protective syntax and reparses to the same AST.
+- `scripts/check-formula-roundtrip.js` covers the minimized regression, 10 already-safe canonical forms, 25 fixed difficult formulas, 8,210 exhaustive ASTs through logical size 5, and exactly 100,000 deterministic seeded ASTs through logical size 40. All 108,246 executed round trips passed structural equality and print idempotence.
+- The generated seed is `12245589` (`0x00bada55`); the large generated set includes multi-character atoms, agents `a` and `b`, every supported operator, every announcement-precondition root, and every announcement-scope root.
+- The structural-copy, BAPAL, inherited-logic, S5 closure, valuation-class, and report-link deterministic regressions all pass.
+- Source-scope inspection shows a printer-only `js/MPL.js` change plus the dedicated test: parser configuration, `lib/formula-parser.min.js`, `js/app.js` preprocessing, `_truth`, and `Model.deepCopy()` are unchanged.
+
+This evidence prepares a Round 2 implementation candidate. It does not mark P1-01 closed or independently certify arbitrary malformed raw input.
+
 ### Round 3 — S5 invariant repair
+
+**Status: SCHEDULED — NEXT ONLY AFTER ROUND 2 CLOSURE.**
 
 **Scope**
 
@@ -193,12 +214,12 @@ This round may be coordinated with Round 4 because both touch import boundaries,
 
 ## 5. Defect-to-round mapping
 
-Every P0/P1 defect from the foundational audit appears exactly once below with one primary repair round. P0-01 is **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**; every P1 item remains **OPEN**.
+Every P0/P1 defect from the foundational audit appears exactly once below with one primary repair round. P0-01 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04** for internal semantic copying. P1-01 is **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT** and is not closed; P1-02 through P1-07 remain **OPEN**.
 
 | Defect ID | Status | Severity | Affected files/functions | Primary round | Dependencies | Required minimized regression | Closure evidence |
 |---|---|---|---|---|---|---|---|
-| P0-01 | IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT | P0 — wrong result/exception | `js/MPL.js`: `getStateString`, `loadFromModelString`, `deepCopy`, PAL/BAPAL branches of `_truth`; raw parser variable acceptance; `API-Reference.md` identifier contract | Round 1 | Normative specification and protected-semantics baseline | One world `{foo:true}`: `foo = true`, `[(p | ~p)]foo = true`, `^foo = true`, with no exception | Before/after regression log; structural-copy identity and transition tests; supported corpus green; exact changed-file list |
-| P1-01 | OPEN | P1 — parser/API contract | `js/MPL.js`: operator configuration, `_jsonToASCII`, `Wff` parse/print path | Round 2 | Round 1 closed; supported grammar boundary recorded | `[(K{a}p)]q` prints, reparses, and yields the same AST | Minimized test plus generated `parse(print(AST)) = AST` manifest with zero supported-corpus failures |
+| P0-01 | CLOSED AT `55f557c` — WORK MAX AUDIT 04 | P0 — wrong result/exception | `js/MPL.js`: structural `deepCopy` used by the PAL/BAPAL branches of `_truth`; the legacy `getStateString`/`loadFromModelString` boundary remains separately limited | Round 1 | Normative specification and protected-semantics baseline | One world `{foo:true}`: `foo = true`, `[(p | ~p)]foo = true`, `^foo = true`, with no exception | Structural-copy regression suite; independent Work Max targeted harness; minimized before/after formulas; Audit 04 closure report |
+| P1-01 | IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT | P1 — parser/API contract | `js/MPL.js`: `_jsonToASCII` protective-parentheses rule and `Wff` parse/print path; parser configuration unchanged | Round 2 | Round 1 closed; supported grammar boundary recorded | `[(K{a}p)]q` prints, reparses, and yields the same AST | Baseline minimized failure; permanent suite with 8,210 exhaustive plus 100,000 seeded generated ASTs and 108,246 total round trips; deterministic regressions; printer-only source-scope check; Work Max closure audit still required |
 | P1-02 | OPEN | P1 — S5 model integrity | `js/app.js`: world-creation `mousedown` path and active-agent handling; semantic relations in `MPL.Model` | Round 3 | Rounds 1–2 closed; declared/active-agent policy fixed for the round | With active S5 relations for `a` and `b`, add a world while `a` is selected; both relations remain reflexive, symmetric, and transitive | Two-agent event-sequence test; stored-loop inspection; invariant check after each accepted edit |
 | P1-03 | OPEN | P1 — misleading S5 state/incomplete closure | `js/app.js`: `setS5Mode`, `addRelationForCurrentMode`; `js/MPL.js`: `closeEquivalenceClass` | Round 3 | Same S5 policy and harness as P1-02 | Toggle S5 on over a one-way relation and over a separate malformed component; the operation explicitly rejects or knowingly normalizes the whole model | Toggle/import/component event tests; equivalence checks for every declared/active agent; proof of notice or confirmation for normalization |
 | P1-04 | OPEN | P1 — non-atomic model import | `js/MPL.js`: `loadFromModelString`; `js/app.js`: startup/share-URL load path | Round 4 | Round 1 structural model operations; coordinated boundary decisions for Round 5 | Load `ApS;BROKEN;AqS` over a known existing model; receive failure and retain the complete prior model | Atomic rollback/unchanged-model assertion; typed or explicit validation error; no partial-prefix model; repair log |

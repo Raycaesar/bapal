@@ -18,6 +18,33 @@ The three Work Max reports are:
 
 **NORMATIVE.** The reports remain read-only historical artifacts. They are not living specifications and must not be rewritten when the implementation changes. Later changes are governed by this document and require separate verification and, before any certification claim, a separate re-audit.
 
+## Post-baseline audited/implementation deltas
+
+### Round 1 — structural internal model copy
+
+- **Implementation commit:** `55f557c210a6a6ad78c928bb1b94b2010929d2a2`
+- **Closure audit:** [`audit/04_BAPAL_STAGE_0_ROUND_1_CLOSURE_AUDIT.md`](../audit/04_BAPAL_STAGE_0_ROUND_1_CLOSURE_AUDIT.md)
+- **Status:** **CLOSED**
+- Internal PAL/BAPAL semantic copying no longer depends on compact serialization.
+- Multi-character atom keys and raw transition labels are structurally preserved in the tested internal-copy contract.
+- The compact serializer/import/share boundary remains unchanged and uncertified beyond its audited one-character compatibility subset.
+- No PAL or BAPAL truth clause changed.
+
+This delta closes only P0-01's internal semantic-copy defect. Stage 0 remains open, and the historical baseline account below remains evidence of the defect as it existed at commit `92a4ba6`.
+
+### Round 2 — parser/printer closure
+
+- **Defect:** P1-01
+- **Status:** **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**
+- **Minimized case:** `[(K{a}p)]q`; at the audited baseline it printed as `[K{a}p]q`, which the raw parser rejected, while the local Round 2 printer retains protective syntax and reparses to the same AST.
+- **Repair scope:** ASCII pretty-printing only. A small AST-structural rule protects announcement preconditions whose exposed unary spine terminates in knowledge or PAL.
+- **Local generated evidence:** 8,210 exhaustive ASTs through logical size 5 and exactly 100,000 deterministic seeded generated ASTs through logical size 40 passed AST-to-ASCII-to-AST equality and print idempotence. With minimized, safe-canonical, and fixed cases, the permanent suite executed 108,246 round trips.
+- The formula-parser library and configured parser operators did not change.
+- No Boolean, knowledge, PAL, ordinary modal, or BAPAL truth clause changed.
+- Raw/browser grammar differences remain: browser comma removal and bracket preprocessing are unchanged, and unprotected direct raw forms may remain rejected.
+
+This is a local implementation delta, not an audited closure result. P1-01 and Stage 0 remain open pending Work Max review of an exact candidate commit.
+
 ## 2. Product identity
 
 **NORMATIVE.** The BAPAL Playground is:
@@ -201,15 +228,17 @@ The application currently has several non-identical formula interfaces.
 4. **Printed forms.** **CURRENT.** `MPL.Wff` emits ASCII, Unicode, and LaTeX representations from its AST. `^` is rendered as `◇ᵝ` and `\Diamond_{\beta}{}` in the corresponding display forms.
 5. **URL formula encoding.** **CURRENT.** The browser reads the `formula` query parameter with `URLSearchParams`, supports one legacy combined `model?...formula=` form, and evaluates a nonempty loaded formula immediately. URL encoding transports a formula string; it does not define or repair the formula grammar.
 
-**KNOWN LIMITATION.** These interfaces are not fully identical. In particular, browser preprocessing accepts shapes the raw constructor rejects, global comma removal is not a principled agent grammar, and the ASCII printer can emit `[K{a}p]q`, which the raw parser cannot reparse.
+**KNOWN LIMITATION.** These interfaces are not fully identical. In particular, browser preprocessing accepts shapes the raw constructor rejects, and global comma removal is not a principled agent grammar.
 
-**FUTURE REQUIREMENT.** Stage 0 repairs must specify one supported grammar and establish `parse(print(ast)) = ast` for supported ASTs. Compatibility handling must remain explicit and must not conceal current divergences while they still exist.
+**AUDITED BASELINE BEHAVIOR at commit `92a4ba6`.** The ASCII printer could emit `[K{a}p]q`, which the raw parser could not reparse. See the post-baseline Round 2 delta above for the local printer-only repair and its bounded evidence; that repair remains pending Work Max closure audit.
+
+**REMAINING FUTURE REQUIREMENT.** Compatibility handling must remain explicit and must not conceal the raw/browser divergences that still exist. Local `parse(print(ast)) = ast` evidence for the supported Round 2 corpus does not make every malformed or browser-preprocessed input part of one unified grammar.
 
 ## 8. Identifier and vocabulary policy
 
 **CURRENT SUPPORTED CONTRACT.** The audited dependable compatibility subset uses one-character atom and agent identifiers. Browser-visible atoms are `p`, `q`, `r`, `s`, and `t`; browser-visible agents are `a`, `b`, `c`, `d`, and `e`.
 
-**KNOWN LIMITATION.** Raw parser acceptance of a multi-character identifier is not a guarantee of correct PAL or BAPAL behavior. The compact serialization/deep-copy path can flatten a true atom such as `foo` into the separate keys `f` and `o`, causing a wrong PAL result or a BAPAL exception. Multi-character agents likewise do not have a dependable serialization contract.
+**AUDITED BASELINE BEHAVIOR at commit `92a4ba6`.** Raw parser acceptance of a multi-character identifier did not guarantee correct PAL or BAPAL behavior. The compact serialization-based deep-copy path could flatten a true atom such as `foo` into the separate keys `f` and `o`, causing a wrong PAL result or a BAPAL exception. See the post-baseline Round 1 delta above for the audited structural internal-copy repair. Multi-character agents still do not have a dependable end-to-end serialization or formula-interface contract.
 
 **NORMATIVE.** Absence of an atom key means that atom is false. Every world in a model must use one shared atom namespace, so absence has the same meaning everywhere. Hidden or unsupported keys must not silently alter valuation classes or results without disclosure.
 
@@ -223,7 +252,7 @@ The application currently has several non-identical formula interfaces.
 
 **CURRENT.** Legacy compact URL model strings concatenate true atom characters and encode each transition as a decimal target followed by one agent character. The format has no version, escaping, declared vocabulary, declared agent set, frame-class assertion, or typed validation result.
 
-**KNOWN LIMITATION.** Internal PAL and BAPAL copying currently calls `getModelString()` and then `loadFromModelString()`. Semantic copying therefore inherits the compact URL format's identifier loss and validation defects. This is current behavior, not intended semantics and not an acceptable long-term semantic operation.
+**AUDITED BASELINE BEHAVIOR at commit `92a4ba6`.** Internal PAL and BAPAL copying called `getModelString()` and then `loadFromModelString()`. Semantic copying therefore inherited the compact URL format's identifier loss and validation defects. See the post-baseline Round 1 delta above: candidate `55f557c` replaced that internal path with structural copying without changing the compact external format.
 
 **KNOWN LIMITATION.** A malformed model string can clear the old model, stop at the first malformed fragment, and silently retain only a valid prefix.
 
@@ -314,10 +343,10 @@ Small, separately reviewable changes are preferred. Multiple P0/P1 repairs must 
 
 ## 14. Known Stage 0 defects
 
-**KNOWN LIMITATION.** The following baseline defects are open. This document records them but does not implement repairs.
+**AUDITED BASELINE DEFECTS.** The following defects were open at commit `92a4ba6`. The post-baseline deltas above record later implementation and audit status without rewriting this historical defect list.
 
 - **P0-01 — lossy identifiers:** multi-character atoms accepted by the parser/API are flattened during serialization-based copying, causing wrong PAL results or BAPAL exceptions.
-- **P1-01 — parser/printer non-closure:** a knowledge-rooted PAL precondition can print without required parentheses, so raw reparsing fails.
+- **P1-01 — parser/printer non-closure:** at the audited baseline, a knowledge-rooted PAL precondition could print without required parentheses, so raw reparsing failed. See the Round 2 delta; the local repair is implemented but remains pending Work Max closure audit.
 - **P1-02 — S5 new-world reflexivity:** adding a world in S5 mode adds only the selected agent's loop and can break reflexivity for another active agent.
 - **P1-03 — S5 toggle/invariant mismatch:** enabling S5 mode does not validate or repair the existing model, and seeded closure can leave another malformed component unchanged.
 - **P1-04 — partial malformed import:** malformed compact model input clears the old model and can silently load only a valid prefix.

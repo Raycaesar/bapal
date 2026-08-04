@@ -73,16 +73,19 @@ Hidden, stale, or unsupported valuation keys must never silently affect semantic
 
 ## Current supported implementation boundary
 
-Keep these four layers distinct:
+Keep these five layers distinct:
 
 1. **Formal language:** the mathematical sources use countably many propositional atoms and agents.
 2. **Raw parser:** the inherited parser accepts ASCII word-like identifiers, including multi-character atoms, and has behavior that differs from browser preprocessing.
 3. **Browser surface:** the current UI supports atoms `p`–`t` and agents `a`–`e`, with browser-specific comma removal and announcement-parenthesis rewriting.
-4. **Dependable serialized subset:** the current compact model serializer and the PAL/BAPAL deep-copy path are dependable only for the audited one-character atom/agent representation.
+4. **Audited internal semantic copy:** at candidate commit `55f557c210a6a6ad78c928bb1b94b2010929d2a2`, `Model.deepCopy()` is structural and internal PAL/BAPAL semantic copying no longer uses compact model strings. Under the tested internal-copy contract, multi-character atom keys and raw multi-character transition labels are preserved exactly, as are null world indices and multi-digit targets. This repair is covered by `audit/04_BAPAL_STAGE_0_ROUND_1_CLOSURE_AUDIT.md`.
+5. **Still-limited external boundary:** the legacy compact serializer/import/share format concatenates atom names and stores only one terminal agent character per transition token. It remains dependable only for the audited one-character compatibility subset and was not repaired by Round 1.
+
+**Round 2 parser/printer status: IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT.** The local P1-01 repair establishes raw `parse(print(AST)) = AST` over the tested supported AST corpus. Its minimized case is `[(K{a}p)]q`: the ASCII printer now preserves the protective parentheses required around exposed knowledge- or PAL-rooted announcement preconditions, including through ordinary unary-prefix chains. This is a printer-only repair; the raw parser grammar, browser comma removal, and browser bracket preprocessing remain distinct and unchanged. Direct raw inputs such as `[K{a}p]q` may therefore still be rejected even though the printer no longer emits that unprotected form. The bounded round-trip evidence does not certify arbitrary malformed parser inputs or close P1-01 before Work Max review.
 
 The audit's zero-mismatch result applies only to the recorded one-character representation and the exact bounded test matrices in `audit/02_BAPAL_INDEPENDENT_VERIFICATION_REPORT.md`: 6,501,302 model–world–formula comparisons, not all possible inputs.
 
-Do not claim that multi-character atoms or agents are currently safe. The audited P0 counterexample shows that multi-character atom identities can be lost during serialization-based copying, producing wrong PAL results or BAPAL exceptions.
+Round 1 is closed for internal semantic copying. Round 2 is locally implemented, but P1-01 remains open pending Work Max closure audit; P1-02 through P1-07 remain open, and Stage 0 remains open. Do not claim that all multi-character formula interfaces are safe, that multi-character epistemic-agent syntax works end to end, that URL import/share is repaired, or that Stage 0 is complete.
 
 ## S5 convention
 
@@ -123,9 +126,10 @@ Every future implementation task must include minimized regression cases and a r
 
 - `audit/01_BAPAL_FOUNDATIONAL_AUDIT.md`, `audit/02_BAPAL_INDEPENDENT_VERIFICATION_REPORT.md`, and `audit/03_BAPAL_ARCHITECTURE_AND_ROADMAP.md` are read-only historical audit artifacts for commit `92a4ba6c7ae070d1f64a1088dbbe7ddfbb02d287`.
 - Future agents must not rewrite, refresh, or silently “correct” those three reports.
+- `audit/04_BAPAL_STAGE_0_ROUND_1_CLOSURE_AUDIT.md` is the read-only closure audit for candidate commit `55f557c210a6a6ad78c928bb1b94b2010929d2a2`; it closes only P0-01's internal semantic-copy defect.
 - `audit/00_AUDIT_INDEX.md` identifies the audit date, scope, and audited baseline.
 - `BAPAL_VERIFICATION.md` is project documentation, not an audit report.
-- Later code changes are not covered by the 2026-08-03 audit. A separate re-audit is required before claiming that later behavior or repairs are audited, certified, or independently verified.
+- Except for the narrow Round 1 conclusion in Audit 04, later code changes are not covered by the 2026-08-03 foundational audit. A separate re-audit is required before claiming that later behavior or repairs are audited, certified, or independently verified.
 
 ## Engineering rules
 

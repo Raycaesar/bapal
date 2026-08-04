@@ -2,17 +2,20 @@
 
 ## 1. Verdict
 
-PASS — READY FOR WORK MAX CLOSURE AUDIT
+ROUND 1 CLOSED — WORK MAX AUDIT 04; STAGE 0 OPEN
 
 ## 2. Repository baseline
 
 - **Repository:** `Raycaesar/bapal`
 - **Branch:** `bapal-core`
 - **Original audited commit:** `92a4ba6c7ae070d1f64a1088dbbe7ddfbb02d287`
-- **Current HEAD:** `92a4ba6c7ae070d1f64a1088dbbe7ddfbb02d287`
+- **Round 1 candidate/implementation commit:** `55f557c210a6a6ad78c928bb1b94b2010929d2a2`
+- **Candidate HEAD reviewed by Work Max:** `55f557c210a6a6ad78c928bb1b94b2010929d2a2`
 - **Audit date:** 2026-08-03
+- **Round 1 closure-audit date:** 2026-08-03 UTC / 2026-08-04 UTC+08
 - **Implementation date:** 2026-08-04
-- **Working-tree state:** the Stage 0 documentation and Round 1 implementation are uncommitted changes based directly on the audited commit. The changed paths are classified in Section 8; no unexpected path was found.
+- **Candidate state:** the Round 1 candidate was committed at `55f557c`; the Work Max candidate checkout was clean before testing and remained clean afterward.
+- **Historical transcript note:** Section 9 preserves the pre-commit local validation transcript from the uncommitted implementation workspace based on `92a4ba6`. It is evidence of that workspace, not post-commit candidate metadata.
 - **Source hierarchy:** (1) the manuscript used by the foundational audit; (2) Hans van Ditmarsch and Tim French, “Quantifying over Boolean Announcements,” LMCS 18(1), 2022; (3) `docs/BAPAL_PLAYGROUND_SPEC.md`; (4) implementation code; (5) UI text and `README.md`.
 
 ## 3. Stage 0 work completed
@@ -126,7 +129,9 @@ Neither the PAL nor the BAPAL truth clause changed. They now receive identity-pr
 
 None. Relative to the audited baseline, there are no changes to `js/app.js`, `index.html`, `css/`, `lib/`, `reports/`, `scripts/random-bapal-evaluation.js`, the formula parser, S5 UI behavior, or `BAPAL_VERIFICATION.md`.
 
-## 9. Verification results
+## 9. Historical pre-commit local validation transcript
+
+The command outputs below are preserved exactly as the historical local validation record. Their `git rev-parse HEAD`, `git status --short`, `git diff --stat`, and `git diff --name-status` output describe the uncommitted implementation workspace before commit `55f557c`; they are not the post-commit candidate state. In particular, the recorded `git diff --check` covered the then-tracked pre-commit diff and must not be read as a candidate-wide comparison of the imported audit files.
 
 All commands below exited with status `0`. The six Node checks left tracked files unchanged; the status before and after those checks had the same tracked-file set. No random-report command was run.
 
@@ -244,6 +249,19 @@ M	js/MPL.js
 
 The Git summaries omit untracked files until they are added to the index; Section 8 records those files explicitly.
 
+## Round 1 closure-audit addendum
+
+- **Audit report:** [`audit/04_BAPAL_STAGE_0_ROUND_1_CLOSURE_AUDIT.md`](../audit/04_BAPAL_STAGE_0_ROUND_1_CLOSURE_AUDIT.md)
+- **Audit verdict:** **PASS SUBJECT TO TWO LOCAL DOCUMENTARY REPAIRS**
+- **Implementation commit:** `55f557c210a6a6ad78c928bb1b94b2010929d2a2`
+- **Candidate checkout:** Work Max reviewed the committed candidate in a clean checkout, which remained clean after the requested verification commands.
+- **Technical closure:** P0-01 is closed for internal PAL/BAPAL semantic copying; `Model.deepCopy()` is structural and no PAL or BAPAL truth clause changed.
+- **Open external boundary:** the legacy compact serializer/import/share format remains lossy for multi-character atoms and agents and is not closed by Round 1.
+- **Stage status:** Stage 0 remains open; P1-01 through P1-07 remain open.
+- **Next round:** Round 2 — parser/printer closure.
+
+This addendum records the post-commit Work Max result. It does not rewrite the historical pre-commit transcript above or extend the original 6,501,302 bounded comparisons to candidate `55f557c`.
+
 ## 10. Audit artifact integrity
 
 Current SHA-256 hashes:
@@ -259,11 +277,11 @@ The three reports and preserved prompt were not modified during Round 1 or this 
 
 ## 11. Claims supported
 
-- P0-01 has a local implementation repair.
+- P0-01 is closed at `55f557c` for internal semantic copying by Work Max Audit 04.
 - The minimized counterexamples now pass.
 - The dedicated structural-copy regression suite passes.
 - The existing deterministic regression checks pass.
-- The repair is pending an independent Work Max closure audit.
+- The committed candidate was independently checked by the targeted Work Max closure harness.
 
 This evidence does not show that the entire evaluator is proved correct, that every multi-character identifier issue is solved, that the compact serializer supports arbitrary identifiers, that Stage 0 is complete, that every P1 defect is closed, or that BAPAL satisfiability is decided.
 
@@ -294,7 +312,8 @@ It is not implemented by this task.
 ## 14. Work Max review package
 
 - **GitHub branch:** `bapal-core`
-- **Candidate commit:** not yet created; the reviewed implementation is an uncommitted working tree based on `92a4ba6c7ae070d1f64a1088dbbe7ddfbb02d287`. The candidate hash must be recorded after user review and commit.
+- **Candidate commit:** `55f557c210a6a6ad78c928bb1b94b2010929d2a2`; Work Max reviewed this committed candidate in a clean checkout.
+- **Historical local evidence:** the Section 9 transcript records the uncommitted workspace before the candidate commit and is not post-commit repository metadata.
 - This implementation log.
 - `AGENTS.md`.
 - `docs/BAPAL_PLAYGROUND_SPEC.md`.

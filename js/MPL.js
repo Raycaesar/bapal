@@ -49,6 +49,19 @@ var MPL = (function (FormulaParser) {
    * @private
    */
 
+  function _announcementPreconditionNeedsParentheses(json) {
+    // The raw parser models PAL and knowledge delimiters as split operators.
+    // An exposed PAL or knowledge root can bind across the announcement's `]`;
+    // ordinary prefix operators do not add a grouping boundary of their own.
+    if (json.kno_start && json.kno_start.kno_end) return true;
+    if (json.annce_start && json.annce_start.annce_end) return true;
+    if (json.neg) return _announcementPreconditionNeedsParentheses(json.neg);
+    if (json.nec) return _announcementPreconditionNeedsParentheses(json.nec);
+    if (json.poss) return _announcementPreconditionNeedsParentheses(json.poss);
+    if (json.bapal) return _announcementPreconditionNeedsParentheses(json.bapal);
+    return false;
+  }
+
 function _jsonToASCII(json) {
     if (!json) throw new Error('Empty JSON node!');
 
@@ -75,7 +88,12 @@ function _jsonToASCII(json) {
 
     // announcement operator [φ]ψ — annce_end holds [announcement, formula]
     else if (json.annce_start && json.annce_start.annce_end) {
-      return '[' + _jsonToASCII(json.annce_start.annce_end[0]) + ']' + _jsonToASCII(json.annce_start.annce_end[1]);
+      var precondition = json.annce_start.annce_end[0];
+      var preconditionASCII = _jsonToASCII(precondition);
+      if (_announcementPreconditionNeedsParentheses(precondition)) {
+        preconditionASCII = '(' + preconditionASCII + ')';
+      }
+      return '[' + preconditionASCII + ']' + _jsonToASCII(json.annce_start.annce_end[1]);
     }
 
     // knowledge operator K{a}φ — kno_end holds [agent-prop, formula]
