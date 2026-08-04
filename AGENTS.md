@@ -85,7 +85,7 @@ Keep these five layers distinct:
 
 The audit's zero-mismatch result applies only to the recorded one-character representation and the exact bounded test matrices in `audit/02_BAPAL_INDEPENDENT_VERIFICATION_REPORT.md`: 6,501,302 model–world–formula comparisons, not all possible inputs.
 
-Round 1 P0-01 is closed for internal semantic copying at `55f557c` by Audit 04. Round 2 P1-01 is closed at `e0c816f` by Audit 05, and the closure remains valid at final log-only HEAD `f7c7d59`. Round 3 P1-02/P1-03 is locally implemented but remains open pending a Work Max closure audit; P1-04 through P1-07 and Stage 0 remain open. Round 4 is next only after Round 3 closure. Do not claim that all multi-character formula interfaces are safe, that multi-character epistemic-agent syntax works end to end, that URL import/share is repaired, that the local Round 3 implementation is audited or closed, or that Stage 0 is complete.
+Round 1 P0-01 is closed for internal semantic copying at `55f557c` by Audit 04. Round 2 P1-01 is closed at `e0c816f` by Audit 05, and the closure remains valid at final log-only HEAD `f7c7d59`. Audit 06 closes Round 3 P1-02 at `6bd3369` and passes the semantic/model part of P1-03. P1-03 remains open only for the raw-label SVG rendering defect identified by Audit 06; its scoped rendering repair is locally implemented and pending a focused Work Max recheck. P1-04 through P1-07 and Stage 0 remain open. Round 4 must not begin before that focused P1-03 recheck passes. Do not claim that all multi-character formula interfaces are safe, that multi-character epistemic-agent syntax works end to end, that URL import/share is repaired, that P1-03 is closed, or that Stage 0 is complete.
 
 ## S5 convention
 
@@ -97,7 +97,7 @@ Historical audited-baseline limitations at `92a4ba6`:
 - adding a world in S5 mode can break reflexivity for another active agent;
 - the baseline toggle is an editing policy, not proof that the underlying model is S5.
 
-Round 3 locally implements the following policy, pending Work Max closure audit:
+Audit 06 passed the following Round 3 semantic/model policy and closed P1-02 at `6bd3369`:
 
 - the relevant-agent set is the deterministic sorted union of browser-declared agents `a`–`e`, every relation label currently stored in the semantic model, and the currently selected agent;
 - enabling S5 over an already-S5 model requires no confirmation and does not mutate the model;
@@ -107,7 +107,9 @@ Round 3 locally implements the following policy, pending Work Max closure audit:
 - individual selected-edge Delete/L/R/B operations remain blocked while S5 is on, and switching S5 off does not mutate relations;
 - reflexive self-loops hidden from the visualization remain stored in the semantic model, while every non-loop semantic edge added by closure must appear in the synchronized D3 projection.
 
-This local implementation is evidence for P1-02/P1-03 repair, not closure. Do not mark either finding closed until Work Max audits an exact implementation commit.
+Audit 06 established that descriptor synchronization alone does not establish visible browser rendering. Every non-loop descriptor for every relevant relation label must receive an explicit visible stroke, the start/end markers required by its direction flags, and a visible mid-edge label containing the actual semantic agent string. Marker definitions must exist, must not be duplicated, and unknown raw labels must use safe injective DOM/SVG keys rather than raw agent text. Declared agents `a`–`e` retain their existing colors and marker identities.
+
+The focused raw-label renderer implementing that visual contract is local only until Work Max rechecks it. P1-03 remains open, and Round 4 remains blocked, until the focused recheck passes.
 
 ## Stage 0 correctness freeze
 
@@ -133,9 +135,10 @@ Every future implementation task must include minimized regression cases and a r
 - Future agents must not rewrite, refresh, or silently “correct” those three reports.
 - `audit/04_BAPAL_STAGE_0_ROUND_1_CLOSURE_AUDIT.md` is the read-only closure audit for candidate commit `55f557c210a6a6ad78c928bb1b94b2010929d2a2`; it closes only P0-01's internal semantic-copy defect.
 - `audit/05_BAPAL_STAGE_0_ROUND_2_CLOSURE_AUDIT.md` is the read-only PASS closure audit for Round 2 implementation commit `e0c816f9b7e8a6e58774df635ca13e166d24a0d8` and final log-only HEAD `f7c7d599afca5622c227ea51d930dfd14005b016`; it closes P1-01 under the audited supported-AST ASCII-printing contract while leaving Stage 0 open.
+- `audit/06_BAPAL_STAGE_0_ROUND_3_CLOSURE_AUDIT.md` is the read-only **PASS SUBJECT TO ONE SCOPED ROUND 3 UI REPAIR** audit for complete implementation candidate `6bd33697491820db3d0999ac7c7ccf99b05291d5` and final audited log-only HEAD `04f264a5e5900719eb70a0eaf77bd64f73b3ef0c`. It closes P1-02, passes P1-03's semantic/model behavior, and leaves P1-03 open pending the focused raw-label rendering repair and recheck.
 - `audit/00_AUDIT_INDEX.md` identifies the audit date, scope, and audited baseline.
 - `BAPAL_VERIFICATION.md` is project documentation, not an audit report.
-- Except for the narrow Round 1 conclusion in Audit 04 and the narrow Round 2 conclusion in Audit 05, later code changes are not covered by the 2026-08-03 foundational audit. A separate re-audit is required before claiming that later behavior or repairs are audited, certified, or independently verified.
+- Except for the narrow Round 1 conclusion in Audit 04, the narrow Round 2 conclusion in Audit 05, and the precise Round 3 disposition in Audit 06, later code changes are not covered by those audits. A separate re-audit is required before claiming that later behavior or repairs are audited, certified, or independently verified.
 
 ## Engineering rules
 

@@ -22,6 +22,72 @@ let epistemicAgents = ['a', 'b', 'c', 'd', 'e'];
 let currentEpistemicAgent = 'a';
 let s5ModeEnabled = false;
 
+var AgentRendering = (function() {
+  'use strict';
+
+  const declaredVisuals = {
+    a: { color: 'orangered', angle: 0, curviness: 0 },
+    b: { color: 'orange', angle: -0.5, curviness: -20 },
+    c: { color: 'purple', angle: 0.5, curviness: 20 },
+    d: { color: 'yellowgreen', angle: -1, curviness: -40 },
+    e: { color: 'turquoise', angle: 1, curviness: 40 },
+  };
+  const fallbackColor = '#3f4a54';
+
+  function compareLabels(left, right) {
+    const leftCodePoints = Array.from(String(left), character => character.codePointAt(0));
+    const rightCodePoints = Array.from(String(right), character => character.codePointAt(0));
+    const sharedLength = Math.min(leftCodePoints.length, rightCodePoints.length);
+    for (let index = 0; index < sharedLength; index++) {
+      if (leftCodePoints[index] !== rightCodePoints[index]) {
+        return leftCodePoints[index] - rightCodePoints[index];
+      }
+    }
+    return leftCodePoints.length - rightCodePoints.length;
+  }
+
+  function safeMarkerKey(agent) {
+    const label = String(agent);
+    if (Object.prototype.hasOwnProperty.call(declaredVisuals, label)) return label;
+    return 'u-' + Array.from(label, character =>
+      character.codePointAt(0).toString(16).padStart(6, '0')
+    ).join('-');
+  }
+
+  function getVisualSpec(agent) {
+    const label = String(agent);
+    const declared = declaredVisuals[label] || null;
+    const markerKey = safeMarkerKey(label);
+    const midMarkerWidth = declared ? 10 : Math.max(10, Array.from(label).length * 8 + 4);
+    return {
+      agent: label,
+      label,
+      markerKey,
+      color: declared ? declared.color : fallbackColor,
+      className: declared ? 'agent-' + label : null,
+      angle: declared ? declared.angle : null,
+      curviness: declared ? declared.curviness : null,
+      midMarkerWidth,
+      midMarkerUnits: declared ? null : 'userSpaceOnUse',
+      markerIds: {
+        start: 'start-arrow-' + markerKey,
+        end: 'end-arrow-' + markerKey,
+        mid: 'mid-arrow-' + markerKey,
+      },
+    };
+  }
+
+  function sortedUniqueLabels(labels) {
+    return [...new Set((labels || []).map(String))].sort(compareLabels);
+  }
+
+  return {
+    compareLabels,
+    getVisualSpec,
+    sortedUniqueLabels,
+  };
+})();
+
 const agentButtons = d3.selectAll('#edit-pane .agent-btns button');
 const s5ModeToggle = d3.select('#s5-mode-toggle');
 const s5ModeState = d3.select('#s5-mode-state');
@@ -121,43 +187,68 @@ var force = d3.layout.force()
     .charge(-800)
     .on('tick', tick);
 
-for (const agent of epistemicAgents) {
-  // define agent markers for graph links
-  svg.append('svg:defs').append('svg:marker')
-      .attr('id', 'mid-arrow-'+agent)
-      .attr('viewBox', '-2 -5 10 10')
+var agentMarkerDefinitions = svg.append('svg:defs')
+  .attr('class', 'agent-marker-definitions');
+
+function addAgentClass(selection, visualSpec) {
+  if (visualSpec.className) selection.classed(visualSpec.className, true);
+  return selection;
+}
+
+function ensureAgentMarkerDefinitions(agent) {
+  const visualSpec = AgentRendering.getVisualSpec(agent);
+
+  if (svg.select('#' + visualSpec.markerIds.mid).empty()) {
+    const midMarker = agentMarkerDefinitions.append('svg:marker')
+      .attr('id', visualSpec.markerIds.mid)
+      .attr('viewBox', '-2 -5 ' + visualSpec.midMarkerWidth + ' 10')
       .attr('refX', 0)
-      .attr('markerWidth', 10)
+      .attr('markerWidth', visualSpec.midMarkerWidth)
       .attr('markerHeight', 10)
-      .attr('orient', 0)
-    .append('svg:text')
-      .text(agent)
-      .classed('agent-text', true)
-      .classed('agent-'+agent, true);
+      .attr('orient', 0);
+    if (visualSpec.midMarkerUnits) {
+      midMarker.attr('markerUnits', visualSpec.midMarkerUnits);
+    }
+    const text = midMarker.append('svg:text')
+      .text(visualSpec.label)
+      .attr('fill', visualSpec.color)
+      .classed('agent-text', true);
+    addAgentClass(text, visualSpec);
+  }
 
-  // define arrow markers for graph links
-  svg.append('svg:defs').append('svg:marker')
-  .attr('id', 'end-arrow-'+agent)
-  .attr('viewBox', '0 -5 10 10')
-  .attr('refX', 6)
-  .attr('markerWidth', 4)
-  .attr('markerHeight', 4)
-  .attr('orient', 'auto')
-  .append('svg:path')
-  .attr('d', 'M0,-5L10,0L0,5')
-  .classed('agent-'+agent, true);
+  if (svg.select('#' + visualSpec.markerIds.end).empty()) {
+    const endPath = agentMarkerDefinitions.append('svg:marker')
+      .attr('id', visualSpec.markerIds.end)
+      .attr('viewBox', '0 -5 10 10')
+      .attr('refX', 6)
+      .attr('markerWidth', 4)
+      .attr('markerHeight', 4)
+      .attr('orient', 'auto')
+      .append('svg:path')
+      .attr('d', 'M0,-5L10,0L0,5')
+      .attr('fill', visualSpec.color);
+    addAgentClass(endPath, visualSpec);
+  }
 
-  svg.append('svg:defs').append('svg:marker')
-  .attr('id', 'start-arrow-'+agent)
-  .attr('viewBox', '0 -5 10 10')
-  .attr('refX', 4)
-  .attr('markerWidth', 4)
-  .attr('markerHeight', 4)
-  .attr('orient', 'auto')
-  .append('svg:path')
-  .attr('d', 'M10,-5L0,0L10,5')
-  .attr('fill', '#000')
-  .classed('agent-'+agent, true);
+  if (svg.select('#' + visualSpec.markerIds.start).empty()) {
+    const startPath = agentMarkerDefinitions.append('svg:marker')
+      .attr('id', visualSpec.markerIds.start)
+      .attr('viewBox', '0 -5 10 10')
+      .attr('refX', 4)
+      .attr('markerWidth', 4)
+      .attr('markerHeight', 4)
+      .attr('orient', 'auto')
+      .append('svg:path')
+      .attr('d', 'M10,-5L0,0L10,5')
+      .attr('fill', visualSpec.color);
+    addAgentClass(startPath, visualSpec);
+  }
+
+  return visualSpec;
+}
+
+for (const agent of epistemicAgents) {
+  ensureAgentMarkerDefinitions(agent);
 }
 
 // line displayed when dragging new nodes
@@ -553,17 +644,42 @@ function setVarForSelectedNode(varnum, value) {
   circle.selectAll('text:not(.id)').text(makeAssignmentString);
 }
 
+function linkEndpointId(endpoint) {
+  return endpoint && typeof endpoint === 'object' ? endpoint.id : endpoint;
+}
+
+function getUnknownAgentIndexForPair(link) {
+  const sourceId = linkEndpointId(link.source);
+  const targetId = linkEndpointId(link.target);
+  const unknownAgents = links
+    .filter(candidate =>
+      linkEndpointId(candidate.source) === sourceId &&
+      linkEndpointId(candidate.target) === targetId &&
+      AgentRendering.getVisualSpec(candidate.agent).curviness === null
+    )
+    .map(candidate => candidate.agent);
+  return AgentRendering.sortedUniqueLabels(unknownAgents).indexOf(String(link.agent));
+}
+
+function getLinkCurviness(link) {
+  const visualSpec = AgentRendering.getVisualSpec(link.agent);
+  if (visualSpec.curviness !== null) return visualSpec.curviness;
+
+  const unknownIndex = Math.max(0, getUnknownAgentIndexForPair(link));
+  const magnitude = 60 + 40 * Math.floor(unknownIndex / 2);
+  return unknownIndex % 2 === 0 ? magnitude : -magnitude;
+}
+
+function getLinkAngle(link) {
+  const visualSpec = AgentRendering.getVisualSpec(link.agent);
+  return visualSpec.angle !== null ? visualSpec.angle : getLinkCurviness(link) / 40;
+}
+
 // update force layout (called automatically each iteration)
 function tick() {
   // draw directed edges with proper padding from node centers
-  //TODO: change the ending position of arrows depending on the agent
   path.attr('d', function(d) {
-    let angle = 0;
-    if (d.agent === 'a') angle = 0;
-    if (d.agent === 'b') angle = -0.5;
-    if (d.agent === 'c') angle = 0.5;
-    if (d.agent === 'd') angle = -1;
-    if (d.agent === 'e') angle = 1;
+    const angle = getLinkAngle(d);
 
     if (d.source === d.target) {
       let selfLoopOffset = [1, 0];
@@ -584,14 +700,7 @@ function tick() {
         targetX = d.target.x + (targetPadding * targetNorm[0]),
         targetY = d.target.y + (targetPadding * targetNorm[1]);
 
-    let mul = 0;
-    if (d.agent === 'a') mul = 0;
-    if (d.agent === 'b') mul = -20;
-    if (d.agent === 'c') mul = 20;
-    if (d.agent === 'd') mul = -40;
-    if (d.agent === 'e') mul = 40;
-
-    return getDoubleCurvedSVGPath([sourceX, sourceY], [targetX, targetY], mul);
+    return getDoubleCurvedSVGPath([sourceX, sourceY], [targetX, targetY], getLinkCurviness(d));
   });
 
   circle.attr('transform', function(d) {
@@ -632,14 +741,20 @@ function restart() {
   // path (link) group
   path = path.data(links);
 
+  AgentRendering.sortedUniqueLabels(links.map(link => link.agent))
+    .forEach(ensureAgentMarkerDefinitions);
+
   function mid(d) {
-    return `url(#mid-arrow-${d.agent})`;
+    return `url(#${AgentRendering.getVisualSpec(d.agent).markerIds.mid})`;
   }
   function start(d) {
-    return d.left ? `url(#start-arrow-${d.agent})` : '';
+    return d.left ? `url(#${AgentRendering.getVisualSpec(d.agent).markerIds.start})` : '';
   }
   function end(d) {
-    return d.right ? `url(#end-arrow-${d.agent})` : '';
+    return d.right ? `url(#${AgentRendering.getVisualSpec(d.agent).markerIds.end})` : '';
+  }
+  function stroke(d) {
+    return AgentRendering.getVisualSpec(d.agent).color;
   }
 
   // update existing links
@@ -649,6 +764,7 @@ function restart() {
     .classed('agent-c', function(d) { return d.agent === 'c'; })
     .classed('agent-d', function(d) { return d.agent === 'd'; })
     .classed('agent-e', function(d) { return d.agent === 'e'; })
+    .attr('stroke', stroke)
     .style('marker-start', start)
     .style('marker-end', end)
     .style('marker-mid', mid);
@@ -662,6 +778,7 @@ function restart() {
     .classed('agent-c', function(d) { return d.agent === 'c'; })
     .classed('agent-d', function(d) { return d.agent === 'd'; })
     .classed('agent-e', function(d) { return d.agent === 'e'; })
+    .attr('stroke', stroke)
     .style('marker-start', start)
     .style('marker-end', end)
     .style('marker-mid', mid)

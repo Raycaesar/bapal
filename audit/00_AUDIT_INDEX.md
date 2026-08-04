@@ -34,6 +34,18 @@ The following three files are read-only audit products. They record findings abo
 - **Stage status:** Stage 0 remains open.
 - **Next round:** Round 3 — S5 invariant repair is authorized.
 
+## Round 3 closure audit
+
+- **Report:** [BAPAL Playground Stage 0 Round 3 Closure Audit](06_BAPAL_STAGE_0_ROUND_3_CLOSURE_AUDIT.md)
+- **Audit date:** 2026-08-04 UTC
+- **Complete Round 3 implementation candidate:** `6bd33697491820db3d0999ac7c7ccf99b05291d5`
+- **Final audited log-only HEAD:** `04f264a5e5900719eb70a0eaf77bd64f73b3ef0c`
+- **Verdict:** **PASS SUBJECT TO ONE SCOPED ROUND 3 UI REPAIR**
+- **Technical conclusion:** P1-02 is closed at `6bd3369`; the semantic/model part of P1-03 passes, but P1-03 remains open because stored relation labels outside `a`–`e` lacked visible SVG rendering.
+- **Local repair status:** the focused raw-label rendering repair is implemented locally and awaits a focused Work Max closure recheck.
+- **Stage status:** Stage 0 remains open.
+- **Next-round gate:** Round 4 remains blocked until the focused P1-03 rendering recheck passes.
+
 [`BAPAL_VERIFICATION.md`](../BAPAL_VERIFICATION.md) is project documentation and is not one of the audit reports.
 
 The source instructions for the audit are preserved in [`prompt/work_max_bapal_foundational_audit_prompt.md`](../prompt/work_max_bapal_foundational_audit_prompt.md).

@@ -541,3 +541,18 @@ Round 4 must not begin until Round 3 receives Work Max closure. This log does no
 - exact deterministic commands, counts, outputs, and no-write results in Section 11
 
 Work Max should audit the clean implementation tree at `6bd3369`, then compare any later log-only commit separately and confirm that its only content change is this Markdown file.
+
+## 17. Audit 06 addendum — raw-label rendering qualification and focused repair
+
+This addendum preserves the historical implementation record above and records the later Work Max disposition. It does not retroactively rewrite the evidence available when Sections 1–16 were produced.
+
+- Audit 06 reviewed complete Round 3 implementation candidate `6bd33697491820db3d0999ac7c7ccf99b05291d5` and final audited log-only HEAD `04f264a5e5900719eb70a0eaf77bd64f73b3ef0c`.
+- Its verdict is **PASS SUBJECT TO ONE SCOPED ROUND 3 UI REPAIR**.
+- Audit 06 closes P1-02 at `6bd3369` and passes P1-03's semantic/model policy, including least equivalence closure, confirmation/cancellation, invariant-preserving edits, and model-derived D3 descriptor synchronization.
+- The VM/stub evidence described above established descriptor synchronization; it did not compute CSS or establish visible SVG output. The earlier phrase “visible non-loop synchronization” was therefore too broad.
+- Audit 06 minimized the counterexample to `AS1x,;AS`: after accepted normalization the semantic model stores the complete two-world `x` equivalence relation and `S5Policy.buildLinkProjection(model, true)` returns one bidirectional non-loop `x` descriptor, but the audited renderer supplied no visible stroke and referenced absent `x` marker definitions.
+- The scoped local repair adds generic deterministic relation rendering: every descriptor receives an explicit stroke; direction flags select existing start/end definitions; the mid marker displays the actual semantic relation label; unknown labels use an injective Unicode-code-point key rather than raw DOM/SVG identifiers; and repeated rendering does not duplicate marker definitions.
+- Declared agents `a`–`e` retain their existing colors, marker IDs, labels, angles, and curvature. Unknown labels use a fixed accessible neutral color and deterministic pair-local curvature so `a+x` and `x+y` relations remain visually distinct.
+- The permanent detailed matrix is `scripts/check-agent-rendering.js`. It executes the production `MPL.js`, `s5-policy.js`, and `app.js` under VM/DOM/D3 stubs and inspects the SVG paths and marker definitions created by the real production rendering path.
+
+**Status:** P1-03 rendering repair implemented, pending focused Work Max closure. P1-03 is not closed by this addendum. Stage 0 remains open, and Round 4 remains blocked until the focused recheck records PASS.
