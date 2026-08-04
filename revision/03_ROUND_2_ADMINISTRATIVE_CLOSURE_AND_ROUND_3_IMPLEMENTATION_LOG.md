@@ -18,13 +18,14 @@ This verdict is limited to the administrative recording of Audit 05 and the comp
 - **Audit 05 verdict:** **PASS**; P1-01 is closed at `e0c816f` under the audited supported-AST ASCII-printing contract, with closure confirmed at `f7c7d59`
 - **Round 3 initial implementation commit:** `172a204e3520ec4939efe30a5031bb23c6e29bf4` (`close round 2 and implement round 3 S5 invariants`), committed 2026-08-04T21:01:06+08:00. This commit contains the Round 2 administrative closure, Round 3 `MPL.Model` and `app.js` changes, invariant tests, and documentation, but it is not the complete candidate: its committed `js/app.js` references `S5Policy` while neither the production helper nor its browser loader is present.
 - **Round 3 completion commit and complete implementation candidate:** `6bd33697491820db3d0999ac7c7ccf99b05291d5` (`complete round 3 S5 policy integration`), committed 2026-08-04T21:21:38+08:00. It adds `js/s5-policy.js` and loads it from `index.html` before `js/app.js`.
+- **Current log-only HEAD at final-log generation:** `edfafc977f95106fa5455fdcd34a41e27acb4c42` (`add round 3 implementation log`), committed 2026-08-04T21:40:35+08:00. Its only change from `6bd3369` is the addition of this Markdown file; it does not change the Round 3 implementation candidate.
 - **Pre-log clean-state verification:** the required initial `git status --short` produced no output. The working tree also remained clean after every pre-log deterministic validation command.
 - **Foundational audit date:** 2026-08-03
 - **Audit 05 date:** 2026-08-04 UTC
 - **Log-generation date:** 2026-08-04 UTC+08
 - **Node:** `v24.18.0`
 
-The complete Round 3 implementation candidate is the current clean pre-log HEAD, `6bd33697491820db3d0999ac7c7ccf99b05291d5`, comprising the consecutive implementation commits `172a204` and `6bd3369` in the roles stated above. `172a204` alone must not be described as the complete candidate. A later log-only commit may add this file to the branch; that later commit will change documentary evidence only and must remain distinct from the Round 3 implementation candidate.
+The complete Round 3 implementation candidate resolved from current history is `6bd33697491820db3d0999ac7c7ccf99b05291d5`, comprising the consecutive implementation commits `172a204` and `6bd3369` in the roles stated above. `172a204` alone must not be described as the complete candidate. Current HEAD `edfafc9` is the later log-only commit anticipated by the initial implementation record: it adds this file without changing the candidate. This final-log run creates no commit; if its refinement is later committed, that commit must likewise remain documentary-only and distinct from `6bd3369`.
 
 ## 3. Round 2 administrative closure
 
@@ -443,7 +444,7 @@ None.
 
 ## 11. Deterministic validation
 
-Every command below was run at clean complete candidate `6bd33697491820db3d0999ac7c7ccf99b05291d5` before this log was created. `git status --short` was checked after every command and was empty every time; therefore no command changed a tracked or untracked repository file. No random report generation or aggregate report-generating command was run.
+Every command below was rerun at clean current log-only HEAD `edfafc977f95106fa5455fdcd34a41e27acb4c42` before this final log refinement. That HEAD has the same executable implementation tree as complete candidate `6bd33697491820db3d0999ac7c7ccf99b05291d5`; its sole candidate-relative change is this Markdown file. `git status --short` was checked after every command and was empty every time, so no validation command changed a tracked or untracked repository file. No random report generation or aggregate report-generating command was run.
 
 | Command | Exit | Concise observed output | Changed tracked files |
 |---|---:|---|---|
@@ -470,6 +471,8 @@ The candidate comparison confirms:
 - **Serializer unchanged:** the compact `getModelString`/`getStateString`/`loadFromModelString` slice has identical SHA-256 `479909a44780fbe5d46432d6c23748701c2c53cb191eb6b44e012087cf2ef4f9` at both commits.
 - **Reports unchanged:** `git diff f7c7d59..6bd3369 -- reports scripts/random-bapal-evaluation.js` produced no output.
 - **Audits unchanged:** Audits 01–04 are unchanged from `f7c7d59`; Audit 05 was added for the Round 2 administrative closure and is unchanged between `172a204` and `6bd3369`. No audit content was edited during the S5 production completion.
+
+Audits 01–05, the foundational prompt, production code, tests, and reports are also unchanged between complete candidate `6bd3369` and current log-only HEAD `edfafc9`; `git diff --name-status 6bd3369..edfafc9` lists only this implementation-log path.
 
 Current historical-artifact SHA-256 identities are:
 
@@ -520,7 +523,7 @@ Round 4 must not begin until Round 3 receives Work Max closure. This log does no
 - **Complete Round 3 implementation candidate:** `6bd33697491820db3d0999ac7c7ccf99b05291d5`
 - **Initial Round 3 implementation role:** `172a204e3520ec4939efe30a5031bb23c6e29bf4` contains the administrative, model, app, test, and documentation work but omits the required production helper and browser loader
 - **Completion role:** `6bd33697491820db3d0999ac7c7ccf99b05291d5` adds `js/s5-policy.js` and its `index.html` integration; only the two consecutive commits together form the complete candidate
-- **Later log-only distinction:** any later commit adding this file is documentary only and must not be substituted for the implementation candidate
+- **Existing log-only distinction:** current HEAD `edfafc977f95106fa5455fdcd34a41e27acb4c42` adds this file only and must not be substituted for the implementation candidate; any later commit recording this final refinement must likewise remain documentary-only
 - `audit/05_BAPAL_STAGE_0_ROUND_2_CLOSURE_AUDIT.md`
 - `revision/03_ROUND_2_ADMINISTRATIVE_CLOSURE_AND_ROUND_3_IMPLEMENTATION_LOG.md` (this log)
 - `AGENTS.md`
