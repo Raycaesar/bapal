@@ -23,6 +23,17 @@ The following three files are read-only audit products. They record findings abo
 - **Remaining limitation:** the legacy compact serialization/import/share boundary remains open and limited to the audited one-character compatibility subset.
 - **Stage status:** Stage 0 remains open.
 
+## Round 2 closure audit
+
+- **Report:** [BAPAL Playground Round 1 Documentary Repair and Round 2 Closure Audit](05_BAPAL_STAGE_0_ROUND_2_CLOSURE_AUDIT.md)
+- **Audit date:** 2026-08-04 UTC
+- **Round 2 implementation commit:** `e0c816f9b7e8a6e58774df635ca13e166d24a0d8`
+- **Final log-only HEAD:** `f7c7d599afca5622c227ea51d930dfd14005b016`
+- **Verdict:** **PASS**
+- **Technical conclusion:** P1-01 parser/printer non-closure is closed at `e0c816f`; closure remains valid at final HEAD `f7c7d59`.
+- **Stage status:** Stage 0 remains open.
+- **Next round:** Round 3 — S5 invariant repair is authorized.
+
 [`BAPAL_VERIFICATION.md`](../BAPAL_VERIFICATION.md) is project documentation and is not one of the audit reports.
 
 The source instructions for the audit are preserved in [`prompt/work_max_bapal_foundational_audit_prompt.md`](../prompt/work_max_bapal_foundational_audit_prompt.md).

@@ -35,15 +35,35 @@ This delta closes only P0-01's internal semantic-copy defect. Stage 0 remains op
 ### Round 2 — parser/printer closure
 
 - **Defect:** P1-01
-- **Status:** **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**
-- **Minimized case:** `[(K{a}p)]q`; at the audited baseline it printed as `[K{a}p]q`, which the raw parser rejected, while the local Round 2 printer retains protective syntax and reparses to the same AST.
+- **Implementation commit:** `e0c816f9b7e8a6e58774df635ca13e166d24a0d8`
+- **Closure audit:** [`audit/05_BAPAL_STAGE_0_ROUND_2_CLOSURE_AUDIT.md`](../audit/05_BAPAL_STAGE_0_ROUND_2_CLOSURE_AUDIT.md)
+- **Status:** **CLOSED AT `e0c816f` — WORK MAX AUDIT 05**
+- **Final-HEAD confirmation:** closure remains valid at final log-only HEAD `f7c7d599afca5622c227ea51d930dfd14005b016`.
+- **Minimized case:** `[(K{a}p)]q`; at the audited baseline it printed as `[K{a}p]q`, which the raw parser rejected, while the Round 2 printer retains protective syntax and reparses to the same AST.
 - **Repair scope:** ASCII pretty-printing only. A small AST-structural rule protects announcement preconditions whose exposed unary spine terminates in knowledge or PAL.
-- **Local generated evidence:** 8,210 exhaustive ASTs through logical size 5 and exactly 100,000 deterministic seeded generated ASTs through logical size 40 passed AST-to-ASCII-to-AST equality and print idempotence. With minimized, safe-canonical, and fixed cases, the permanent suite executed 108,246 round trips.
-- The formula-parser library and configured parser operators did not change.
-- No Boolean, knowledge, PAL, ordinary modal, or BAPAL truth clause changed.
+- **Permanent-suite evidence:** all 108,246 checked-in AST round trips passed structural equality and print idempotence.
+- **Independent evidence:** exhaustive verification through logical size 6 and a separate 50,000-generated-AST verification found zero candidate failures.
+- The parser library, configured parser operators, semantic evaluator, browser preprocessing, and `Model.deepCopy()` were unchanged.
 - Raw/browser grammar differences remain: browser comma removal and bracket preprocessing are unchanged, and unprotected direct raw forms may remain rejected.
 
-This is a local implementation delta, not an audited closure result. P1-01 and Stage 0 remain open pending Work Max review of an exact candidate commit.
+Audit 05 closes P1-01 only for supported AST ASCII printing under the audited Round 2 contract. It does not certify arbitrary malformed parser strings or unify the raw and browser grammars. Stage 0 remains open.
+
+### Round 3 — S5 invariant repair
+
+- **Defects:** P1-02 and P1-03
+- **Implementation commit:** not yet assigned
+- **Status:** **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**
+- **Relevant-agent policy:** the deterministic sorted union of browser-declared agents `a`–`e`, every relation label currently stored in the semantic model, and the currently selected agent.
+- **Enable policy:** if every relevant-agent relation is already an equivalence relation, S5 is enabled without confirmation or model mutation. Otherwise the application asks for explicit confirmation before any normalization.
+- **Cancellation:** cancelling confirmation leaves S5 off and leaves both the semantic model and its D3 relation projection unchanged.
+- **Accepted normalization:** every relevant-agent relation is replaced with its least equivalence closure. Existing directed edges induce undirected connected components; each component is completed as a directed relation with all required reflexive loops, and separate components are not joined. The result is verified before S5 is represented as on.
+- **S5-on editing:** a new world receives a stored loop for every relevant agent without joining prior classes; a new selected-agent relation merges exactly the equivalence classes it bridges; deleting a world preserves equivalence by domain restriction; and individual selected-edge Delete/L/R/B operations remain blocked. Switching S5 off does not mutate relations.
+- **Model/D3 synchronization:** the semantic model remains authoritative. Stored loops may remain visually hidden, but every non-loop closure edge is included in the deduplicated D3 projection after normalization and subsequent S5 edits.
+- **Permanent-suite evidence:** all 12 checked-in S5 invariant groups pass, including all 531 directed relations on zero through three worlds and 10,000 deterministic event sequences comprising 200,000 operations with seed `0x0055f503`.
+- **Independent local-review evidence:** an external oracle exhausted all 66,067 directed relations on zero through four worlds, checking 526,625 input edges and 1,053,250 component-pair leastness conditions with zero failures. A separate generator ran 25,000 multi-agent sequences and 600,000 operations with seed `0x9e3779b9`, including raw labels `alice` and `agent_b`, with zero invariant or model/projection mismatch. An executable full-`app.js` VM/stub integration passed confirmation, cancellation, normalization, world addition, class merge, deletion, blocked-edge, and disable paths; no installed headless browser was available, so native browser rendering and event dispatch remain for Work Max verification.
+- **Protected semantics:** parser configuration, Round 2 ASCII printing, PAL/BAPAL and inherited truth clauses, Round 1 `deepCopy()`, compact serialization, and the report generator were unchanged.
+
+This delta records a local implementation candidate only. P1-02 and P1-03 remain open until Work Max audits an exact implementation commit. Stage 0 remains open, and Round 4 is next only after Round 3 closure.
 
 ## 2. Product identity
 
@@ -214,9 +234,9 @@ Restricting an equivalence relation to a subset of surviving worlds preserves re
 
 **CURRENT.** The evaluator can run on arbitrary stored relations, and the baseline application does not tag a model as formally S5.
 
-**KNOWN LIMITATION.** The audited S5 toggle is an editing aid. Turning it on does not validate or repair every existing relation, and adding a world can break reflexivity for another active agent. Therefore the current toggle does not certify that the model is S5.
+**HISTORICAL BASELINE LIMITATION.** At audited baseline `92a4ba6`, the S5 toggle is an editing aid: turning it on does not validate or repair every existing relation, and adding a world can break reflexivity for another active agent. The Round 3 post-baseline delta locally repairs P1-02/P1-03 under its recorded policy, pending Work Max closure audit.
 
-**FUTURE REQUIREMENT.** A Stage 0 repair must make the UI claim and the underlying invariant agree. Entering S5 mode must validate, normalize, or reject the existing model according to an explicit policy, and every accepted edit must preserve an equivalence relation for every declared or active agent.
+**CURRENT LOCAL IMPLEMENTATION — PENDING AUDIT.** Round 3 makes the UI claim and the underlying invariant agree for the relevant-agent set defined in the post-baseline delta: entering S5 either requires no change because every relation is already an equivalence relation, is cancelled without mutation, or explicitly normalizes every relevant relation to its least equivalence closure. Every accepted S5-on edit preserves that invariant. This behavior is not closed or certified until a Work Max audit reviews an exact commit.
 
 ## 7. Formula interfaces
 
@@ -230,9 +250,9 @@ The application currently has several non-identical formula interfaces.
 
 **KNOWN LIMITATION.** These interfaces are not fully identical. In particular, browser preprocessing accepts shapes the raw constructor rejects, and global comma removal is not a principled agent grammar.
 
-**AUDITED BASELINE BEHAVIOR at commit `92a4ba6`.** The ASCII printer could emit `[K{a}p]q`, which the raw parser could not reparse. See the post-baseline Round 2 delta above for the local printer-only repair and its bounded evidence; that repair remains pending Work Max closure audit.
+**AUDITED BASELINE BEHAVIOR at commit `92a4ba6`.** The ASCII printer could emit `[K{a}p]q`, which the raw parser could not reparse. See the post-baseline Round 2 delta above for the printer-only repair closed by Audit 05 and its bounded evidence.
 
-**REMAINING FUTURE REQUIREMENT.** Compatibility handling must remain explicit and must not conceal the raw/browser divergences that still exist. Local `parse(print(ast)) = ast` evidence for the supported Round 2 corpus does not make every malformed or browser-preprocessed input part of one unified grammar.
+**REMAINING FUTURE REQUIREMENT.** Compatibility handling must remain explicit and must not conceal the raw/browser divergences that still exist. Audited `parse(print(ast)) = ast` closure for supported AST printing does not make every malformed or browser-preprocessed input part of one unified grammar.
 
 ## 8. Identifier and vocabulary policy
 
@@ -346,9 +366,9 @@ Small, separately reviewable changes are preferred. Multiple P0/P1 repairs must 
 **AUDITED BASELINE DEFECTS.** The following defects were open at commit `92a4ba6`. The post-baseline deltas above record later implementation and audit status without rewriting this historical defect list.
 
 - **P0-01 — lossy identifiers:** multi-character atoms accepted by the parser/API are flattened during serialization-based copying, causing wrong PAL results or BAPAL exceptions.
-- **P1-01 — parser/printer non-closure:** at the audited baseline, a knowledge-rooted PAL precondition could print without required parentheses, so raw reparsing failed. See the Round 2 delta; the local repair is implemented but remains pending Work Max closure audit.
-- **P1-02 — S5 new-world reflexivity:** adding a world in S5 mode adds only the selected agent's loop and can break reflexivity for another active agent.
-- **P1-03 — S5 toggle/invariant mismatch:** enabling S5 mode does not validate or repair the existing model, and seeded closure can leave another malformed component unchanged.
+- **P1-01 — parser/printer non-closure:** at the audited baseline, a knowledge-rooted PAL precondition could print without required parentheses, so raw reparsing failed. See the Round 2 delta; P1-01 is closed at `e0c816f` by Audit 05 under the supported-AST ASCII-printing contract.
+- **P1-02 — S5 new-world reflexivity:** at the audited baseline, adding a world in S5 mode adds only the selected agent's loop and can break reflexivity for another active agent. See the Round 3 delta; the repair is locally implemented pending Work Max closure audit.
+- **P1-03 — S5 toggle/invariant mismatch:** at the audited baseline, enabling S5 mode does not validate or repair the existing model, and seeded closure can leave another malformed component unchanged. See the Round 3 delta; the repair is locally implemented pending Work Max closure audit.
 - **P1-04 — partial malformed import:** malformed compact model input clears the old model and can silently load only a valid prefix.
 - **P1-05 — hidden semantic valuation keys:** hidden, stale, or unsupported atom keys can change BAPAL valuation classes while remaining invisible or unmentionable in the UI.
 - **P1-06 — incorrect report terminology:** within-one-model truth is labelled “satisfiable” or “globally true,” inviting invalid logical conclusions.

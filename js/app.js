@@ -453,9 +453,38 @@ function toggleS5Mode() {
 }
 
 function setS5Mode(enabled) {
-  s5ModeEnabled = !!enabled;
-  hideS5RelationEditMessage();
+  if (!enabled) {
+    s5ModeEnabled = false;
+    hideS5RelationEditMessage();
+    updateS5ModeToggle();
+    return;
+  }
+
+  const result = S5Policy.requestEnable(
+    model,
+    epistemicAgents,
+    currentEpistemicAgent,
+    function(message) { return window.confirm(message); }
+  );
+
+  if (!result.enabled) {
+    s5ModeEnabled = false;
+    updateS5ModeToggle();
+    showS5Message('S5 mode remains off. The model was not changed.');
+    return;
+  }
+
+  if (result.normalized) {
+    syncVisualLinksFromModel();
+    onStateModified();
+    restart();
+  }
+
+  s5ModeEnabled = true;
   updateS5ModeToggle();
+  showS5Message(result.normalized
+    ? 'S5 mode is on. Relevant relations were normalized to their least equivalence closure.'
+    : 'S5 mode is on. The model already satisfied the S5 invariant.');
 }
 
 function updateS5ModeToggle() {
@@ -465,10 +494,14 @@ function updateS5ModeToggle() {
   s5ModeState.text(s5ModeEnabled ? 'On' : 'Off');
 }
 
-function showS5RelationEditMessage() {
+function showS5Message(message) {
   s5EditMessage
-    .text(s5RelationEditMessage)
+    .text(message)
     .classed('inactive', false);
+}
+
+function showS5RelationEditMessage() {
+  showS5Message(s5RelationEditMessage);
 }
 
 function hideS5RelationEditMessage() {
@@ -808,18 +841,17 @@ function mousedown() {
 
   // insert new node at point
   var point = d3.mouse(this),
-      defaultVals = propvars.map(function() { return false; }),
-      node = {id: ++lastNodeId, vals: defaultVals};
+      defaultVals = propvars.map(function() { return false; });
+  const stateId = s5ModeEnabled
+    ? S5Policy.addWorld(model, {}, epistemicAgents, currentEpistemicAgent).world
+    : model.addState();
+  lastNodeId = stateId;
+  const node = {id: stateId, vals: defaultVals};
   node.x = point[0];
   node.y = point[1];
   nodes.push(node);
   setSelectedNode(node);
 
-  // add state to model
-  model.addState();
-  if (s5ModeEnabled) {
-    model.addTransition(node.id, node.id, currentEpistemicAgent);
-  }
   onStateModified();
 
   restart();
@@ -871,6 +903,25 @@ function rotateByAngle([x, y], angle) {
 
 function getNodeById(id) {
   return nodes.filter(function(node) { return node.id === id; })[0];
+}
+
+function syncVisualLinksFromModel() {
+  const projection = S5Policy.buildLinkProjection(model, true);
+  selected_link = null;
+  links.splice(0, links.length);
+
+  projection.forEach(function(descriptor) {
+    const source = getNodeById(descriptor.sourceId);
+    const target = getNodeById(descriptor.targetId);
+    if (!source || !target) return;
+    links.push({
+      source: source,
+      target: target,
+      left: descriptor.left,
+      right: descriptor.right,
+      agent: descriptor.agent,
+    });
+  });
 }
 
 function getLinkForPair(sourceId, targetId, agent) {
@@ -943,10 +994,16 @@ function addRelationForCurrentMode(sourceId, targetId, agent) {
     return ensureVisualLink(sourceId, targetId, agent, false);
   }
 
-  model.addTransition(sourceId, targetId, agent);
-  model.addTransition(targetId, sourceId, agent);
-  const classStateIds = model.closeEquivalenceClass(agent, [sourceId, targetId]);
-  syncS5ClassVisuals(agent, classStateIds);
+  const result = S5Policy.addRelation(
+    model,
+    sourceId,
+    targetId,
+    agent,
+    epistemicAgents,
+    currentEpistemicAgent
+  );
+  if (!result.accepted) return null;
+  syncVisualLinksFromModel();
 
   return getLinkForPair(sourceId, targetId, agent);
 }
@@ -1009,9 +1066,14 @@ function keydown() {
     case 8: // backspace
     case 46: // delete
       if(selected_node) {
-        model.removeState(selected_node.id);
+        if (s5ModeEnabled) {
+          S5Policy.removeWorld(model, selected_node.id, epistemicAgents, currentEpistemicAgent);
+        } else {
+          model.removeState(selected_node.id);
+        }
         nodes.splice(nodes.indexOf(selected_node), 1);
-        spliceLinksForNode(selected_node);
+        if (s5ModeEnabled) syncVisualLinksFromModel();
+        else spliceLinksForNode(selected_node);
       } else if(selected_link) {
         if (ignoreS5SelectedRelationEdit()) break;
         removeLinkFromModel(selected_link);
@@ -1063,9 +1125,15 @@ function keydown() {
     case 82: // R
       if(selected_node) {
         if(s5ModeEnabled) {
-          model.addTransition(selected_node.id, selected_node.id, currentEpistemicAgent);
-          const classStateIds = model.closeEquivalenceClass(currentEpistemicAgent, [selected_node.id]);
-          syncS5ClassVisuals(currentEpistemicAgent, classStateIds);
+          S5Policy.addRelation(
+            model,
+            selected_node.id,
+            selected_node.id,
+            currentEpistemicAgent,
+            epistemicAgents,
+            currentEpistemicAgent
+          );
+          syncVisualLinksFromModel();
           onStateModified();
           restart();
           break;

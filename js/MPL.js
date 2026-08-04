@@ -434,6 +434,16 @@ function _jsonToASCII(json) {
     }
 
     /**
+     * An agent's relation is an equivalence relation iff it is reflexive,
+     * symmetric, and transitive on the live states.
+     */
+    this.isEquivalenceRelation = function(agent) {
+      return this.isReflexive(agent) &&
+        this.isSymmetric(agent) &&
+        this.isTransitive(agent);
+    }
+
+    /**
      * Get's all the agents currently present in all state's successors.
      */
     this.getActiveAgents = function() {
@@ -460,6 +470,75 @@ function _jsonToASCII(json) {
       } else {
         return state1.successors.some(successor => successor.target === stateIndex2);
       }
+    }
+
+    /**
+     * Replaces an agent's relation with its least equivalence closure on the
+     * live states. Existing directed edges induce undirected connected
+     * components; each component is then completed in both directions,
+     * including its reflexive loops. Returns the completed components.
+     */
+    this.closeEquivalenceRelation = function(agent) {
+      if (!agent) return [];
+
+      const liveStates = [];
+      const adjacency = new Map();
+      _states.forEach((state, stateIndex) => {
+        if (!state) return;
+        liveStates.push(stateIndex);
+        adjacency.set(stateIndex, new Set());
+      });
+
+      _states.forEach((state, sourceIndex) => {
+        if (!state) return;
+        state.successors.forEach(successor => {
+          if (successor.agent !== agent || !adjacency.has(successor.target)) return;
+          adjacency.get(sourceIndex).add(successor.target);
+          adjacency.get(successor.target).add(sourceIndex);
+        });
+      });
+
+      const visited = new Set();
+      const components = [];
+      liveStates.forEach(startState => {
+        if (visited.has(startState)) return;
+
+        const component = [];
+        const queue = [startState];
+        visited.add(startState);
+        while (queue.length > 0) {
+          const current = queue.shift();
+          component.push(current);
+          [...adjacency.get(current)].sort((a, b) => a - b).forEach(neighbor => {
+            if (visited.has(neighbor)) return;
+            visited.add(neighbor);
+            queue.push(neighbor);
+          });
+        }
+
+        component.sort((a, b) => a - b);
+        component.forEach(sourceIndex => {
+          component.forEach(targetIndex => {
+            this.addTransition(sourceIndex, targetIndex, agent);
+          });
+        });
+        components.push(component);
+      });
+
+      return components;
+    }
+
+    /**
+     * Closes each named agent relation independently and deterministically.
+     */
+    this.closeEquivalenceRelations = function(agents) {
+      return [...new Set(agents || [])]
+        .filter(agent => !!agent)
+        .sort()
+        .map(agent => ({
+          agent,
+          components: this.closeEquivalenceRelation(agent),
+        }));
     }
 
     /**

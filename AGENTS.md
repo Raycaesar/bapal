@@ -78,31 +78,36 @@ Keep these five layers distinct:
 1. **Formal language:** the mathematical sources use countably many propositional atoms and agents.
 2. **Raw parser:** the inherited parser accepts ASCII word-like identifiers, including multi-character atoms, and has behavior that differs from browser preprocessing.
 3. **Browser surface:** the current UI supports atoms `p`–`t` and agents `a`–`e`, with browser-specific comma removal and announcement-parenthesis rewriting.
-4. **Audited internal semantic copy:** at candidate commit `55f557c210a6a6ad78c928bb1b94b2010929d2a2`, `Model.deepCopy()` is structural and internal PAL/BAPAL semantic copying no longer uses compact model strings. Under the tested internal-copy contract, multi-character atom keys and raw multi-character transition labels are preserved exactly, as are null world indices and multi-digit targets. This repair is covered by `audit/04_BAPAL_STAGE_0_ROUND_1_CLOSURE_AUDIT.md`.
+4. **Audited internal semantic copy:** Round 1 P0-01 is closed at commit `55f557c210a6a6ad78c928bb1b94b2010929d2a2` by `audit/04_BAPAL_STAGE_0_ROUND_1_CLOSURE_AUDIT.md`. `Model.deepCopy()` is structural and internal PAL/BAPAL semantic copying no longer uses compact model strings. Under the tested internal-copy contract, multi-character atom keys and raw multi-character transition labels are preserved exactly, as are null world indices and multi-digit targets.
 5. **Still-limited external boundary:** the legacy compact serializer/import/share format concatenates atom names and stores only one terminal agent character per transition token. It remains dependable only for the audited one-character compatibility subset and was not repaired by Round 1.
 
-**Round 2 parser/printer status: IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT.** The local P1-01 repair establishes raw `parse(print(AST)) = AST` over the tested supported AST corpus. Its minimized case is `[(K{a}p)]q`: the ASCII printer now preserves the protective parentheses required around exposed knowledge- or PAL-rooted announcement preconditions, including through ordinary unary-prefix chains. This is a printer-only repair; the raw parser grammar, browser comma removal, and browser bracket preprocessing remain distinct and unchanged. Direct raw inputs such as `[K{a}p]q` may therefore still be rejected even though the printer no longer emits that unprotected form. The bounded round-trip evidence does not certify arbitrary malformed parser inputs or close P1-01 before Work Max review.
+**Round 2 parser/printer status: CLOSED AT `e0c816f` — WORK MAX AUDIT 05.** Audit 05 closes P1-01 under the audited Round 2 contract: supported AST ASCII printing is raw-parser-reparsable. Its minimized case is `[(K{a}p)]q`: the ASCII printer preserves the protective parentheses required around exposed knowledge- or PAL-rooted announcement preconditions, including through ordinary unary-prefix chains. This is a printer-only repair; the raw parser grammar, browser comma removal, and browser bracket preprocessing remain distinct and unchanged. Direct unprotected raw inputs such as `[K{a}p]q` may therefore still be rejected even though the printer does not emit that unprotected form. The audited closure does not certify arbitrary malformed parser inputs or unify the raw and browser grammars.
 
 The audit's zero-mismatch result applies only to the recorded one-character representation and the exact bounded test matrices in `audit/02_BAPAL_INDEPENDENT_VERIFICATION_REPORT.md`: 6,501,302 model–world–formula comparisons, not all possible inputs.
 
-Round 1 is closed for internal semantic copying. Round 2 is locally implemented, but P1-01 remains open pending Work Max closure audit; P1-02 through P1-07 remain open, and Stage 0 remains open. Do not claim that all multi-character formula interfaces are safe, that multi-character epistemic-agent syntax works end to end, that URL import/share is repaired, or that Stage 0 is complete.
+Round 1 P0-01 is closed for internal semantic copying at `55f557c` by Audit 04. Round 2 P1-01 is closed at `e0c816f` by Audit 05, and the closure remains valid at final log-only HEAD `f7c7d59`. Round 3 P1-02/P1-03 is locally implemented but remains open pending a Work Max closure audit; P1-04 through P1-07 and Stage 0 remain open. Round 4 is next only after Round 3 closure. Do not claim that all multi-character formula interfaces are safe, that multi-character epistemic-agent syntax works end to end, that URL import/share is repaired, that the local Round 3 implementation is audited or closed, or that Stage 0 is complete.
 
 ## S5 convention
 
 Formal BAPAL is normally evaluated on epistemic models whose relation for each agent is an equivalence relation: reflexive, symmetric, and transitive.
 
-Current audited limitations:
+Historical audited-baseline limitations at `92a4ba6`:
 
 - turning S5 mode on does not necessarily validate or repair an existing non-S5 model;
 - adding a world in S5 mode can break reflexivity for another active agent;
-- the current toggle is an editing policy, not proof that the underlying model is S5.
+- the baseline toggle is an editing policy, not proof that the underlying model is S5.
 
-Target invariant for future repair:
+Round 3 locally implements the following policy, pending Work Max closure audit:
 
-- whenever the application claims a model is in S5 mode, every declared or active agent relation must remain an equivalence relation after every accepted import and edit;
-- adding, deleting, or relating worlds must preserve that invariant for every relevant agent;
-- reflexive self-loops hidden from the visualization must still be stored in the semantic model;
-- visually hiding an edge or loop must never remove or invent a semantic relation.
+- the relevant-agent set is the deterministic sorted union of browser-declared agents `a`–`e`, every relation label currently stored in the semantic model, and the currently selected agent;
+- enabling S5 over an already-S5 model requires no confirmation and does not mutate the model;
+- enabling S5 over any malformed relevant-agent relation requires explicit confirmation before mutation; cancellation keeps S5 off and leaves both the semantic model and D3 relation projection unchanged;
+- accepted normalization computes and verifies the least equivalence closure for every relevant agent by completing each undirected-support connected component independently, adding every required stored reflexive loop, preserving existing edges, and never joining separate components;
+- while S5 is on, adding a world preserves every relevant-agent equivalence relation, adding a selected-agent relation merges exactly the connected equivalence classes it bridges, and deleting a world preserves S5 by domain restriction;
+- individual selected-edge Delete/L/R/B operations remain blocked while S5 is on, and switching S5 off does not mutate relations;
+- reflexive self-loops hidden from the visualization remain stored in the semantic model, while every non-loop semantic edge added by closure must appear in the synchronized D3 projection.
+
+This local implementation is evidence for P1-02/P1-03 repair, not closure. Do not mark either finding closed until Work Max audits an exact implementation commit.
 
 ## Stage 0 correctness freeze
 
@@ -127,9 +132,10 @@ Every future implementation task must include minimized regression cases and a r
 - `audit/01_BAPAL_FOUNDATIONAL_AUDIT.md`, `audit/02_BAPAL_INDEPENDENT_VERIFICATION_REPORT.md`, and `audit/03_BAPAL_ARCHITECTURE_AND_ROADMAP.md` are read-only historical audit artifacts for commit `92a4ba6c7ae070d1f64a1088dbbe7ddfbb02d287`.
 - Future agents must not rewrite, refresh, or silently “correct” those three reports.
 - `audit/04_BAPAL_STAGE_0_ROUND_1_CLOSURE_AUDIT.md` is the read-only closure audit for candidate commit `55f557c210a6a6ad78c928bb1b94b2010929d2a2`; it closes only P0-01's internal semantic-copy defect.
+- `audit/05_BAPAL_STAGE_0_ROUND_2_CLOSURE_AUDIT.md` is the read-only PASS closure audit for Round 2 implementation commit `e0c816f9b7e8a6e58774df635ca13e166d24a0d8` and final log-only HEAD `f7c7d599afca5622c227ea51d930dfd14005b016`; it closes P1-01 under the audited supported-AST ASCII-printing contract while leaving Stage 0 open.
 - `audit/00_AUDIT_INDEX.md` identifies the audit date, scope, and audited baseline.
 - `BAPAL_VERIFICATION.md` is project documentation, not an audit report.
-- Except for the narrow Round 1 conclusion in Audit 04, later code changes are not covered by the 2026-08-03 foundational audit. A separate re-audit is required before claiming that later behavior or repairs are audited, certified, or independently verified.
+- Except for the narrow Round 1 conclusion in Audit 04 and the narrow Round 2 conclusion in Audit 05, later code changes are not covered by the 2026-08-03 foundational audit. A separate re-audit is required before claiming that later behavior or repairs are audited, certified, or independently verified.
 
 ## Engineering rules
 
