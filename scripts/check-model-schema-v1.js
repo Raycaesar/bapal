@@ -389,6 +389,35 @@ function testIdentifierPreservation() {
   });
   assert.deepStrictEqual(encode(decoded.model, 'adversarial identifiers re-encode'), decoded.canonicalDocument);
 
+  const commaIdentityDocument = {
+    format: 'bapal-model',
+    version: 1,
+    worlds: [
+      { trueAtoms: ['a', 'b'], transitions: [] },
+      { trueAtoms: ['a,b'], transitions: [] },
+    ],
+  };
+  const commaIdentity = decode(commaIdentityDocument, 'comma-bearing exact atom identity');
+  assert.deepStrictEqual(
+    Object.keys(commaIdentity.model.getRawStates()[0].assignment),
+    ['a', 'b'],
+    'Separate atoms a and b must remain separate after Schema v1 decode.'
+  );
+  assert.deepStrictEqual(
+    Object.keys(commaIdentity.model.getRawStates()[1].assignment),
+    ['a,b'],
+    'The single atom a,b must remain one exact identifier after Schema v1 decode.'
+  );
+  assert.notDeepStrictEqual(
+    Object.keys(commaIdentity.model.getRawStates()[0].assignment),
+    Object.keys(commaIdentity.model.getRawStates()[1].assignment),
+    'Schema v1 must not conflate separate atoms with one comma-bearing atom.'
+  );
+  assert.deepStrictEqual(
+    encode(commaIdentity.model, 'comma-bearing exact atom identity re-encode'),
+    commaIdentity.canonicalDocument
+  );
+
   const absent = new MPL.Model();
   absent.addState({});
   for (const identifier of ['__proto__', 'constructor', 'prototype']) {

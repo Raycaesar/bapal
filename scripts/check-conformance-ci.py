@@ -53,12 +53,17 @@ def require_artifact_bootstrap(
 ) -> None:
     """Check the runner-time artifact path repair and its three consumers."""
 
-    bootstrap = (
-        f"      - name: Configure {label} artifact directory\n"
-        "        run: |\n"
-        f'          echo "{variable}=$RUNNER_TEMP/bapal-conformance/{profile}" >> "$GITHUB_ENV"'
+    bootstrap_fragments = (
+        f"      - name: Configure {label} artifact directory",
+        f'          artifact_dir="$RUNNER_TEMP/bapal-conformance/{profile}"',
+        '          mkdir -p "$artifact_dir"',
+        f'          echo "{variable}=$artifact_dir" >> "$GITHUB_ENV"',
+        f'          printf \'%s\\n\' \'{{"format":"bapal-conformance-bootstrap","version":1,"profile":"{profile}","status":"artifact-directory-configured"}}\' > "$artifact_dir/bootstrap.json"',
     )
-    require(bootstrap in section, f"{label} runner-time artifact bootstrap is missing")
+    require(
+        all(fragment in section for fragment in bootstrap_fragments),
+        f"{label} runner-time artifact bootstrap is incomplete",
+    )
     require(
         section.index("      - name: Set up Python")
         < section.index(f"      - name: Configure {label} artifact directory"),
@@ -183,11 +188,12 @@ def main() -> None:
         require(source.count(f"node scripts/{script}") == 2, f"{script} must run once in each job")
     require("random-bapal-evaluation" not in source, "workflow invokes the random report generator")
     require("check-all.js" not in source, "workflow invokes the report-generating aggregate check")
+    require("continue-on-error" not in source, "workflow hides a conformance failure")
 
     parser_result = optional_yaml_check(source)
     print("PASS: triggers, job conditions, supported runtimes, and timeouts")
     print("PASS: exact FAST/FULL/core/sensitivity commands and inherited non-writing checks")
-    print("PASS: FAST/FULL artifact paths are established from RUNNER_TEMP after runner setup")
+    print("PASS: FAST/FULL artifact paths and bootstrap diagnostics are created after runner setup")
     print("PASS: minimal permissions, clean-tree gates, manifest gates, and always-run uploads")
     print("PASS: random report generation is absent")
     print(f"YAML parser check: {parser_result}")

@@ -40,7 +40,10 @@ jobs:
 
       - name: Configure FAST artifact directory
         run: |
-          echo "FAST_ARTIFACT_DIR=$RUNNER_TEMP/bapal-conformance/fast" >> "$GITHUB_ENV"
+          artifact_dir="$RUNNER_TEMP/bapal-conformance/fast"
+          mkdir -p "$artifact_dir"
+          echo "FAST_ARTIFACT_DIR=$artifact_dir" >> "$GITHUB_ENV"
+          printf '%s\n' '{"format":"bapal-conformance-bootstrap","version":1,"profile":"fast","status":"artifact-directory-configured"}' > "$artifact_dir/bootstrap.json"
 
       - name: Inherited deterministic non-writing regressions
         run: |
@@ -126,7 +129,10 @@ jobs:
 
       - name: Configure FULL artifact directory
         run: |
-          echo "FULL_ARTIFACT_DIR=$RUNNER_TEMP/bapal-conformance/full" >> "$GITHUB_ENV"
+          artifact_dir="$RUNNER_TEMP/bapal-conformance/full"
+          mkdir -p "$artifact_dir"
+          echo "FULL_ARTIFACT_DIR=$artifact_dir" >> "$GITHUB_ENV"
+          printf '%s\n' '{"format":"bapal-conformance-bootstrap","version":1,"profile":"full","status":"artifact-directory-configured"}' > "$artifact_dir/bootstrap.json"
 
       - name: Independent core corpus
         run: python3 scripts/check-independent-oracle.py

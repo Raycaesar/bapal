@@ -837,7 +837,7 @@ function _jsonToASCII(json) {
    * @private
    */
   function _valuationKey(assignment) {
-    return Object.keys(assignment).sort().join(',');
+    return JSON.stringify(Object.keys(assignment).sort());
   }
 
   function _truth(model, state, json) {

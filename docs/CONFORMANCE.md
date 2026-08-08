@@ -81,7 +81,7 @@ The runner validates request shape and reports bridge/decode/evaluation failures
 
 Expected values are manually authored. They must never be generated from production output. The corpus covers atomic truth/falsity, all Boolean constructors, modal vacuity, all-label box/diamond, knowledge filtering/vacuity/shorthand, PAL vacuity/restriction/nesting, BAPAL valuation classes/nesting, sparse/null models, S5/non-S5, multi-character and prototype-sensitive atoms, raw labels, and exact atom identity.
 
-`core-073-bapal-delimiter-collision-exact-atoms` is a permanent adversarial regression. Its two true-atom sets are `{"a","b"}` and `{"a,b"}`. Hand derivation and the independent oracle make `^K{x}a` true at world 0, while current production returns false. Until that production mismatch is separately repaired, the core check is expected to fail visibly rather than normalize or suppress it.
+`core-073-bapal-delimiter-collision-exact-atoms` is a permanent adversarial regression. Its two true-atom sets are `{"a","b"}` and `{"a,b"}`. Hand derivation and the independent oracle make `^K{x}a` true at world 0. The first executable remote FAST run, `31278938374`, exposed that production's former comma-joined valuation key returned false. The scoped local repair now preserves the distinct exact atom sets, while the authored expectation and oracle semantic clause remain unchanged. Remote FAST revalidation remains pending.
 
 ## 7. FAST profile
 
@@ -96,7 +96,7 @@ Expected values are manually authored. They must never be generated from product
 - minimum 20,000 PAL and 20,000 BAPAL comparisons; and
 - every Formula Schema v1 constructor plus shorthand knowledge, S5/non-S5, sparse/null, multiple-label, multi-character-atom, and exact-identifier coverage.
 
-The runner must complete the exact count. It must not stop silently, reduce the target, or report success after a partial run. Current strengthened local execution completes all 50,000 comparisons and finds four real mismatches based on the exact-atom collision regression.
+The runner must complete the exact count. It must not stop silently, reduce the target, or report success after a partial run. After the scoped valuation-key repair, local execution completes all 50,000 comparisons in `8.775551` seconds with zero mismatches. Remote FAST revalidation remains pending.
 
 ## 8. FULL profile
 
@@ -111,7 +111,7 @@ The runner must complete the exact count. It must not stop silently, reduce the 
 - minimum 200,000 PAL, 250,000 BAPAL, and 75,000 nested-BAPAL comparisons; and
 - the same constructor and model-family guarantees as FAST, with PAL/BAPAL-heavy generation.
 
-The reviewed local run completed exactly 500,000 comparisons in 94.502206 seconds and found four real mismatches. It recorded 232,418 PAL, 295,446 BAPAL, and 78,600 nested-BAPAL comparisons, with observed nesting two. This red result is evidence that the gate works; it is not a passing closure result.
+Before the scoped repair, a reviewed local run completed exactly 500,000 comparisons in `94.502206` seconds and found four exact-atom collision mismatches. After the repair, local FULL completed exactly 500,000 comparisons in `93.281203` seconds with zero mismatches. The passing run retained 232,418 PAL, 295,446 BAPAL, and 78,600 nested-BAPAL comparisons, with observed nesting two.
 
 ## 9. Seeds and bounds
 
@@ -205,7 +205,7 @@ Each candidate is retained only if the same oracle/production mismatch still rep
 8. verifies the reduced case remains divergent under the deliberate transform; and
 9. removes its temporary directory.
 
-No hidden mutation flag is added to production code. If the normal baseline already contains a real mismatch, sensitivity fails before injecting another one. That is the correct current behavior while `core-073` remains unresolved.
+No hidden mutation flag is added to production code. After the scoped repair, the sensitivity check requires and obtains 24 normal comparisons with zero real mismatches, then detects the one deliberately flipped production Boolean and exercises 31 deterministic reduction steps across every shrink phase.
 
 ## 15. GitHub Actions behavior
 
@@ -218,7 +218,7 @@ No hidden mutation flag is added to production code. If the normal baseline alre
 
 Both jobs use `contents: read`, disable persisted checkout credentials, set up supported Node and Python versions with official pinned-major actions, and have explicit timeouts. FAST and FULL run the independent core, sensitivity, their exact generated profile, all inherited deterministic non-writing regressions, `git diff --check`, and a clean-worktree assertion. The workflow never invokes `scripts/check-all.js` or `scripts/random-bapal-evaluation.js` because those paths may generate tracked reports.
 
-Manifest validation runs with `if: always()` and fails a missing, incomplete, mismatching, or non-pass manifest. Artifact upload also runs with `if: always()` and includes the whole runner-temporary profile directory, covering manifests, mismatch artifacts, and reducer output without collecting environment dumps or secrets. No failure is hidden with `continue-on-error`.
+Each job creates its runner-temporary artifact directory immediately after runtime setup and writes a small `bootstrap.json`, so an early semantic failure still leaves a useful upload target. Manifest validation runs with `if: always()` and fails a missing, incomplete, mismatching, or non-pass manifest. Artifact upload also runs with `if: always()` and includes the whole profile directory, covering the bootstrap diagnostic, manifests, mismatch artifacts, and reducer output without collecting environment dumps or secrets. No failure is hidden with `continue-on-error`.
 
 ## 16. Local commands
 
@@ -239,7 +239,7 @@ python3 scripts/check-oracle-conformance.py --profile fast --artifact-dir /tmp/b
 python3 scripts/check-oracle-conformance.py --profile full --artifact-dir /tmp/bapal-full
 ```
 
-The command prints the seed, exact target, progress, artifact path, elapsed time, and mismatch count. At the present protected-production revision, the core, sensitivity, FAST, and FULL commands fail because they expose the known exact-atom valuation-key mismatch. Do not weaken the corpus, comparator, or exit code to obtain a green result.
+The command prints the seed, exact target, progress, artifact path, elapsed time, and mismatch count. At the scoped-repair worktree, core, sensitivity, FAST, and FULL pass locally without weakening the corpus, comparator, authored `core-073` expectation, or exit behavior. Remote FAST revalidation remains pending.
 
 ## 17. Failure triage
 
@@ -253,7 +253,7 @@ For an operational error, inspect `manifest.json` status, error, actual count, v
 6. add or retain the smallest understandable permanent regression before any authorized repair; and
 7. rerun core, sensitivity, FAST, FULL, inherited deterministic checks, whitespace, and clean-tree checks.
 
-Never regenerate tracked reports during triage. Never change protected production semantics as part of a Round 6 documentation or infrastructure task. The current `core-073` result is hand/oracle true and production false; it requires separately authorized production repair scope before Round 6 can close.
+Never regenerate tracked reports during triage. Never change protected production semantics as part of a Round 6 documentation or infrastructure task. The separately authorized `core-073` repair changed only the collision-prone valuation-class identity representation; future repairs still require concrete counterexamples and explicit scope. P1-07 remains open until remote FAST revalidation and the Work Max closure audit.
 
 ## 18. Nonclaims and limitations
 
