@@ -1,0 +1,185 @@
+name: BAPAL conformance
+
+on:
+  pull_request:
+  push:
+    branches:
+      - bapal-core
+  workflow_dispatch:
+  schedule:
+    - cron: "17 4 * * 1"
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+
+jobs:
+  fast:
+    name: FAST independent conformance
+    if: github.event_name == 'pull_request' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      FAST_ARTIFACT_DIR: ${{ runner.temp }}/bapal-conformance/fast
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          package-manager-cache: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Inherited deterministic non-writing regressions
+        run: |
+          node scripts/check-agent-rendering.js
+          node scripts/check-atomic-model-import.js
+          node scripts/check-bapal-regression.js
+          node scripts/check-bapal-valuation-class.js
+          node scripts/check-formula-roundtrip.js
+          node scripts/check-formula-schema-v1.js
+          node scripts/check-logic-regressions.js
+          node scripts/check-model-schema-v1.js
+          node scripts/check-report-links.js
+          node scripts/check-s5-closure.js
+          node scripts/check-s5-invariants.js
+          node scripts/check-semantic-state-visibility.js
+          node scripts/check-structural-copy-regressions.js
+
+      - name: Independent core corpus
+        run: python3 scripts/check-independent-oracle.py
+
+      - name: Deliberate mismatch sensitivity
+        run: python3 scripts/check-oracle-sensitivity.py
+
+      - name: FAST generated conformance
+        run: >-
+          python3 scripts/check-oracle-conformance.py
+          --profile fast
+          --artifact-dir "$FAST_ARTIFACT_DIR"
+
+      - name: Verify FAST runtime manifest
+        if: always()
+        run: >-
+          python3 -c 'import json, os, pathlib;
+          path = pathlib.Path(os.environ["FAST_ARTIFACT_DIR"]) / "manifest.json";
+          assert path.is_file(), f"missing runtime manifest: {path}";
+          manifest = json.loads(path.read_text(encoding="utf-8"));
+          assert manifest["profile"] == "fast";
+          assert manifest["expectedComparisonCount"] == 50000;
+          assert manifest["actualComparisonCount"] == 50000;
+          assert manifest["mismatchCount"] == 0;
+          assert manifest["status"] == "pass"'
+
+      - name: Check whitespace errors
+        if: always()
+        run: git diff --check
+
+      - name: Verify clean worktree
+        if: always()
+        run: |
+          git status --short
+          test -z "$(git status --porcelain=v1)"
+
+      - name: Upload FAST conformance artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: bapal-conformance-fast-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.FAST_ARTIFACT_DIR }}/
+          if-no-files-found: error
+          retention-days: 14
+
+  full:
+    name: FULL independent conformance
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      FULL_ARTIFACT_DIR: ${{ runner.temp }}/bapal-conformance/full
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          package-manager-cache: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Independent core corpus
+        run: python3 scripts/check-independent-oracle.py
+
+      - name: Deliberate mismatch sensitivity
+        run: python3 scripts/check-oracle-sensitivity.py
+
+      - name: FULL generated conformance
+        run: >-
+          python3 scripts/check-oracle-conformance.py
+          --profile full
+          --artifact-dir "$FULL_ARTIFACT_DIR"
+
+      - name: Verify FULL runtime manifest
+        if: always()
+        run: >-
+          python3 -c 'import json, os, pathlib;
+          path = pathlib.Path(os.environ["FULL_ARTIFACT_DIR"]) / "manifest.json";
+          assert path.is_file(), f"missing runtime manifest: {path}";
+          manifest = json.loads(path.read_text(encoding="utf-8"));
+          assert manifest["profile"] == "full";
+          assert manifest["expectedComparisonCount"] == 500000;
+          assert manifest["actualComparisonCount"] == 500000;
+          assert manifest["mismatchCount"] == 0;
+          assert manifest["status"] == "pass"'
+
+      - name: Inherited deterministic non-writing regressions
+        run: |
+          node scripts/check-agent-rendering.js
+          node scripts/check-atomic-model-import.js
+          node scripts/check-bapal-regression.js
+          node scripts/check-bapal-valuation-class.js
+          node scripts/check-formula-roundtrip.js
+          node scripts/check-formula-schema-v1.js
+          node scripts/check-logic-regressions.js
+          node scripts/check-model-schema-v1.js
+          node scripts/check-report-links.js
+          node scripts/check-s5-closure.js
+          node scripts/check-s5-invariants.js
+          node scripts/check-semantic-state-visibility.js
+          node scripts/check-structural-copy-regressions.js
+
+      - name: Check whitespace errors
+        if: always()
+        run: git diff --check
+
+      - name: Verify clean worktree
+        if: always()
+        run: |
+          git status --short
+          test -z "$(git status --porcelain=v1)"
+
+      - name: Upload FULL conformance artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: bapal-conformance-full-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.FULL_ARTIFACT_DIR }}/
+          if-no-files-found: error
+          retention-days: 14

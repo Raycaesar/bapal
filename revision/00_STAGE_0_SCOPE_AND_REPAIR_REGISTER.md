@@ -12,7 +12,7 @@
   - [BAPAL Architecture and Correctness-First Roadmap](../audit/03_BAPAL_ARCHITECTURE_AND_ROADMAP.md)
 - **Normative contract:** [BAPAL Playground Semantic and Product Specification](../docs/BAPAL_PLAYGROUND_SPEC.md)
 
-**Stage 0 status: OPEN.** Round 1 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04**. Round 2 is **CLOSED AT `e0c816f` — WORK MAX AUDIT 05**, and the closure remains valid at final log-only HEAD `f7c7d59`. P1-02 is **CLOSED AT `6bd3369` — WORK MAX AUDIT 06**. Audit 07 closes P1-03 and Round 3 at `3f27ac2` under its focused raw-label rendering contract. P1-04 and P1-05 are **CLOSED AT `5c89ab5` — WORK MAX AUDIT 08**, and Round 4 is closed. Audit 09 gives Round 5 **PASS SUBJECT TO LOCAL REPAIRS**: both runtime codecs pass and R5-A09-01 stale JSON Schema resource identities is the only closure blocker. The canonical-ID repair is locally implemented, but Round 5 remains **OPEN — PENDING FOCUSED WORK MAX RECHECK**. P1-06 and P1-07 remain open; Stage 0 remains open; Round 6 remains blocked. The original three audit reports remain read-only historical evidence; Audits 04–09 supply only their stated narrow later-round evidence.
+**Stage 0 status: OPEN.** Round 1 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04**. Round 2 is **CLOSED AT `e0c816f` — WORK MAX AUDIT 05**, and the closure remains valid at final log-only HEAD `f7c7d59`. P1-02 is **CLOSED AT `6bd3369` — WORK MAX AUDIT 06**. Audit 07 closes P1-03 and Round 3 at `3f27ac2` under its focused raw-label rendering contract. P1-04 and P1-05 are **CLOSED AT `5c89ab5` — WORK MAX AUDIT 08**, and Round 4 is closed. Audit 09 passed the Round 5 runtime Schema v1 codecs subject only to R5-A09-01. Audit 10 closes R5-A09-01 and Round 5 at canonical-ID repair commit `edfbf32d07507bd43143bd518dbe3e2316a65979`, with documentary final audited HEAD `8451a1e289eb8e6efa19887e35955d3d8772c8d8`. P1-07 Round 6 infrastructure is **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**, but a concrete production mismatch keeps P1-07 open. P1-06 and Stage 0 remain open. Round 7 is next only after Round 6 Work Max closure. The original three audit reports remain read-only historical evidence; Audits 04–10 supply only their stated narrow later-round evidence.
 
 ## 2. Stage 0 objective
 
@@ -44,7 +44,7 @@ Representation, parser, UI, and test-infrastructure repairs must be checked agai
 
 ## 4. Planned repair rounds
 
-Round 1 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04**. Round 2 is **CLOSED AT `e0c816f` — WORK MAX AUDIT 05**. Round 3 P1-02 is **CLOSED AT `6bd3369` — WORK MAX AUDIT 06** and P1-03 is **CLOSED AT `3f27ac2` — WORK MAX AUDIT 07**. Round 4 P1-04/P1-05 are **CLOSED AT `5c89ab5` — WORK MAX AUDIT 08**. Round 5 is **OPEN — AUDIT 09 PASS SUBJECT TO LOCAL REPAIRS; R5-A09-01 LOCALLY REPAIRED; PENDING FOCUSED WORK MAX RECHECK**. P1-06/P1-07 and Stage 0 remain open; Round 6 remains blocked until Round 5 closure, followed by Rounds 7–8.
+Round 1 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04**. Round 2 is **CLOSED AT `e0c816f` — WORK MAX AUDIT 05**. Round 3 P1-02 is **CLOSED AT `6bd3369` — WORK MAX AUDIT 06** and P1-03 is **CLOSED AT `3f27ac2` — WORK MAX AUDIT 07**. Round 4 P1-04/P1-05 are **CLOSED AT `5c89ab5` — WORK MAX AUDIT 08**. Round 5 is **CLOSED AT `edfbf32` — WORK MAX AUDIT 10**. P1-07 Round 6 infrastructure is **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**; P1-06, P1-07, and Stage 0 remain open. Round 7 may begin only after Round 6 Work Max closure, followed by the Stage 0 audit in Round 8.
 
 ### Round 1 — P0 structural model copying
 
@@ -202,7 +202,7 @@ Audit 08 closes P1-04, P1-05, and Round 4 at implementation commit `5c89ab5536d4
 
 ### Round 5 — Versioned model/formula schema
 
-**Status: OPEN — AUDIT 09 PASS SUBJECT TO LOCAL REPAIRS; R5-A09-01 LOCALLY REPAIRED; PENDING FOCUSED WORK MAX RECHECK.**
+**Status: CLOSED AT `edfbf32` — WORK MAX AUDIT 10.**
 
 **Scope**
 
@@ -242,11 +242,11 @@ Audit 08 closes P1-04, P1-05, and Round 4 at implementation commit `5c89ab5536d4
 - Python `jsonschema` 4.10.3 was already installed and checked both artifacts as Draft 2020-12 schemas. Formula artifact/runtime classification aligned in all ten boundary categories. The model artifact had exactly the documented runtime-only semantic differences for out-of-range targets, targets to null worlds, and lone-surrogate rejection.
 - All inherited deterministic checks listed by the Round 5 task pass, including semantic visibility, atomic import, agent rendering, S5 invariants/closure, formula round trip, structural copy, BAPAL/logic/valuation-class checks, report links, and `git diff --check`. No tracked report was regenerated.
 
-**Audit 09 disposition and local R5-A09-01 repair:** Audit 09 returned **PASS SUBJECT TO LOCAL REPAIRS**. It passed the runtime Model Schema v1 and Formula Schema v1 implementations and identified stale JSON Schema resource identities as the only closure blocker. The two artifact `$id` values and permanent exact-identity regressions are locally repaired; no runtime codec change was required. Round 5 remains **OPEN** pending focused Work Max recheck. P1-06, P1-07, and Stage 0 remain **OPEN**. Round 6 remains **BLOCKED**.
+**Audit 09 and Audit 10 disposition:** Audit 09 returned **PASS SUBJECT TO LOCAL REPAIRS**. It passed the runtime Model Schema v1 and Formula Schema v1 implementations and identified stale JSON Schema resource identities as the only closure blocker. Audit 10 verifies the exact `$id` repair and permanent regressions at `edfbf32d07507bd43143bd518dbe3e2316a65979`, records documentary final audited HEAD `8451a1e289eb8e6efa19887e35955d3d8772c8d8`, and returns **PASS — ROUND 5 VERSIONED SCHEMA V1 CLOSED; PROCEED TO ROUND 6**. R5-A09-01 and Round 5 are closed. P1-06, P1-07, and Stage 0 remain open.
 
 ### Round 6 — Independent oracle, conformance corpus, and CI
 
-**Status: BLOCKED UNTIL ROUND 5 FOCUSED RECHECK AND CLOSURE.**
+**Status: IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT.**
 
 **Scope**
 
@@ -257,12 +257,35 @@ Audit 08 closes P1-04, P1-05, and Round 4 at implementation commit `5c89ab5536d4
 - Include `check-report-links` in aggregate verification.
 - Ensure test commands do not rewrite tracked reports.
 
+**Implemented policy**
+
+- `oracle/bapal_oracle.py` is Python 3 standard-library-only and independently parses Model/Formula Schema v1. It does not invoke Node, read production JavaScript at runtime, call `MPL.truth` or `MPL.SchemaV1`, parse production ASCII formulas, or use production output as expected truth.
+- `oracle/production_runner.js` uses production Schema v1 decoding and `MPL.truth` solely to produce actual results. `oracle/conformance.py` owns independent generation, explicit expected/actual comparison, profile validation, manifests, failure artifacts, and deterministic reduction.
+- `conformance/v1/core-corpus.jsonl` contains 73 explicit hand-authored pointed cases with manually authored expected truth values across every constructor and the required modal, knowledge, PAL, BAPAL, sparse/null, S5/non-S5, identifier, and raw-label boundaries.
+- FAST is fixed at seed `0x6F524143`, exactly 50,000 comparisons, at most four live worlds, three valuation classes, and BAPAL nesting one. FULL is fixed at seed `0xC0DEC0DE`, exactly 500,000 comparisons, at most five live worlds, four valuation classes, and BAPAL nesting two. Both independently generate Schema v1 documents in Python and require all constructors plus their profile coverage contract.
+- Deliberate sensitivity uses seed `0xBAD0C0DE`. It flips one copied production result outside production code, runs the normal comparator, requires a nonzero mismatch and replayable temporary artifact, exercises deterministic shrinking, and cleans temporary output.
+- Runtime manifests record exact counts and coverage, bounds, git HEAD/tree, Python/Node/platform, duration, mismatch count, and SHA-256 provenance. Checked-in profile documents pin stable inputs and fail when those hashes are stale.
+- Mismatch artifacts retain the original and deterministically reduced replayable cases, oracle/production results, source hashes, and reduction steps. The reducer removes transitions, true atoms, safe nonpointed worlds, and formula subtrees only when the mismatch remains; it does not claim global minimality.
+- `.github/workflows/bapal-conformance.yml` runs FAST on pull requests, pushes to `bapal-core`, and manual dispatch; FULL runs weekly and manually. It has `contents: read`, runs inherited non-writing regressions, enforces complete zero-mismatch manifests and clean worktrees, always uploads artifacts, and never invokes the random report generator.
+
+**Prompt 6.4 concentrated review and local evidence**
+
+- Five separate temporary production mutants were killed by a complete 50,000-case FAST run: inverted atoms (`23,691` mismatches; first `fast-000000000`, oracle false/mutant true), removed PAL false-precondition vacuity (`12,127`; first `fast-000000002`, oracle true/mutant false), knowledge over every outgoing label (`936`; first `fast-000000009`, oracle true/mutant false), BAPAL retaining only the pointed class (`391`; first `fast-000000130`, oracle true/mutant false), and broken implication (`5,234`; first `fast-000000001`, oracle true/mutant false).
+- Three separate temporary oracle mutants were likewise detected: wrong knowledge filtering (`936` mismatches; first `fast-000000009`, mutant oracle false/production true), wrong PAL restriction (`183`; first `fast-000000152`, mutant oracle true/production false), and wrong BAPAL pointed-class inclusion (`235`; first `fast-000000331`, mutant oracle false/production true). The temporary copies did not modify the repository.
+- Before the adversarial exact-identity case was added, deliberate sensitivity verified 24 normal comparisons with zero mismatch, flipped exactly one production Boolean, obtained exactly one mismatch, exercised 14 deterministic reduction steps across transitions, atoms, worlds, and formula subtrees, replayed both original and reduced cases, and cleaned its temporary artifact.
+- The strengthened local FULL run used seed `0xC0DEC0DE` and completed exactly 500,000 comparisons in `94.502206` seconds: 128 models, 1,024 formulas, 364 live pointed worlds, 232,418 PAL comparisons, 295,446 BAPAL comparisons, 78,600 nested-BAPAL comparisons, maximum BAPAL nesting two, and four mismatches. All 11 Formula Schema v1 constructors were covered; configured/observed bounds were five live worlds, four valuation classes, and nesting two.
+- Pre-commit revalidation repeated the exact FULL target in `93.034424` seconds with the same counts, coverage, bounds, and four mismatches.
+- The first real mismatch is permanent core case `core-073-bapal-delimiter-collision-exact-atoms`: world 0 has true atoms `{"a","b"}`, world 1 has the single true atom `{"a,b"}`, and `^K{x}a` at world 0 is hand/oracle true but production false. Production's current comma-joined valuation key treats the two exact atom sets as one class. The same independently generated adversarial shape produces four FAST and four FULL mismatches.
+- The FULL manifest records HEAD `8451a1e289eb8e6efa19887e35955d3d8772c8d8`, tree `eab4eafba24d9fc84e8d6119946e60416cf56e6b`, mismatch count four, and source hashes. Runtime artifacts remain outside tracked paths.
+
 **Acceptance criteria**
 
 - CI distinguishes production regression tests from the independent oracle.
 - The fast and full matrices publish machine-readable manifests tied to exact commits and hashes.
 - Any mismatch fails the job and preserves a reproducible minimized artifact.
 - Aggregate verification includes report-link checking and leaves the working tree unchanged.
+
+The infrastructure acceptance points are implemented, but zero unexplained mismatch is not satisfied. P1-07 remains open, and Round 7 must not begin until the production counterexample is handled in a separately authorized scope and a Work Max Round 6 closure audit passes.
 
 ### Round 7 — Terminology and documentation closure
 
@@ -298,7 +321,7 @@ Audit 08 closes P1-04, P1-05, and Round 4 at implementation commit `5c89ab5536d4
 
 ## 5. Defect-to-round mapping
 
-Every P0/P1 defect from the foundational audit appears exactly once below with one primary repair round. P0-01 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04** for internal semantic copying. P1-01 is **CLOSED AT `e0c816f` — WORK MAX AUDIT 05** under the supported-AST ASCII-printing contract. P1-02 is **CLOSED AT `6bd3369` — WORK MAX AUDIT 06**. P1-03 is **CLOSED AT `3f27ac2` — WORK MAX AUDIT 07**. P1-04 and P1-05 are **CLOSED AT `5c89ab5` — WORK MAX AUDIT 08**; P1-06 and P1-07 remain **OPEN**.
+Every P0/P1 defect from the foundational audit appears exactly once below with one primary repair round. P0-01 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04** for internal semantic copying. P1-01 is **CLOSED AT `e0c816f` — WORK MAX AUDIT 05** under the supported-AST ASCII-printing contract. P1-02 is **CLOSED AT `6bd3369` — WORK MAX AUDIT 06**. P1-03 is **CLOSED AT `3f27ac2` — WORK MAX AUDIT 07**. P1-04 and P1-05 are **CLOSED AT `5c89ab5` — WORK MAX AUDIT 08**. P1-07 is **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT** and remains open; P1-06 remains **OPEN**.
 
 | Defect ID | Status | Severity | Affected files/functions | Primary round | Dependencies | Required minimized regression | Closure evidence |
 |---|---|---|---|---|---|---|---|
@@ -308,7 +331,7 @@ Every P0/P1 defect from the foundational audit appears exactly once below with o
 | P1-03 | CLOSED AT `3f27ac2` — WORK MAX AUDIT 07 | P1 — misleading S5 state/incomplete or invisible closure | `js/app.js`: `setS5Mode`, model-to-D3 synchronization, generic SVG relation rendering, `addRelationForCurrentMode`; `js/s5-policy.js`: confirmation/edit policy; `js/MPL.js`: whole-relation closure | Round 3 | Same S5 policy and harness as P1-02; Audit 06 raw-label counterexample | Toggle S5 on over one-way `x` in `AS1x,;AS`; cancellation leaves state unchanged or accepted normalization repairs the relation, and every non-loop `x` descriptor has visible stroke, direction, and identity | Audit 06 passes semantic/model behavior but finds invisible `x`; Audit 07 verifies safe/deduplicated markers, explicit strokes, directions, complete raw labels, overlaps, stored hidden loops, declared-agent compatibility, and closes P1-03/Round 3 |
 | P1-04 | CLOSED AT `5c89ab5` — WORK MAX AUDIT 08 | P1 — non-atomic model import | `js/MPL.js`: `parseModelString`, `loadFromModelString`; `js/app.js`: startup/share-URL load path | Round 4 | Round 3 closed by Audit 07; Round 1 structural model operations | Load `ApS;BROKEN;AqS` over a known existing model; receive structured failure and retain the exact complete prior model | Nine minimized failures; 16 compatibility cases; permanent 100,000-case oracle/fuzz with 50,000 exact rollbacks; separate 250,000-case independent review with 125,000 exact rollbacks; three startup cases; Audit 08 closure |
 | P1-05 | CLOSED AT `5c89ab5` — WORK MAX AUDIT 08 | P1 — hidden semantic state | `js/app.js`: browser boundary, `SemanticState`, model-to-D3 projection, `setVarCount`, inspector synchronization; `index.html`; `css/app.css` | Round 4 | Round 1 identifier preservation; browser atom policy `p`–`t`; Audit 07 relation renderer | Hide true `r/s/t`, inject raw `foo`/`bar_baz`, import unsupported atom `x`, and store relation `x`/self-loops/null slots; every semantic fact is disclosed or browser import is rejected before mutation | 11 semantic-visibility groups; exact semantic/visual JSON comparison; valuation-class/formula/BAPAL invariance; executable production VM/DOM/D3 startup, S5, formula, rendering, escaping, URL, and mutation-path coverage; Audit 08 closure |
-| P1-07 | OPEN | P1 — non-independent verification/no gate | `scripts/check-*.js`, `scripts/check-all.js`, independent audit oracle/corpus, future CI configuration, `BAPAL_VERIFICATION.md` | Round 6 | Repair outputs from Rounds 1–5 and stable schema/corpus identifiers | A deliberately injected semantic mismatch is detected and minimized; aggregate checks include `check-report-links` and leave tracked reports byte-unchanged | Checked-in independent oracle review; fast/full CI manifests with seeds, counts, hashes, artifacts, and zero unexplained mismatches |
+| P1-07 | IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT | P1 — non-independent verification/no gate | `oracle/`, `conformance/v1/`, `scripts/check-independent-oracle.py`, `scripts/check-oracle-*.py`, `.github/workflows/bapal-conformance.yml`, `docs/CONFORMANCE.md` | Round 6 | Round 5 closed by Audit 10; exact Schema v1 interchange | A deliberately altered copied result is detected, reduced, retained, and replayed; exact-atom collision case `core-073` is independently detected | 73-case manual core; FAST `0x6F524143`/50,000; FULL `0xC0DEC0DE`/500,000; sensitivity `0xBAD0C0DE`; five production and three oracle mutants killed; current FULL completes exact count but reports four real mismatches, so P1-07 is not closed |
 | P1-06 | OPEN | P1 — invalid result terminology | `scripts/random-bapal-evaluation.js`: `evaluateFormulas`, report table and console labels; generated report schema; README/API/UI verification text | Round 7 | Stable result/schema naming from Rounds 4–6 | A formula true at some but not all worlds is reported only as “true somewhere in this model”; a formula true at all worlds only as “true at every world in this model” | Schema and snapshot tests; forbidden-term documentation scan; updated product docs; audit confirms no satisfiability/validity overclaim |
 
 ## 6. Non-goals

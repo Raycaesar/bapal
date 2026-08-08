@@ -75,10 +75,19 @@ The following three files are read-only audit products. They record findings abo
 - **Final reviewed HEAD:** `ab10f64234a4d397582eab9ba68b434fea02ec26`
 - **Verdict:** **PASS SUBJECT TO LOCAL REPAIRS**
 - **Runtime conclusion:** Model Schema v1 and Formula Schema v1 passed Audit 09's runtime codec, canonicalization, ownership, identifier, truth-preservation, and inherited deterministic review.
-- **Closure blocker:** R5-A09-01, stale JSON Schema resource identities, is the only closure-blocking finding. The canonical-ID artifact repair and exact permanent regressions are locally implemented.
-- **Round status:** Round 5 remains open pending a focused Work Max recheck.
-- **Stage status:** P1-06, P1-07, and Stage 0 remain open.
-- **Next-round gate:** Round 6 remains blocked until the focused recheck closes Round 5.
+- **Historical closure blocker:** R5-A09-01, stale JSON Schema resource identities, was the only closure-blocking finding. It is closed by the focused Audit 10 recheck below.
+
+## Round 5 Schema v1 canonical-ID closure recheck
+
+- **Report:** [`audit/10_BAPAL_ROUND_5_SCHEMA_ID_CLOSURE_RECHECK.md`](10_BAPAL_ROUND_5_SCHEMA_ID_CLOSURE_RECHECK.md)
+- **Audit date:** 2026-08-08 UTC / 2026-08-09 UTC+08
+- **Canonical-ID repair commit:** `edfbf32d07507bd43143bd518dbe3e2316a65979`
+- **Documentary follow-up / final audited HEAD:** `8451a1e289eb8e6efa19887e35955d3d8772c8d8`
+- **Verdict:** **PASS — ROUND 5 VERSIONED SCHEMA V1 CLOSED; PROCEED TO ROUND 6**
+- **Technical conclusion:** R5-A09-01 is closed. The Model Schema v1 and Formula Schema v1 artifacts have the exact distinct project-controlled canonical resource identities, and the focused permanent regressions detect restoration of either stale identity.
+- **Round status:** Round 5 Versioned Schema v1 is closed under Audits 09 and 10's stated boundaries.
+- **Stage status:** P1-06 remains open. P1-07 is the Round 6 implementation target. Stage 0 remains open.
+- **Next round:** Round 6 — independent oracle, conformance corpus, and CI is authorized.
 
 [`BAPAL_VERIFICATION.md`](../BAPAL_VERIFICATION.md) is project documentation and is not one of the audit reports.
 

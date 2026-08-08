@@ -1,0 +1,52 @@
+{
+  "format": "bapal-conformance-profile",
+  "version": 1,
+  "profile": "full",
+  "seed": 3235823838,
+  "seedHex": "0xC0DEC0DE",
+  "expectedComparisonCount": 500000,
+  "bounds": {
+    "maxLiveWorlds": 5,
+    "maxValuationClasses": 4,
+    "maxBapalNesting": 2
+  },
+  "requiredConstructorCoverage": [
+    "atom",
+    "not",
+    "and",
+    "or",
+    "implies",
+    "iff",
+    "box",
+    "diamond",
+    "knowledge",
+    "announcement",
+    "bapal"
+  ],
+  "requiredCoverage": [
+    "pal",
+    "bapal",
+    "knowledge-shorthand",
+    "s5",
+    "non-s5",
+    "sparse-null",
+    "multiple-relation-labels",
+    "multi-character-model-atoms",
+    "exact-schema-v1-identifiers"
+  ],
+  "generation": {
+    "modelCount": 128,
+    "formulaCount": 1024,
+    "maxFormulaDepth": 5,
+    "batchSize": 5000,
+    "minimumPalComparisons": 200000,
+    "minimumBapalComparisons": 250000,
+    "minimumNestedBapalComparisons": 75000
+  },
+  "sourceHashes": {
+    "oracle/bapal_oracle.py": "f1d27693bdf2a3549accbab7d87161655b90d1a14b482ec1e907c5f2034f5226",
+    "oracle/production_runner.js": "1349dba7f68c77c568c38cb2e30443e8c9353b3c14d7e99067a76c25ebbd620d",
+    "oracle/conformance.py": "8645946faf6ea80a08dc35af865f5cf964a3843f2e777a6cc2ff4edbd03e0160",
+    "conformance/v1/core-corpus.jsonl": "082341406c9b0cd50271e19c395801aff1e83229b6aaa19002b41e42396abc5a"
+  }
+}
