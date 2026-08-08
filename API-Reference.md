@@ -14,6 +14,22 @@ MPL has a single dependency, [formula-parser](https://www.npmjs.com/package/form
 
 Load `js/schema-v1.js` after `js/MPL.js`. It exposes `MPL.SchemaV1`, a dependency-free semantic JSON interchange API distinct from legacy compact model strings, share URLs, and formula ASCII transport. The normative document shapes, identifier rules, node vocabulary, and examples are in [`docs/SCHEMA_V1.md`](docs/SCHEMA_V1.md).
 
+### Canonical Schema Resource Identities
+
+Model Schema v1:
+
+```text
+https://raycaesar.github.io/bapal/schemas/bapal-model-v1.schema.json
+```
+
+Formula Schema v1:
+
+```text
+https://raycaesar.github.io/bapal/schemas/bapal-formula-v1.schema.json
+```
+
+Each `$id` identifies the corresponding schema resource. It is independent of runtime `MPL.SchemaV1` API names and independent of legacy compact/share URLs. Internal `$ref` values remain local fragments. JSON Schema does not require an `$id` to be dereferenceable. Changing either canonical `$id` would be a schema-artifact identity change and requires explicit version and review consideration.
+
 All Schema v1 operations use result objects. Ordinary invalid input does not throw or partially commit data:
 
 ```javascript

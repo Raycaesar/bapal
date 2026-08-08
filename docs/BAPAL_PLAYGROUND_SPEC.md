@@ -95,8 +95,10 @@ Audit 08 closes P1-04, P1-05, and Round 4 at `5c89ab5`; final log-only HEAD `ab2
 
 ### Round 5 — Versioned Model and Formula Schema v1
 
-- **Status:** **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**
+- **Status:** **OPEN — AUDIT 09 PASS SUBJECT TO LOCAL REPAIRS; R5-A09-01 LOCALLY REPAIRED; PENDING FOCUSED WORK MAX RECHECK**
+- **Audit 09 disposition:** Audit 09 passed the runtime Model Schema v1 and Formula Schema v1 implementations. Its only closure blocker is R5-A09-01, stale JSON Schema resource identities. The canonical-ID artifact repair and exact permanent tests are locally implemented; Round 5 remains open and Round 6 remains blocked until a focused Work Max recheck.
 - **Purpose:** Schema v1 is a stable semantic JSON interchange format for `MPL.Model` and `MPL.Wff`. It is separate from the unversioned legacy compact model/share format and does not migrate or replace the current URL interface.
+- **Canonical schema resource identities:** Model Schema v1 is identified by `https://raycaesar.github.io/bapal/schemas/bapal-model-v1.schema.json`; Formula Schema v1 is identified by `https://raycaesar.github.io/bapal/schemas/bapal-formula-v1.schema.json`. These `$id` values identify the artifacts independently of runtime API names and legacy compact URLs; internal `$ref` values are local fragments.
 - **Model envelope:** `{"format":"bapal-model","version":1,"worlds":[...]}`. World identity is the stable array index. Every slot is `null` or an object containing the exact arrays `trueAtoms` and `transitions`; each transition has an integer `target` and string `agent`. Null indices are never compacted, assignments are not encoded as object-property names, and relations are not compact concatenated tokens.
 - **Formula envelope:** `{"format":"bapal-formula","version":1,"formula":<node>}`. The stable node vocabulary is `atom`, `not`, `box`, `diamond`, `bapal`, `knowledge`, `announcement`, `and`, `or`, `implies`, and `iff`. Unary nodes use `operand`, announcements use `precondition` and `body`, and binary nodes use `left` and `right`. Parser-internal announcement/knowledge split nodes are not interchange data.
 - **Model identifier policy:** atom names and relation labels are preserved as exact, nonempty, well-formed Unicode scalar strings, without normalization, concatenation, or truncation. Prototype-sensitive, whitespace, punctuation, control, markup-shaped, combining, BMP, and astral strings are ordinary data. Empty strings and isolated UTF-16 surrogate code units are rejected.
@@ -108,7 +110,7 @@ Audit 08 closes P1-04, P1-05, and Round 4 at `5c89ab5`; final log-only HEAD `ab2
 - **Bounded evidence:** the permanent model suite covers 100,000 generated models with seed `0x5c4e4d41` and 3,454 truth comparisons; the formula suite covers 8,210 exhaustive small formulas, 100,000 generated formulas with seed `0x0f05ca1a`, and 724 truth comparisons. Prompt 5.3's separate review compared 320,000 pointed truth results across 10,000 formula documents and eight models with zero mismatches after one scoped error-path repair. These counts are regression evidence, not a proof.
 - **Protected compatibility:** the legacy compact model serializer/importer remains available as a compatibility interface with its documented one-character atom and one-code-point relation-label limits. Round 5 does not change the parser, printer, evaluator, S5 policy, rendering, transactional import, semantic inspector, reports, or current share URL.
 
-The normative developer-level Schema v1 contract and examples are in [`docs/SCHEMA_V1.md`](SCHEMA_V1.md). Round 5 is locally implemented but not audited or closed. P1-06, P1-07, and Stage 0 remain open; Round 6 may begin only after Round 5 closure.
+The normative developer-level Schema v1 contract and examples are in [`docs/SCHEMA_V1.md`](SCHEMA_V1.md). Audit 09 passed the runtime codecs but left Round 5 open solely for R5-A09-01; that canonical-ID repair is locally implemented and awaits focused recheck. P1-06, P1-07, and Stage 0 remain open; Round 6 remains blocked until Round 5 closure.
 
 ## 2. Product identity
 

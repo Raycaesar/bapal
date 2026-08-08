@@ -12,7 +12,7 @@
   - [BAPAL Architecture and Correctness-First Roadmap](../audit/03_BAPAL_ARCHITECTURE_AND_ROADMAP.md)
 - **Normative contract:** [BAPAL Playground Semantic and Product Specification](../docs/BAPAL_PLAYGROUND_SPEC.md)
 
-**Stage 0 status: OPEN.** Round 1 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04**. Round 2 is **CLOSED AT `e0c816f` — WORK MAX AUDIT 05**, and the closure remains valid at final log-only HEAD `f7c7d59`. P1-02 is **CLOSED AT `6bd3369` — WORK MAX AUDIT 06**. Audit 07 closes P1-03 and Round 3 at `3f27ac2` under its focused raw-label rendering contract. P1-04 and P1-05 are **CLOSED AT `5c89ab5` — WORK MAX AUDIT 08**, and Round 4 is closed. Round 5 is **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**. P1-06 and P1-07 remain open; Stage 0 remains open; Round 6 is next only after Round 5 closure. The original three audit reports remain read-only historical evidence about the audited baseline; Audits 04–08 supply their stated narrow later-round evidence and do not certify Round 5.
+**Stage 0 status: OPEN.** Round 1 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04**. Round 2 is **CLOSED AT `e0c816f` — WORK MAX AUDIT 05**, and the closure remains valid at final log-only HEAD `f7c7d59`. P1-02 is **CLOSED AT `6bd3369` — WORK MAX AUDIT 06**. Audit 07 closes P1-03 and Round 3 at `3f27ac2` under its focused raw-label rendering contract. P1-04 and P1-05 are **CLOSED AT `5c89ab5` — WORK MAX AUDIT 08**, and Round 4 is closed. Audit 09 gives Round 5 **PASS SUBJECT TO LOCAL REPAIRS**: both runtime codecs pass and R5-A09-01 stale JSON Schema resource identities is the only closure blocker. The canonical-ID repair is locally implemented, but Round 5 remains **OPEN — PENDING FOCUSED WORK MAX RECHECK**. P1-06 and P1-07 remain open; Stage 0 remains open; Round 6 remains blocked. The original three audit reports remain read-only historical evidence; Audits 04–09 supply only their stated narrow later-round evidence.
 
 ## 2. Stage 0 objective
 
@@ -44,7 +44,7 @@ Representation, parser, UI, and test-infrastructure repairs must be checked agai
 
 ## 4. Planned repair rounds
 
-Round 1 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04**. Round 2 is **CLOSED AT `e0c816f` — WORK MAX AUDIT 05**. Round 3 P1-02 is **CLOSED AT `6bd3369` — WORK MAX AUDIT 06** and P1-03 is **CLOSED AT `3f27ac2` — WORK MAX AUDIT 07**. Round 4 P1-04/P1-05 are **CLOSED AT `5c89ab5` — WORK MAX AUDIT 08**. Round 5 is **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**. P1-06/P1-07 and Stage 0 remain open; Round 6 is the active next round only after Round 5 closure, followed by Rounds 7–8.
+Round 1 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04**. Round 2 is **CLOSED AT `e0c816f` — WORK MAX AUDIT 05**. Round 3 P1-02 is **CLOSED AT `6bd3369` — WORK MAX AUDIT 06** and P1-03 is **CLOSED AT `3f27ac2` — WORK MAX AUDIT 07**. Round 4 P1-04/P1-05 are **CLOSED AT `5c89ab5` — WORK MAX AUDIT 08**. Round 5 is **OPEN — AUDIT 09 PASS SUBJECT TO LOCAL REPAIRS; R5-A09-01 LOCALLY REPAIRED; PENDING FOCUSED WORK MAX RECHECK**. P1-06/P1-07 and Stage 0 remain open; Round 6 remains blocked until Round 5 closure, followed by Rounds 7–8.
 
 ### Round 1 — P0 structural model copying
 
@@ -202,7 +202,7 @@ Audit 08 closes P1-04, P1-05, and Round 4 at implementation commit `5c89ab5536d4
 
 ### Round 5 — Versioned model/formula schema
 
-**Status: IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT.**
+**Status: OPEN — AUDIT 09 PASS SUBJECT TO LOCAL REPAIRS; R5-A09-01 LOCALLY REPAIRED; PENDING FOCUSED WORK MAX RECHECK.**
 
 **Scope**
 
@@ -225,6 +225,7 @@ Audit 08 closes P1-04, P1-05, and Round 4 at implementation commit `5c89ab5536d4
 - Formula Schema v1 exposes only the stable `atom`, `not`, `box`, `diamond`, `bapal`, `knowledge`, `announcement`, `and`, `or`, `implies`, and `iff` nodes. Formula atoms match `[A-Za-z0-9_]+`; ordered knowledge units match `[A-Za-z0-9_]`, preserve duplicates, and represent current `K{abc}` shorthand as `['a','b','c']`, not as one multi-character epistemic agent.
 - Model canonical output preserves world/null order, sorts true atoms by Unicode scalar value, sorts transitions by target and then relation label, and rejects duplicate atoms/transitions. Formula canonical output preserves all semantic child and shorthand-unit order. Extra structural fields and unknown versions reject explicitly.
 - The two Draft 2020-12 JSON Schema artifacts enforce structural shape. Runtime validation adds live/in-range target checks, exact Unicode-scalar policy, cycle safety, and current semantic-representation compatibility. Ordinary failures return stable structured error objects with replayable paths.
+- The canonical resource identities are `https://raycaesar.github.io/bapal/schemas/bapal-model-v1.schema.json` and `https://raycaesar.github.io/bapal/schemas/bapal-formula-v1.schema.json`. Permanent tests assert these exact, distinct absolute HTTPS `$id` values, the unchanged Draft 2020-12 dialect and format/version constants, absence of the stale repository identity, and local `$ref` resolution.
 - Model decoding returns a fresh independent `MPL.Model`; formula decoding returns a fresh independent `MPL.Wff`; both return independent canonical documents. Formula conversion directly maps stable and legacy JSON ASTs and does not use ASCII as semantic transport.
 - The current compact share URL is unchanged and remains a compatibility interface. Parser, printer, evaluator, deep copy, S5, rendering, Round 4 import/visibility, report generation, reports, and result terminology remain outside Round 5's implementation diff.
 
@@ -241,11 +242,11 @@ Audit 08 closes P1-04, P1-05, and Round 4 at implementation commit `5c89ab5536d4
 - Python `jsonschema` 4.10.3 was already installed and checked both artifacts as Draft 2020-12 schemas. Formula artifact/runtime classification aligned in all ten boundary categories. The model artifact had exactly the documented runtime-only semantic differences for out-of-range targets, targets to null worlds, and lone-surrogate rejection.
 - All inherited deterministic checks listed by the Round 5 task pass, including semantic visibility, atomic import, agent rendering, S5 invariants/closure, formula round trip, structural copy, BAPAL/logic/valuation-class checks, report links, and `git diff --check`. No tracked report was regenerated.
 
-This evidence supports the local implementation candidate but does not close or audit Round 5. P1-06, P1-07, and Stage 0 remain **OPEN**. Round 6 must not begin until a Work Max closure audit closes Round 5.
+**Audit 09 disposition and local R5-A09-01 repair:** Audit 09 returned **PASS SUBJECT TO LOCAL REPAIRS**. It passed the runtime Model Schema v1 and Formula Schema v1 implementations and identified stale JSON Schema resource identities as the only closure blocker. The two artifact `$id` values and permanent exact-identity regressions are locally repaired; no runtime codec change was required. Round 5 remains **OPEN** pending focused Work Max recheck. P1-06, P1-07, and Stage 0 remain **OPEN**. Round 6 remains **BLOCKED**.
 
 ### Round 6 — Independent oracle, conformance corpus, and CI
 
-**Status: NEXT ONLY AFTER ROUND 5 CLOSURE.**
+**Status: BLOCKED UNTIL ROUND 5 FOCUSED RECHECK AND CLOSURE.**
 
 **Scope**
 

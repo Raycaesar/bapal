@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/vezwork/modallogic/schemas/bapal-model-v1.schema.json",
+  "$id": "https://raycaesar.github.io/bapal/schemas/bapal-model-v1.schema.json",
   "title": "BAPAL Semantic Model Interchange v1",
   "description": "Stable structural interchange for one finite semantic model. World identity is its preserved array index. Runtime semantic validation additionally requires every target to be within the worlds array, to identify a live non-null world, and every identifier to be a nonempty well-formed Unicode scalar string.",
   "type": "object",

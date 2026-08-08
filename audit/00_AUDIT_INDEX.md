@@ -66,6 +66,20 @@ The following three files are read-only audit products. They record findings abo
 - **Stage status:** Stage 0 remains open.
 - **Next round:** Round 5 — versioned model/formula schema is authorized.
 
+## Round 5 versioned Schema v1 closure audit
+
+- **Report:** [`audit/09_BAPAL_ROUND_5_VERSIONED_SCHEMA_CLOSURE_AUDIT.md`](09_BAPAL_ROUND_5_VERSIONED_SCHEMA_CLOSURE_AUDIT.md)
+- **Audit date:** 2026-08-08 UTC
+- **Primary Round 5 implementation commit:** `5a39a51f3069dde69194a11685e0445b7e98bf6d`
+- **Complete Round 5 implementation candidate:** `67fc1a2a8f253fcd97a88c9fe9f656de226a93b4`
+- **Final reviewed HEAD:** `ab10f64234a4d397582eab9ba68b434fea02ec26`
+- **Verdict:** **PASS SUBJECT TO LOCAL REPAIRS**
+- **Runtime conclusion:** Model Schema v1 and Formula Schema v1 passed Audit 09's runtime codec, canonicalization, ownership, identifier, truth-preservation, and inherited deterministic review.
+- **Closure blocker:** R5-A09-01, stale JSON Schema resource identities, is the only closure-blocking finding. The canonical-ID artifact repair and exact permanent regressions are locally implemented.
+- **Round status:** Round 5 remains open pending a focused Work Max recheck.
+- **Stage status:** P1-06, P1-07, and Stage 0 remain open.
+- **Next-round gate:** Round 6 remains blocked until the focused recheck closes Round 5.
+
 [`BAPAL_VERIFICATION.md`](../BAPAL_VERIFICATION.md) is project documentation and is not one of the audit reports.
 
 The source instructions for the audit are preserved in [`prompt/work_max_bapal_foundational_audit_prompt.md`](../prompt/work_max_bapal_foundational_audit_prompt.md).

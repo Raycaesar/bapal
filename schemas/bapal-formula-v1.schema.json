@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/vezwork/modallogic/schemas/bapal-formula-v1.schema.json",
+  "$id": "https://raycaesar.github.io/bapal/schemas/bapal-formula-v1.schema.json",
   "title": "BAPAL Formula Interchange v1",
   "description": "Stable structural interchange for the currently supported Wff semantics. Formula atoms use raw-parser-compatible ASCII word identifiers. Knowledge agents are ordered one-code-unit ASCII word shorthand units matching the evaluator's current conjunction-like K token semantics.",
   "type": "object",

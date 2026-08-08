@@ -127,6 +127,22 @@ The machine-readable Draft 2020-12 artifacts are:
 - [`schemas/bapal-model-v1.schema.json`](../schemas/bapal-model-v1.schema.json);
 - [`schemas/bapal-formula-v1.schema.json`](../schemas/bapal-formula-v1.schema.json).
 
+### Canonical Schema Resource Identities
+
+Model Schema v1:
+
+```text
+https://raycaesar.github.io/bapal/schemas/bapal-model-v1.schema.json
+```
+
+Formula Schema v1:
+
+```text
+https://raycaesar.github.io/bapal/schemas/bapal-formula-v1.schema.json
+```
+
+Each `$id` identifies its schema resource. It is independent of the runtime `MPL.SchemaV1` API names and independent of legacy compact/share URLs. Internal `$ref` values are local fragments within the same schema resource. JSON Schema does not require these identifiers to be dereferenceable. Changing either canonical `$id` would change the schema artifact's resource identity and therefore requires explicit version and review consideration.
+
 They express envelope constants, required fields, closed objects, primitive types and bounds, recursive formula shapes, formula identifier patterns, nonempty arrays, and local array uniqueness.
 
 Runtime validation is additionally authoritative for constraints that static JSON Schema does not express here:

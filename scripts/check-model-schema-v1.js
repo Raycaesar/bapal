@@ -11,6 +11,9 @@ const root = path.resolve(__dirname, '..');
 const FormulaParser = require(path.join(root, 'lib/formula-parser.min.js'));
 const SCHEMA_SEED = 0x5c4e4d41;
 const GENERATED_MODEL_COUNT = 100000;
+const JSON_SCHEMA_DIALECT = 'https://json-schema.org/draft/2020-12/schema';
+const MODEL_SCHEMA_ID = 'https://raycaesar.github.io/bapal/schemas/bapal-model-v1.schema.json';
+const FORMULA_SCHEMA_ID = 'https://raycaesar.github.io/bapal/schemas/bapal-formula-v1.schema.json';
 
 const context = { FormulaParser, console };
 vm.createContext(context);
@@ -70,6 +73,63 @@ function makeAssignment(keys) {
 
 function cloneJSON(value) {
   return JSON.parse(JSON.stringify(value));
+}
+
+function readSchemaArtifact(filename) {
+  return JSON.parse(fs.readFileSync(path.join(root, 'schemas', filename), 'utf8'));
+}
+
+function assertAbsoluteHttpsUri(value, label) {
+  const parsed = new URL(value);
+  assert.strictEqual(parsed.protocol, 'https:', `${label}: $id must use HTTPS.`);
+  assert.strictEqual(parsed.href, value, `${label}: $id must be an absolute canonical URI.`);
+}
+
+function assertLocalRefsResolvable(schema, label) {
+  let referenceCount = 0;
+
+  function resolveLocalRef(reference) {
+    assert.ok(reference.startsWith('#/'), `${label}: $ref ${reference} must be a local fragment.`);
+    const tokens = reference.slice(2).split('/').map(token =>
+      token.replace(/~1/g, '/').replace(/~0/g, '~')
+    );
+    let target = schema;
+    tokens.forEach(token => {
+      assert.ok(
+        target !== null && typeof target === 'object' && Object.prototype.hasOwnProperty.call(target, token),
+        `${label}: unresolved local $ref ${reference}.`
+      );
+      target = target[token];
+    });
+  }
+
+  function visit(value) {
+    if (value === null || typeof value !== 'object') return;
+    if (Object.prototype.hasOwnProperty.call(value, '$ref')) {
+      assert.strictEqual(typeof value.$ref, 'string', `${label}: $ref must be a string.`);
+      resolveLocalRef(value.$ref);
+      referenceCount++;
+    }
+    Object.keys(value).forEach(key => visit(value[key]));
+  }
+
+  visit(schema);
+  assert.ok(referenceCount > 0, `${label}: expected at least one local $ref.`);
+}
+
+function assertSchemaResourceIdentity() {
+  const modelSchema = readSchemaArtifact('bapal-model-v1.schema.json');
+  const formulaSchema = readSchemaArtifact('bapal-formula-v1.schema.json');
+
+  assert.strictEqual(modelSchema.$schema, JSON_SCHEMA_DIALECT);
+  assert.strictEqual(modelSchema.$id, MODEL_SCHEMA_ID);
+  assert.ok(!JSON.stringify(modelSchema).includes('vezwork/modallogic'));
+  assertAbsoluteHttpsUri(modelSchema.$id, 'Model Schema v1');
+  assert.strictEqual(formulaSchema.$id, FORMULA_SCHEMA_ID);
+  assert.notStrictEqual(modelSchema.$id, formulaSchema.$id, 'Model and formula schema $id values must differ.');
+  assertLocalRefsResolvable(modelSchema, 'Model Schema v1');
+  assert.strictEqual(modelSchema.properties.format.const, 'bapal-model');
+  assert.strictEqual(modelSchema.properties.version.const, 1);
 }
 
 function snapshot(model) {
@@ -412,10 +472,9 @@ function testSchemaAndVersionValidation() {
     assertFailure(SchemaV1.canonicalStringify(document), code, `${label} stringify`);
   });
 
-  const schemaDocument = JSON.parse(
-    fs.readFileSync(path.join(root, 'schemas/bapal-model-v1.schema.json'), 'utf8')
-  );
-  assert.strictEqual(schemaDocument.$schema, 'https://json-schema.org/draft/2020-12/schema');
+  assertSchemaResourceIdentity();
+  const schemaDocument = readSchemaArtifact('bapal-model-v1.schema.json');
+  assert.strictEqual(schemaDocument.$schema, JSON_SCHEMA_DIALECT);
   assert.strictEqual(schemaDocument.properties.format.const, 'bapal-model');
   assert.strictEqual(schemaDocument.properties.version.const, 1);
   assert.strictEqual(schemaDocument.additionalProperties, false);
