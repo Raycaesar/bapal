@@ -272,4 +272,5 @@ Such changes must not be retroactively attributed to v1. Moving schema documents
 - Static JSON Schema alone cannot validate cross-world target liveness or isolated-surrogate semantics.
 - The browser has no Schema v1 import/export control, and current share URLs still use the compact compatibility format.
 - Canonical output is deterministic under this contract but is not RFC 8785 canonical JSON.
-- Round 5 is implemented locally but remains pending Work Max closure audit. P1-06, P1-07, and Stage 0 remain open.
+- Audit 09 found the JSON Schema resource-identity issue R5-A09-01 as the only Round 5 closure blocker. Audit 10 verified its repair and closed Round 5: **Versioned Schema v1 is CLOSED — WORK MAX AUDIT 10**. Model Schema v1 and Formula Schema v1 are closed under the exact Audit 09/10 contracts, and Round 6 does not reopen them.
+- Legacy compact share URLs remain a limited compatibility boundary and are not certified as lossless for general identifiers. Formula Schema v1 knowledge entries remain character-wise shorthand units. P1-06 remains **OPEN**; P1-07 remains **OPEN pending the focused Audit 11 documentary recheck**; Stage 0 remains **OPEN**.

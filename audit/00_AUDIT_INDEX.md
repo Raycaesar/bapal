@@ -89,6 +89,18 @@ The following three files are read-only audit products. They record findings abo
 - **Stage status:** P1-06 remains open. P1-07 is the Round 6 implementation target. Stage 0 remains open.
 - **Next round:** Round 6 — independent oracle, conformance corpus, and CI is authorized.
 
+## Round 6 independent oracle and CI closure audit
+
+- **Report:** [`audit/11_BAPAL_ROUND_6_ORACLE_CI_CLOSURE_AUDIT.md`](11_BAPAL_ROUND_6_ORACLE_CI_CLOSURE_AUDIT.md)
+- **Complete Round 6 implementation candidate:** `ffcd7cb2d14217859069acd8ac23cdc5ea450cbc`
+- **Final audited log-only HEAD:** `e9b8bd37a380c74375c7cd161711f76e605bf483`
+- **Verdict:** **PASS SUBJECT TO LOCAL REPAIRS**
+- **Technical conclusion:** The executable Round 6 package substantively passed Audit 11, including the independent oracle boundary, 73-case core corpus, exact-count FAST/FULL profiles, sensitivity and mutation detection, manifests, replayable reduced mismatch artifacts, CI structure, remote execution, and inherited regressions.
+- **Closure blocker:** R6-A11-01 is a documentary-only normative-status and remote-evidence synchronization finding. It does not reopen the passed Round 6 executable package or the closed Round 5 Schema v1 contract.
+- **Round status:** P1-07 and Round 6 remain **OPEN pending a focused Work Max documentary closure recheck**.
+- **Stage status:** P1-06 remains **OPEN** and Stage 0 remains **OPEN**.
+- **Next round:** Round 7 is **BLOCKED** until the focused recheck returns PASS and authorizes it.
+
 [`BAPAL_VERIFICATION.md`](../BAPAL_VERIFICATION.md) is project documentation and is not one of the audit reports.
 
 The source instructions for the audit are preserved in [`prompt/work_max_bapal_foundational_audit_prompt.md`](../prompt/work_max_bapal_foundational_audit_prompt.md).

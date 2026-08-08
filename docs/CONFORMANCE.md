@@ -7,7 +7,7 @@ This document is the normative developer guide for the Round 6 independent-oracl
 - an independently implemented Python semantic oracle supplies expected truth values; and
 - the JavaScript production evaluator supplies actual truth values.
 
-The checked-in corpus, generated profiles, manifests, and deliberate-mismatch test make semantic divergence reproducible and reviewable. P1-07 remains open until a Work Max Round 6 closure audit passes the implementation and every concrete mismatch has an authorized disposition.
+The checked-in corpus, generated profiles, manifests, and deliberate-mismatch test make semantic divergence reproducible and reviewable. Audit 11 substantively passed the executable Round 6 package. P1-07 remains open only pending the focused Work Max recheck of R6-A11-01 documentary synchronization; P1-06 and Stage 0 also remain open.
 
 ## 2. Independence boundary
 
@@ -81,7 +81,7 @@ The runner validates request shape and reports bridge/decode/evaluation failures
 
 Expected values are manually authored. They must never be generated from production output. The corpus covers atomic truth/falsity, all Boolean constructors, modal vacuity, all-label box/diamond, knowledge filtering/vacuity/shorthand, PAL vacuity/restriction/nesting, BAPAL valuation classes/nesting, sparse/null models, S5/non-S5, multi-character and prototype-sensitive atoms, raw labels, and exact atom identity.
 
-`core-073-bapal-delimiter-collision-exact-atoms` is a permanent adversarial regression. Its two true-atom sets are `{"a","b"}` and `{"a,b"}`. Hand derivation and the independent oracle make `^K{x}a` true at world 0. The first executable remote FAST run, `31278938374`, exposed that production's former comma-joined valuation key returned false. The scoped local repair now preserves the distinct exact atom sets, while the authored expectation and oracle semantic clause remain unchanged. Remote FAST revalidation remains pending.
+`core-073-bapal-delimiter-collision-exact-atoms` is a permanent adversarial regression. Its two true-atom sets are `{"a","b"}` and `{"a,b"}`. Hand derivation and the independent oracle make `^K{x}a` true at world 0. The first executable remote FAST run, `31278938374`, exposed that production's former comma-joined valuation key returned false. The scoped repair preserves the distinct exact atom sets, while the authored expectation and oracle semantic clause remain unchanged. Candidate `ffcd7cb` subsequently passed remote push FAST and manual FAST/FULL, and final log-only HEAD `e9b8bd3` passed remote push FAST.
 
 ## 7. FAST profile
 
@@ -96,7 +96,7 @@ Expected values are manually authored. They must never be generated from product
 - minimum 20,000 PAL and 20,000 BAPAL comparisons; and
 - every Formula Schema v1 constructor plus shorthand knowledge, S5/non-S5, sparse/null, multiple-label, multi-character-atom, and exact-identifier coverage.
 
-The runner must complete the exact count. It must not stop silently, reduce the target, or report success after a partial run. After the scoped valuation-key repair, local execution completes all 50,000 comparisons in `8.775551` seconds with zero mismatches. Remote FAST revalidation remains pending.
+The runner must complete the exact count. It must not stop silently, reduce the target, or report success after a partial run. After the scoped valuation-key repair, local execution completed all 50,000 comparisons in `8.775551` seconds with zero mismatches. Candidate push run `31279961371`, candidate manual runs `31280106548` and `31280325814`, and final-log-only-HEAD push run `31281388941` each completed FAST successfully at exactly 50,000 comparisons with zero mismatches.
 
 ## 8. FULL profile
 
@@ -112,6 +112,8 @@ The runner must complete the exact count. It must not stop silently, reduce the 
 - the same constructor and model-family guarantees as FAST, with PAL/BAPAL-heavy generation.
 
 Before the scoped repair, a reviewed local run completed exactly 500,000 comparisons in `94.502206` seconds and found four exact-atom collision mismatches. After the repair, local FULL completed exactly 500,000 comparisons in `93.281203` seconds with zero mismatches. The passing run retained 232,418 PAL, 295,446 BAPAL, and 78,600 nested-BAPAL comparisons, with observed nesting two.
+
+Candidate `ffcd7cb` manual runs `31280106548` and `31280325814` each completed FULL successfully at exactly 500,000 comparisons with zero mismatches. Audit 11 independently downloaded and inspected the latter run's artifacts. Final log-only HEAD `e9b8bd3` has a successful push FAST run, not a FULL run; its only difference from the candidate is the Round 6 Markdown implementation log.
 
 ## 9. Seeds and bounds
 
@@ -220,6 +222,8 @@ Both jobs use `contents: read`, disable persisted checkout credentials, set up s
 
 Each job creates its runner-temporary artifact directory immediately after runtime setup and writes a small `bootstrap.json`, so an early semantic failure still leaves a useful upload target. Manifest validation runs with `if: always()` and fails a missing, incomplete, mismatching, or non-pass manifest. Artifact upload also runs with `if: always()` and includes the whole profile directory, covering the bootstrap diagnostic, manifests, mismatch artifacts, and reducer output without collecting environment dumps or secrets. No failure is hidden with `continue-on-error`.
 
+The audited remote record is bounded and explicit: pre-repair push run `31278938374` failed as designed on `core-073`; complete candidate `ffcd7cb` passed push FAST in `31279961371` and manual FAST/FULL in `31280106548` and `31280325814`; final log-only HEAD `e9b8bd3` passed push FAST in `31281388941`, with FULL skipped as expected for a push. All successful generated profiles completed their exact targets with zero mismatches.
+
 ## 16. Local commands
 
 Run the independent core, deliberate sensitivity, and profiles from the repository root:
@@ -239,7 +243,7 @@ python3 scripts/check-oracle-conformance.py --profile fast --artifact-dir /tmp/b
 python3 scripts/check-oracle-conformance.py --profile full --artifact-dir /tmp/bapal-full
 ```
 
-The command prints the seed, exact target, progress, artifact path, elapsed time, and mismatch count. At the scoped-repair worktree, core, sensitivity, FAST, and FULL pass locally without weakening the corpus, comparator, authored `core-073` expectation, or exit behavior. Remote FAST revalidation remains pending.
+The command prints the seed, exact target, progress, artifact path, elapsed time, and mismatch count. Core, sensitivity, FAST, and FULL pass locally without weakening the corpus, comparator, authored `core-073` expectation, or exit behavior. Candidate remote FAST/FULL and final-log-only-HEAD remote FAST revalidation are complete; only the Audit 11 documentary-status repair remains pending focused recheck.
 
 ## 17. Failure triage
 
@@ -253,7 +257,7 @@ For an operational error, inspect `manifest.json` status, error, actual count, v
 6. add or retain the smallest understandable permanent regression before any authorized repair; and
 7. rerun core, sensitivity, FAST, FULL, inherited deterministic checks, whitespace, and clean-tree checks.
 
-Never regenerate tracked reports during triage. Never change protected production semantics as part of a Round 6 documentation or infrastructure task. The separately authorized `core-073` repair changed only the collision-prone valuation-class identity representation; future repairs still require concrete counterexamples and explicit scope. P1-07 remains open until remote FAST revalidation and the Work Max closure audit.
+Never regenerate tracked reports during triage. Never change protected production semantics as part of a Round 6 documentation or infrastructure task. The separately authorized `core-073` repair changed only the collision-prone valuation-class identity representation; future repairs still require concrete counterexamples and explicit scope. Remote revalidation is complete, but P1-07 and Round 6 remain open pending the focused Work Max recheck of R6-A11-01.
 
 ## 18. Nonclaims and limitations
 
