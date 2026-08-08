@@ -400,6 +400,16 @@ function _jsonToASCII(json) {
    * Constructor for Kripke model. Takes no initial input.
    * @constructor
    */
+  function _copyTrueAssignment(assignment) {
+    var processedAssignment = Object.create(null);
+    if (assignment === null || typeof assignment === 'undefined') return processedAssignment;
+
+    Object.keys(Object(assignment)).forEach(function(propvar) {
+      if (assignment[propvar] === true) processedAssignment[propvar] = true;
+    });
+    return processedAssignment;
+  }
+
   function Model() {
     // Array of states (worlds) in model.
     // Each state is an object with two properties:
@@ -456,11 +466,7 @@ function _jsonToASCII(json) {
      * Adds a state with a given assignment to the model.
      */
     this.addState = function (assignment) {
-      var processedAssignment = {};
-      for (var propvar in assignment)
-        if (assignment[propvar] === true)
-          processedAssignment[propvar] = assignment[propvar];
-
+      var processedAssignment = _copyTrueAssignment(assignment);
       _states.push({assignment: processedAssignment, successors: []});
       const stateIndex = _states.length - 1;
       return stateIndex;
@@ -473,10 +479,10 @@ function _jsonToASCII(json) {
       if (!_states[state]) return;
 
       var stateAssignment = _states[state].assignment;
-      for (var propvar in assignment) {
+      Object.keys(Object(assignment || {})).forEach(function(propvar) {
         if (assignment[propvar] === true) stateAssignment[propvar] = true;
         else if (assignment[propvar] === false) delete stateAssignment[propvar];
-      }
+      });
     };
 
     /**
@@ -512,7 +518,8 @@ function _jsonToASCII(json) {
     this.valuation = function (propvar, state) {
       if (!_states[state]) throw new Error('State ' + state + ' not found!');
 
-      return !!_states[state].assignment[propvar];
+      return Object.prototype.hasOwnProperty.call(_states[state].assignment, propvar) &&
+        _states[state].assignment[propvar] === true;
     };
 
     /**
@@ -565,7 +572,7 @@ function _jsonToASCII(json) {
         nextStates = parsed.modelData.states.map(function(state) {
           if (state === null) return null;
           return {
-            assignment: Object.assign({}, state.assignment),
+            assignment: _copyTrueAssignment(state.assignment),
             successors: state.successors.map(function(successor) {
               return { target: successor.target, agent: successor.agent };
             }),

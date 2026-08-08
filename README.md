@@ -20,6 +20,7 @@ This application is an explicit finite-model checker and visualizer. It evaluate
 ## Documentation
 
 - [Stage 0 semantic and product specification](docs/BAPAL_PLAYGROUND_SPEC.md)
+- [Schema v1 developer contract](docs/SCHEMA_V1.md)
 - [Audit index](audit/00_AUDIT_INDEX.md)
 - [Stage 0 scope and repair register](revision/00_STAGE_0_SCOPE_AND_REPAIR_REGISTER.md)
 - [Project verification notes](BAPAL_VERIFICATION.md)
