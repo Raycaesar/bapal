@@ -31,6 +31,53 @@ def job_section(source: str, job: str, following_job: str | None = None) -> str:
     return section
 
 
+def job_level_mapping(section: str, key: str) -> str:
+    """Return one concrete job-level mapping, excluding nested step mappings."""
+
+    marker = f"    {key}:"
+    lines = section.splitlines()
+    for index, line in enumerate(lines):
+        if not line.startswith(marker):
+            continue
+        selected = [line]
+        for following in lines[index + 1 :]:
+            if re.match(r"^    \S", following):
+                break
+            selected.append(following)
+        return "\n".join(selected)
+    return ""
+
+
+def require_artifact_bootstrap(
+    section: str, label: str, variable: str, profile: str
+) -> None:
+    """Check the runner-time artifact path repair and its three consumers."""
+
+    bootstrap = (
+        f"      - name: Configure {label} artifact directory\n"
+        "        run: |\n"
+        f'          echo "{variable}=$RUNNER_TEMP/bapal-conformance/{profile}" >> "$GITHUB_ENV"'
+    )
+    require(bootstrap in section, f"{label} runner-time artifact bootstrap is missing")
+    require(
+        section.index("      - name: Set up Python")
+        < section.index(f"      - name: Configure {label} artifact directory"),
+        f"{label} artifact path is configured before runner setup",
+    )
+    require(
+        f'--artifact-dir "${variable}"' in section,
+        f"{label} conformance command does not use the runtime artifact variable",
+    )
+    require(
+        f'os.environ["{variable}"]' in section,
+        f"{label} manifest check does not use the runtime artifact variable",
+    )
+    require(
+        f"path: ${{{{ env.{variable} }}}}/" in section,
+        f"{label} artifact upload does not resolve the runtime environment variable",
+    )
+
+
 def optional_yaml_check(source: str) -> str:
     try:
         import yaml  # type: ignore[import-not-found]
@@ -78,8 +125,32 @@ def main() -> None:
         require(f"actions/{action}@v7" in source, f"official actions/{action}@v7 is missing")
     require(source.count("actions/upload-artifact@v7") == 2, "both jobs must upload artifacts")
     require(source.count("if: always()") >= 6, "always-run verification/upload steps are missing")
-    require("${{ runner.temp }}/bapal-conformance/fast" in fast, "FAST artifacts are not under runner.temp")
-    require("${{ runner.temp }}/bapal-conformance/full" in full, "FULL artifacts are not under runner.temp")
+
+    fast_job_env = job_level_mapping(fast, "env")
+    full_job_env = job_level_mapping(full, "env")
+    require(
+        "${{ runner." not in fast_job_env and "${{ runner." not in full_job_env,
+        "runner-only context appears under jobs.<job_id>.env",
+    )
+    require(
+        "FAST_ARTIFACT_DIR" not in fast_job_env,
+        "FAST artifact path must not be established in job-level env",
+    )
+    require(
+        "FULL_ARTIFACT_DIR" not in full_job_env,
+        "FULL artifact path must not be established in job-level env",
+    )
+    workflow_environment = source.split("jobs:", 1)[0]
+    require(
+        "FAST_ARTIFACT_DIR" not in workflow_environment,
+        "FAST artifact path is configured before a runner exists",
+    )
+    require(
+        "FULL_ARTIFACT_DIR" not in workflow_environment,
+        "FULL artifact path is configured before a runner exists",
+    )
+    require_artifact_bootstrap(fast, "FAST", "FAST_ARTIFACT_DIR", "fast")
+    require_artifact_bootstrap(full, "FULL", "FULL_ARTIFACT_DIR", "full")
 
     fast_command = "python3 scripts/check-oracle-conformance.py\n          --profile fast"
     full_command = "python3 scripts/check-oracle-conformance.py\n          --profile full"
@@ -116,6 +187,7 @@ def main() -> None:
     parser_result = optional_yaml_check(source)
     print("PASS: triggers, job conditions, supported runtimes, and timeouts")
     print("PASS: exact FAST/FULL/core/sensitivity commands and inherited non-writing checks")
+    print("PASS: FAST/FULL artifact paths are established from RUNNER_TEMP after runner setup")
     print("PASS: minimal permissions, clean-tree gates, manifest gates, and always-run uploads")
     print("PASS: random report generation is absent")
     print(f"YAML parser check: {parser_result}")
