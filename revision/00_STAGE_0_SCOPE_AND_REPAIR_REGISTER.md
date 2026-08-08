@@ -12,7 +12,7 @@
   - [BAPAL Architecture and Correctness-First Roadmap](../audit/03_BAPAL_ARCHITECTURE_AND_ROADMAP.md)
 - **Normative contract:** [BAPAL Playground Semantic and Product Specification](../docs/BAPAL_PLAYGROUND_SPEC.md)
 
-**Stage 0 status: OPEN.** Round 1 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04**. Round 2 is **CLOSED AT `e0c816f` — WORK MAX AUDIT 05**, and the closure remains valid at final log-only HEAD `f7c7d59`. P1-02 is **CLOSED AT `6bd3369` — WORK MAX AUDIT 06**. Audit 07 closes P1-03 and Round 3 at `3f27ac2` under its focused raw-label rendering contract. P1-04 and P1-05 are **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**; P1-06 and P1-07 remain open. Round 5 must not begin until Work Max closes Round 4. The original three audit reports remain read-only historical evidence about the audited baseline; Audits 04–07 supply their stated narrow later-round evidence.
+**Stage 0 status: OPEN.** Round 1 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04**. Round 2 is **CLOSED AT `e0c816f` — WORK MAX AUDIT 05**, and the closure remains valid at final log-only HEAD `f7c7d59`. P1-02 is **CLOSED AT `6bd3369` — WORK MAX AUDIT 06**. Audit 07 closes P1-03 and Round 3 at `3f27ac2` under its focused raw-label rendering contract. P1-04 and P1-05 are **CLOSED AT `5c89ab5` — WORK MAX AUDIT 08**, and Round 4 is closed. Round 5 is **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**. P1-06 and P1-07 remain open; Stage 0 remains open; Round 6 is next only after Round 5 closure. The original three audit reports remain read-only historical evidence about the audited baseline; Audits 04–08 supply their stated narrow later-round evidence and do not certify Round 5.
 
 ## 2. Stage 0 objective
 
@@ -44,7 +44,7 @@ Representation, parser, UI, and test-infrastructure repairs must be checked agai
 
 ## 4. Planned repair rounds
 
-Round 1 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04**. Round 2 is **CLOSED AT `e0c816f` — WORK MAX AUDIT 05**. Round 3 P1-02 is **CLOSED AT `6bd3369` — WORK MAX AUDIT 06** and P1-03 is **CLOSED AT `3f27ac2` — WORK MAX AUDIT 07**. Round 4 P1-04/P1-05 are **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**. P1-06/P1-07 and Stage 0 remain open; Rounds 5–8 remain scheduled, and Round 5 is gated on Round 4 closure.
+Round 1 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04**. Round 2 is **CLOSED AT `e0c816f` — WORK MAX AUDIT 05**. Round 3 P1-02 is **CLOSED AT `6bd3369` — WORK MAX AUDIT 06** and P1-03 is **CLOSED AT `3f27ac2` — WORK MAX AUDIT 07**. Round 4 P1-04/P1-05 are **CLOSED AT `5c89ab5` — WORK MAX AUDIT 08**. Round 5 is **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**. P1-06/P1-07 and Stage 0 remain open; Round 6 is the active next round only after Round 5 closure, followed by Rounds 7–8.
 
 ### Round 1 — P0 structural model copying
 
@@ -161,7 +161,7 @@ The semantic/model results are audited to Audit 06's stated boundary; the raw-la
 
 ### Round 4 — Atomic model import and visible semantic state
 
-**Status: IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT.**
+**Status: CLOSED AT `5c89ab5` — WORK MAX AUDIT 08.**
 
 **Scope**
 
@@ -181,7 +181,7 @@ The semantic/model results are audited to Audit 06's stated boundary; the raw-la
 
 - `MPL.parseModelString()` parses every legacy state and transition into intermediate plain data. `Model.loadFromModelString()` performs no model mutation until the complete input, all targets, and all null/live references validate and the replacement state array is prepared.
 - Failure returns structured error data with stable code and source location fields. The exact prior world-array length, null slots, valuations, transitions, and stable indices remain unchanged; no valid prefix survives a malformed suffix.
-- Successful legacy import retains leading/internal/trailing null slots, empty assignments, multi-digit targets, optional trailing transition commas, arbitrary supported one-character relation labels including `x`, and set-like duplicate-transition suppression.
+- Successful legacy import retains leading/internal/trailing null slots, empty assignments, multi-digit targets, optional trailing transition commas, arbitrary supported one-code-point relation labels including `x`, and set-like duplicate-transition suppression. Compact assignment keys remain one character.
 - Browser formula/edit/import atoms are exactly `p`–`t`. A compact browser import containing another atom key is rejected atomically with `UNSUPPORTED_BROWSER_ATOM`; startup retains the complete default, shows a clear error, leaves S5 off, and does not rewrite the failed URL with partial state.
 - Raw programmatic models may retain other atom keys such as `foo` and `bar_baz`; the UI discloses them as unsupported semantic keys instead of silently deleting or renaming them.
 - Relation labels outside the five agent buttons remain accepted where the legacy format supports them, retain the Audit 07 renderer, appear in the inspector, and are identified as lacking a direct selection button.
@@ -198,9 +198,11 @@ The semantic/model results are audited to Audit 06's stated boundary; the raw-la
 - No native local browser executable was available. The strongest executable substitute loads production `MPL.js`, `s5-policy.js`, and `app.js` under the VM/DOM/D3 harness; it covers valid/malformed/unsupported startup, default retention, errors, inspector state, actual SVG `x` stroke/markers/text, S5 normalization, formula evaluation, coherent share URLs, and no execution exception. Audit 07 separately supplies native-browser evidence for the protected raw-label renderer at the Round 3 commit.
 - All inherited deterministic checks pass: 5/5 agent-rendering groups; 12/12 S5 groups with all 531 small relations and 200,000 operations; 108,246 formula round trips; 11/11 structural-copy cases; BAPAL, logic, S5-closure, valuation-class, and five report-link checks. `git diff --check` passes, and the tracked random report remains byte-identical to HEAD.
 
-P1-04 and P1-05 remain pending until Work Max reviews the implementation commit. This evidence is not a closure or Stage 0 certification claim.
+Audit 08 closes P1-04, P1-05, and Round 4 at implementation commit `5c89ab5536d46eb8ed01f21eec2d8bd3d0e08dea`; closure is preserved at final log-only HEAD `ab26863374464dd1466286a6c31d19d8e1a39a66`. The legacy compact format remains a compatibility boundary. Round 4 itself contains no Schema v1; the separate local Round 5 implementation below does not alter the audited Round 4 closure. Stage 0 remains open.
 
 ### Round 5 — Versioned model/formula schema
+
+**Status: IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT.**
 
 **Scope**
 
@@ -216,9 +218,34 @@ P1-04 and P1-05 remain pending until Work Max reviews the implementation commit.
 - Schema version, vocabulary, and compatibility behavior are explicit.
 - Truth tables are preserved across encode/decode for the supported corpus.
 
-Round 5 begins only after Work Max closes Round 4. Its schema work and review evidence must remain separately reviewable; no Round 5 JSON schema exists in the Round 4 implementation.
+**Implemented policy**
+
+- `js/schema-v1.js` exposes separate `bapal-model` and `bapal-formula` version-1 documents through `MPL.SchemaV1`. It does not use the legacy compact format or URL encoding as an internal bridge.
+- Model world identity is the preserved array index, including leading/internal/trailing null slots. Atom sets and labelled transitions are explicit arrays; model identifiers are exact nonempty well-formed Unicode scalar strings. Empty and lone-surrogate identifiers reject, and prototype-sensitive names decode into prototype-safe assignments.
+- Formula Schema v1 exposes only the stable `atom`, `not`, `box`, `diamond`, `bapal`, `knowledge`, `announcement`, `and`, `or`, `implies`, and `iff` nodes. Formula atoms match `[A-Za-z0-9_]+`; ordered knowledge units match `[A-Za-z0-9_]`, preserve duplicates, and represent current `K{abc}` shorthand as `['a','b','c']`, not as one multi-character epistemic agent.
+- Model canonical output preserves world/null order, sorts true atoms by Unicode scalar value, sorts transitions by target and then relation label, and rejects duplicate atoms/transitions. Formula canonical output preserves all semantic child and shorthand-unit order. Extra structural fields and unknown versions reject explicitly.
+- The two Draft 2020-12 JSON Schema artifacts enforce structural shape. Runtime validation adds live/in-range target checks, exact Unicode-scalar policy, cycle safety, and current semantic-representation compatibility. Ordinary failures return stable structured error objects with replayable paths.
+- Model decoding returns a fresh independent `MPL.Model`; formula decoding returns a fresh independent `MPL.Wff`; both return independent canonical documents. Formula conversion directly maps stable and legacy JSON ASTs and does not use ASCII as semantic transport.
+- The current compact share URL is unchanged and remains a compatibility interface. Parser, printer, evaluator, deep copy, S5, rendering, Round 4 import/visibility, report generation, reports, and result terminology remain outside Round 5's implementation diff.
+
+**Permanent implementation evidence**
+
+- `scripts/check-model-schema-v1.js` uses seed `0x5c4e4d41` (`1548635457`) for exactly 100,000 generated models. It records 84,099 sparse models, 300,172 null slots, 45,455 multi-digit-target models, 91,825 Unicode models, and 3,454 truth comparisons, with all nine deterministic groups passing.
+- `scripts/check-formula-schema-v1.js` exhausts 8,210 formulas through logical size 5 with per-size counts `2, 12, 92, 792, 7312`. It uses seed `0x0f05ca1a` (`252037658`) for exactly 100,000 generated formulas through depth 40, covers every constructor, and records 724 truth comparisons, with all ten deterministic groups passing.
+
+**Prompt 5.3 concentrated independent review evidence**
+
+- The independent model oracle used seed `0x91e10da5` (`2447445413`) for 200,000 documents: 100,000 accepted and 100,000 rejected. After a scoped repair preserving the original input transition index in post-canonicalization target errors, classification, canonical interpretation, mutation, and error-path mismatches were all zero; the minimized case is permanent in the model suite.
+- The independent formula oracle used seed `0xc2b2ae35` (`3266489909`) for 200,000 documents: 100,000 valid and 100,000 malformed. It separately round-tripped at least 100,000 valid stable ASTs; classification, identity, knowledge-policy, deep-path, and mutation mismatches were zero.
+- Truth review used seed `0x6a09e667` (`1779033703`), exactly 10,000 formula-schema instances, eight models with 32 live worlds, and 320,000 pointed comparisons (640,000 evaluator calls). It included 999 BAPAL-rooted cases and bounded BAPAL enumeration to at most eight worlds, four valuation classes, and eight announcement subsets; mismatches were zero.
+- Python `jsonschema` 4.10.3 was already installed and checked both artifacts as Draft 2020-12 schemas. Formula artifact/runtime classification aligned in all ten boundary categories. The model artifact had exactly the documented runtime-only semantic differences for out-of-range targets, targets to null worlds, and lone-surrogate rejection.
+- All inherited deterministic checks listed by the Round 5 task pass, including semantic visibility, atomic import, agent rendering, S5 invariants/closure, formula round trip, structural copy, BAPAL/logic/valuation-class checks, report links, and `git diff --check`. No tracked report was regenerated.
+
+This evidence supports the local implementation candidate but does not close or audit Round 5. P1-06, P1-07, and Stage 0 remain **OPEN**. Round 6 must not begin until a Work Max closure audit closes Round 5.
 
 ### Round 6 — Independent oracle, conformance corpus, and CI
+
+**Status: NEXT ONLY AFTER ROUND 5 CLOSURE.**
 
 **Scope**
 
@@ -270,7 +297,7 @@ Round 5 begins only after Work Max closes Round 4. Its schema work and review ev
 
 ## 5. Defect-to-round mapping
 
-Every P0/P1 defect from the foundational audit appears exactly once below with one primary repair round. P0-01 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04** for internal semantic copying. P1-01 is **CLOSED AT `e0c816f` — WORK MAX AUDIT 05** under the supported-AST ASCII-printing contract. P1-02 is **CLOSED AT `6bd3369` — WORK MAX AUDIT 06**. P1-03 is **CLOSED AT `3f27ac2` — WORK MAX AUDIT 07**. P1-04 and P1-05 are **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**; P1-06 and P1-07 remain **OPEN**.
+Every P0/P1 defect from the foundational audit appears exactly once below with one primary repair round. P0-01 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04** for internal semantic copying. P1-01 is **CLOSED AT `e0c816f` — WORK MAX AUDIT 05** under the supported-AST ASCII-printing contract. P1-02 is **CLOSED AT `6bd3369` — WORK MAX AUDIT 06**. P1-03 is **CLOSED AT `3f27ac2` — WORK MAX AUDIT 07**. P1-04 and P1-05 are **CLOSED AT `5c89ab5` — WORK MAX AUDIT 08**; P1-06 and P1-07 remain **OPEN**.
 
 | Defect ID | Status | Severity | Affected files/functions | Primary round | Dependencies | Required minimized regression | Closure evidence |
 |---|---|---|---|---|---|---|---|
@@ -278,8 +305,8 @@ Every P0/P1 defect from the foundational audit appears exactly once below with o
 | P1-01 | CLOSED AT `e0c816f` — WORK MAX AUDIT 05 | P1 — parser/API contract | `js/MPL.js`: `_jsonToASCII` protective-parentheses rule and `Wff` parse/print path; parser configuration unchanged | Round 2 | Round 1 closed; supported grammar boundary recorded | `[(K{a}p)]q` prints, reparses, and yields the same AST | Minimized parent reproduction; 108,246 checked-in round trips; independent exhaustive size-6 and 50,000-generated-AST verification with zero candidate failures; semantic non-regression checks; Audit 05 |
 | P1-02 | CLOSED AT `6bd3369` — WORK MAX AUDIT 06 | P1 — S5 model integrity | `js/app.js`: world-creation `mousedown` path; `js/s5-policy.js`: relevant-agent and world-addition policy; semantic relations in `MPL.Model` | Round 3 | Rounds 1–2 closed; fixed relevant-agent policy | With active S5 relations for `a` and `b`, add a world while `a` is selected; both relations remain reflexive, symmetric, and transitive | Pre-repair missing `2R_b2`; minimized new-world regression; all-agent stored-loop inspection; 10,000 checked-in sequences; independent 25,000-sequence review; executable full-app VM/stub path; Audit 06 closure |
 | P1-03 | CLOSED AT `3f27ac2` — WORK MAX AUDIT 07 | P1 — misleading S5 state/incomplete or invisible closure | `js/app.js`: `setS5Mode`, model-to-D3 synchronization, generic SVG relation rendering, `addRelationForCurrentMode`; `js/s5-policy.js`: confirmation/edit policy; `js/MPL.js`: whole-relation closure | Round 3 | Same S5 policy and harness as P1-02; Audit 06 raw-label counterexample | Toggle S5 on over one-way `x` in `AS1x,;AS`; cancellation leaves state unchanged or accepted normalization repairs the relation, and every non-loop `x` descriptor has visible stroke, direction, and identity | Audit 06 passes semantic/model behavior but finds invisible `x`; Audit 07 verifies safe/deduplicated markers, explicit strokes, directions, complete raw labels, overlaps, stored hidden loops, declared-agent compatibility, and closes P1-03/Round 3 |
-| P1-04 | IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT | P1 — non-atomic model import | `js/MPL.js`: `parseModelString`, `loadFromModelString`; `js/app.js`: startup/share-URL load path | Round 4 | Round 3 closed by Audit 07; Round 1 structural model operations | Load `ApS;BROKEN;AqS` over a known existing model; receive structured failure and retain the exact complete prior model | Nine minimized failures; 16 compatibility cases; permanent 100,000-case oracle/fuzz with 50,000 exact rollbacks; separate 250,000-case independent review with 125,000 exact rollbacks; three startup cases; Work Max closure pending |
-| P1-05 | IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT | P1 — hidden semantic state | `js/app.js`: browser boundary, `SemanticState`, model-to-D3 projection, `setVarCount`, inspector synchronization; `index.html`; `css/app.css` | Round 4 | Round 1 identifier preservation; browser atom policy `p`–`t`; Audit 07 relation renderer | Hide true `r/s/t`, inject raw `foo`/`bar_baz`, import unsupported atom `x`, and store relation `x`/self-loops/null slots; every semantic fact is disclosed or browser import is rejected before mutation | 11 semantic-visibility groups; exact semantic/visual JSON comparison; valuation-class/formula/BAPAL invariance; executable production VM/DOM/D3 startup, S5, formula, rendering, escaping, URL, and mutation-path coverage; Work Max closure pending |
+| P1-04 | CLOSED AT `5c89ab5` — WORK MAX AUDIT 08 | P1 — non-atomic model import | `js/MPL.js`: `parseModelString`, `loadFromModelString`; `js/app.js`: startup/share-URL load path | Round 4 | Round 3 closed by Audit 07; Round 1 structural model operations | Load `ApS;BROKEN;AqS` over a known existing model; receive structured failure and retain the exact complete prior model | Nine minimized failures; 16 compatibility cases; permanent 100,000-case oracle/fuzz with 50,000 exact rollbacks; separate 250,000-case independent review with 125,000 exact rollbacks; three startup cases; Audit 08 closure |
+| P1-05 | CLOSED AT `5c89ab5` — WORK MAX AUDIT 08 | P1 — hidden semantic state | `js/app.js`: browser boundary, `SemanticState`, model-to-D3 projection, `setVarCount`, inspector synchronization; `index.html`; `css/app.css` | Round 4 | Round 1 identifier preservation; browser atom policy `p`–`t`; Audit 07 relation renderer | Hide true `r/s/t`, inject raw `foo`/`bar_baz`, import unsupported atom `x`, and store relation `x`/self-loops/null slots; every semantic fact is disclosed or browser import is rejected before mutation | 11 semantic-visibility groups; exact semantic/visual JSON comparison; valuation-class/formula/BAPAL invariance; executable production VM/DOM/D3 startup, S5, formula, rendering, escaping, URL, and mutation-path coverage; Audit 08 closure |
 | P1-07 | OPEN | P1 — non-independent verification/no gate | `scripts/check-*.js`, `scripts/check-all.js`, independent audit oracle/corpus, future CI configuration, `BAPAL_VERIFICATION.md` | Round 6 | Repair outputs from Rounds 1–5 and stable schema/corpus identifiers | A deliberately injected semantic mismatch is detected and minimized; aggregate checks include `check-report-links` and leave tracked reports byte-unchanged | Checked-in independent oracle review; fast/full CI manifests with seeds, counts, hashes, artifacts, and zero unexplained mismatches |
 | P1-06 | OPEN | P1 — invalid result terminology | `scripts/random-bapal-evaluation.js`: `evaluateFormulas`, report table and console labels; generated report schema; README/API/UI verification text | Round 7 | Stable result/schema naming from Rounds 4–6 | A formula true at some but not all worlds is reported only as “true somewhere in this model”; a formula true at all worlds only as “true at every world in this model” | Schema and snapshot tests; forbidden-term documentation scan; updated product docs; audit confirms no satisfiability/validity overclaim |
 

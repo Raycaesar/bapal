@@ -56,6 +56,16 @@ The following three files are read-only audit products. They record findings abo
 - **Stage status:** Stage 0 remains open.
 - **Next round:** Round 4 — atomic model import and visible semantic state is authorized.
 
+## Round 4 import and visibility closure audit
+
+- **Report:** [`audit/08_BAPAL_ROUND_4_IMPORT_VISIBILITY_CLOSURE_AUDIT.md`](08_BAPAL_ROUND_4_IMPORT_VISIBILITY_CLOSURE_AUDIT.md)
+- **Round 4 implementation commit:** `5c89ab5536d46eb8ed01f21eec2d8bd3d0e08dea`
+- **Final log-only HEAD:** `ab26863374464dd1466286a6c31d19d8e1a39a66`
+- **Verdict:** **PASS — P1-04 AND P1-05 CLOSED; PROCEED TO ROUND 5**
+- **Technical conclusion:** P1-04 atomic legacy compact-model import and P1-05 visible/disclosed semantic state are closed at `5c89ab5` under Audit 08's documented legacy-format and browser/raw-model boundaries.
+- **Stage status:** Stage 0 remains open.
+- **Next round:** Round 5 — versioned model/formula schema is authorized.
+
 [`BAPAL_VERIFICATION.md`](../BAPAL_VERIFICATION.md) is project documentation and is not one of the audit reports.
 
 The source instructions for the audit are preserved in [`prompt/work_max_bapal_foundational_audit_prompt.md`](../prompt/work_max_bapal_foundational_audit_prompt.md).

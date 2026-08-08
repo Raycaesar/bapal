@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/vezwork/modallogic/schemas/bapal-formula-v1.schema.json",
+  "title": "BAPAL Formula Interchange v1",
+  "description": "Stable structural interchange for the currently supported Wff semantics. Formula atoms use raw-parser-compatible ASCII word identifiers. Knowledge agents are ordered one-code-unit ASCII word shorthand units matching the evaluator's current conjunction-like K token semantics.",
+  "type": "object",
+  "required": [
+    "format",
+    "version",
+    "formula"
+  ],
+  "properties": {
+    "format": {
+      "const": "bapal-formula"
+    },
+    "version": {
+      "const": 1
+    },
+    "formula": {
+      "$ref": "#/$defs/node"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "formulaAtom": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_]+$",
+      "description": "A nonempty ASCII word identifier accepted by the current raw Wff parser and printer contract."
+    },
+    "knowledgeAgent": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_]$",
+      "description": "Exactly one current K-shorthand unit. Multiple entries mean the current conjunction-like K{abc} semantics, not one multi-character agent."
+    },
+    "node": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/atom"
+        },
+        {
+          "$ref": "#/$defs/unary"
+        },
+        {
+          "$ref": "#/$defs/knowledge"
+        },
+        {
+          "$ref": "#/$defs/announcement"
+        },
+        {
+          "$ref": "#/$defs/binary"
+        }
+      ]
+    },
+    "atom": {
+      "type": "object",
+      "required": [
+        "type",
+        "name"
+      ],
+      "properties": {
+        "type": {
+          "const": "atom"
+        },
+        "name": {
+          "$ref": "#/$defs/formulaAtom"
+        }
+      },
+      "additionalProperties": false
+    },
+    "unary": {
+      "type": "object",
+      "required": [
+        "type",
+        "operand"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "not",
+            "box",
+            "diamond",
+            "bapal"
+          ]
+        },
+        "operand": {
+          "$ref": "#/$defs/node"
+        }
+      },
+      "additionalProperties": false
+    },
+    "knowledge": {
+      "type": "object",
+      "required": [
+        "type",
+        "agents",
+        "operand"
+      ],
+      "properties": {
+        "type": {
+          "const": "knowledge"
+        },
+        "agents": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Ordered shorthand units. Duplicates are preserved because the current legacy K token and evaluator do not discard them structurally.",
+          "items": {
+            "$ref": "#/$defs/knowledgeAgent"
+          }
+        },
+        "operand": {
+          "$ref": "#/$defs/node"
+        }
+      },
+      "additionalProperties": false
+    },
+    "announcement": {
+      "type": "object",
+      "required": [
+        "type",
+        "precondition",
+        "body"
+      ],
+      "properties": {
+        "type": {
+          "const": "announcement"
+        },
+        "precondition": {
+          "$ref": "#/$defs/node"
+        },
+        "body": {
+          "$ref": "#/$defs/node"
+        }
+      },
+      "additionalProperties": false
+    },
+    "binary": {
+      "type": "object",
+      "required": [
+        "type",
+        "left",
+        "right"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "and",
+            "or",
+            "implies",
+            "iff"
+          ]
+        },
+        "left": {
+          "$ref": "#/$defs/node"
+        },
+        "right": {
+          "$ref": "#/$defs/node"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

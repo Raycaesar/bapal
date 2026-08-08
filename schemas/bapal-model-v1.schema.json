@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/vezwork/modallogic/schemas/bapal-model-v1.schema.json",
+  "title": "BAPAL Semantic Model Interchange v1",
+  "description": "Stable structural interchange for one finite semantic model. World identity is its preserved array index. Runtime semantic validation additionally requires every target to be within the worlds array, to identify a live non-null world, and every identifier to be a nonempty well-formed Unicode scalar string.",
+  "type": "object",
+  "required": [
+    "format",
+    "version",
+    "worlds"
+  ],
+  "properties": {
+    "format": {
+      "const": "bapal-model"
+    },
+    "version": {
+      "const": 1
+    },
+    "worlds": {
+      "type": "array",
+      "description": "Stable world slots. Array order and null positions are semantically significant and must not be compacted.",
+      "items": {
+        "oneOf": [
+          {
+            "type": "null"
+          },
+          {
+            "$ref": "#/$defs/world"
+          }
+        ]
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "description": "An exact, non-normalized identifier. Runtime validation rejects isolated UTF-16 surrogate code units so that the value is a well-formed Unicode scalar string."
+    },
+    "transition": {
+      "type": "object",
+      "required": [
+        "target",
+        "agent"
+      ],
+      "properties": {
+        "target": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991,
+          "description": "A safe non-negative array index. Runtime validation requires target < worlds.length and worlds[target] to be non-null."
+        },
+        "agent": {
+          "$ref": "#/$defs/identifier"
+        }
+      },
+      "additionalProperties": false
+    },
+    "world": {
+      "type": "object",
+      "required": [
+        "trueAtoms",
+        "transitions"
+      ],
+      "properties": {
+        "trueAtoms": {
+          "type": "array",
+          "description": "The exact set of atoms true at this world. Canonical encoders sort these identifiers by Unicode scalar value without normalization.",
+          "items": {
+            "$ref": "#/$defs/identifier"
+          },
+          "uniqueItems": true
+        },
+        "transitions": {
+          "type": "array",
+          "description": "The exact set of outgoing target/agent pairs. Canonical encoders sort by numeric target and then by the agent's Unicode scalar values.",
+          "items": {
+            "$ref": "#/$defs/transition"
+          },
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
