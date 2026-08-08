@@ -534,3 +534,56 @@ Work Max should review this exact package:
 - clean-state evidence before log creation and after every validation command.
 
 Work Max should audit `67fc1a2a8f253fcd97a88c9fe9f656de226a93b4` as the complete Round 5 implementation candidate and treat any later log-only commit as a documentary addition only.
+
+## Audit 09 resource-identity repair addendum
+
+This section was appended after Audit 09 and after the scoped resource-identity repair. It does not rewrite or imply that the pre-Audit Round 5 implementation log above already contained this later audit finding, repair identity, or rerun evidence.
+
+### Audit and repair identities
+
+- Audit 09 final reviewed HEAD: `ab10f64234a4d397582eab9ba68b434fea02ec26` (`ab10f642`).
+- Audit 09 verdict: **PASS SUBJECT TO LOCAL REPAIRS**.
+- Closure-blocking finding: **R5-A09-01 — stale JSON Schema resource identities**.
+- Exact resource-identity repair commit: `edfbf32d07507bd43143bd518dbe3e2316a65979`.
+
+### Resource identities and artifact hashes
+
+| Artifact | Audit 09 `$id` | Repaired canonical `$id` | Audit 09 SHA-256 | Repaired SHA-256 |
+|---|---|---|---|---|
+| Model Schema v1 | `https://github.com/vezwork/modallogic/schemas/bapal-model-v1.schema.json` | `https://raycaesar.github.io/bapal/schemas/bapal-model-v1.schema.json` | `e520e6f498c6a2e5a8f6b1422f4820803a9d28e6e8a64a2f36e7ee7f07d9474f` | `c46074541d1ac27fa369ffbfddf27d21b11ec88f139440511260141136532aaf` |
+| Formula Schema v1 | `https://github.com/vezwork/modallogic/schemas/bapal-formula-v1.schema.json` | `https://raycaesar.github.io/bapal/schemas/bapal-formula-v1.schema.json` | `277d8a8d1414da8c11f0375703517d586652a1d61dbcafcc281845546cc979e6` | `7446ce2654f8a62ac475188dd20782944a344662a8e1f624addedc6ae609377a` |
+
+The repaired identifiers are separate, absolute HTTPS resource identities controlled by the project. They are independent of runtime `MPL.SchemaV1` API names and legacy compact/share URLs. Internal `$ref` values remain local fragments.
+
+### Permanent tests strengthened
+
+`scripts/check-model-schema-v1.js` and `scripts/check-formula-schema-v1.js` now read both tracked schema artifacts and pin both exact canonical `$id` constants. Each script additionally asserts the Draft 2020-12 dialect for its focal artifact, rejects any retained `vezwork/modallogic` text in that artifact, verifies that its focal `$id` is an exact absolute HTTPS URI, verifies that model and formula IDs differ, and walks every focal `$ref` to require a resolvable local fragment with at least one reference. The existing exact `format` and version checks remain in force.
+
+### Complete deterministic rerun at the repair commit
+
+The complete deterministic matrix was rerun at clean repair HEAD `edfbf32d07507bd43143bd518dbe3e2316a65979`. Every command exited `0`; `git status --short` was empty before the rerun and remained empty afterward.
+
+| Command | Result |
+|---|---|
+| `node scripts/check-model-schema-v1.js` | PASS; 9 groups; seed `0x5c4e4d41`; 100,000 generated; 15 adversarial identifiers; 27 invalid documents; 3,454 truth comparisons |
+| `node scripts/check-formula-schema-v1.js` | PASS; 10 groups; seed `0x0f05ca1a`; 8,210 exhaustive ASTs; 100,000 generated; 16 invalid documents; 724 truth comparisons |
+| `node scripts/check-semantic-state-visibility.js` | PASS, 11/11 groups |
+| `node scripts/check-atomic-model-import.js` | PASS; 9 minimized malformed cases; 16 compatibility cases; seed `0x041c0a11`; 100,000 generated; 3 startup cases |
+| `node scripts/check-agent-rendering.js` | PASS, 5/5 groups |
+| `node scripts/check-s5-invariants.js` | PASS, 12/12 groups; 531 relations; seed `0x0055f503`; 10,000 sequences / 200,000 operations |
+| `node scripts/check-formula-roundtrip.js` | PASS; 108,246 AST round trips; 3 display smokes |
+| `node scripts/check-structural-copy-regressions.js` | PASS, 11/11 groups |
+| `node scripts/check-bapal-regression.js` | PASS, 8/8 checks |
+| `node scripts/check-logic-regressions.js` | PASS, 6/6 checks |
+| `node scripts/check-s5-closure.js` | PASS, 4/4 checks |
+| `node scripts/check-bapal-valuation-class.js` | PASS |
+| `node scripts/check-report-links.js` | PASS, 5/5 links |
+| `git diff --check` | PASS, no output |
+
+The tracked random-report generator was not run and no report was regenerated.
+
+### Runtime and closure disposition
+
+The repair range `ab10f64234a4d397582eab9ba68b434fea02ec26..edfbf32d07507bd43143bd518dbe3e2316a65979` does not change the runtime codec implementation `js/schema-v1.js` or the supporting model/evaluator file `js/MPL.js`. `js/schema-v1.js` remains SHA-256 `7a29b93d11e45ca8261047b9b73175ed931beff42ce65a8c0f42f6bcdf9f6b76`. The repair changes artifact identity, permanent assertions, and corresponding documentation/status records only; it does not alter model or formula acceptance, canonicalization, decode/encode behavior, logical truth, or legacy compact/share behavior.
+
+Audit 09's runtime-codec PASS remains the applicable disposition, but Round 5 is still **OPEN — PENDING FOCUSED WORK MAX CLOSURE RECHECK**. This addendum does not close Round 5, P1-06, P1-07, or Stage 0, and it does not authorize Round 6.
