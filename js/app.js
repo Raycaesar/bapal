@@ -7,6 +7,274 @@
  * Released under the MIT License.
  */
 
+/**
+ * Pure browser-boundary validation and semantic/graph inspection helpers.
+ * This module reads MPL.Model-compatible data but does not mutate the model or
+ * depend on D3.
+ */
+var SemanticState = (function() {
+  'use strict';
+
+  const DEFAULT_SUPPORTED_ATOMS = ['p', 'q', 'r', 's', 't'];
+  const DEFAULT_SELECTABLE_RELATIONS = ['a', 'b', 'c', 'd', 'e'];
+
+  function compareText(left, right) {
+    const leftText = String(left);
+    const rightText = String(right);
+    if (leftText < rightText) return -1;
+    if (leftText > rightText) return 1;
+    return 0;
+  }
+
+  function sortedUnique(values) {
+    return [...new Set(values.map(value => String(value)))].sort(compareText);
+  }
+
+  function validateBrowserImport(parsed, supportedAtoms) {
+    if (!parsed || parsed.ok !== true) return parsed;
+
+    const supported = new Set(supportedAtoms || DEFAULT_SUPPORTED_ATOMS);
+    const occurrences = [];
+    parsed.modelData.states.forEach(function(state, stateIndex) {
+      if (!state) return;
+      Object.keys(state.assignment).forEach(function(atom) {
+        if (!supported.has(atom)) occurrences.push({ stateIndex: stateIndex, atom: atom });
+      });
+    });
+
+    if (occurrences.length === 0) {
+      return { ok: true, unsupportedAtoms: [], occurrences: [] };
+    }
+
+    const unsupportedAtoms = sortedUnique(occurrences.map(function(item) { return item.atom; }));
+    const first = occurrences[0];
+    return {
+      ok: false,
+      error: {
+        code: 'UNSUPPORTED_BROWSER_ATOM',
+        message: 'Browser compact import contains unsupported atom ' +
+          JSON.stringify(first.atom) + '. Supported browser atoms are p, q, r, s, and t.',
+        offset: null,
+        stateIndex: first.stateIndex,
+        tokenIndex: null,
+        token: first.atom,
+        unsupportedAtoms: unsupportedAtoms,
+        occurrences: occurrences,
+      },
+    };
+  }
+
+  function endpointId(endpoint) {
+    return endpoint && typeof endpoint === 'object' ? endpoint.id : endpoint;
+  }
+
+  function descriptorKey(descriptor) {
+    return JSON.stringify([
+      descriptor.agent,
+      descriptor.sourceId,
+      descriptor.targetId,
+      !!descriptor.left,
+      !!descriptor.right,
+    ]);
+  }
+
+  function sortDescriptors(descriptors) {
+    return descriptors.sort(function(left, right) {
+      return compareText(left.agent, right.agent) ||
+        left.sourceId - right.sourceId ||
+        left.targetId - right.targetId ||
+        Number(left.left) - Number(right.left) ||
+        Number(left.right) - Number(right.right);
+    });
+  }
+
+  function buildSemanticProjection(semanticWorlds) {
+    const descriptors = new Map();
+    semanticWorlds.forEach(function(world) {
+      if (!world) return;
+      world.outgoingTransitions.forEach(function(transition) {
+        if (world.index === transition.target) return;
+        const sourceId = Math.min(world.index, transition.target);
+        const targetId = Math.max(world.index, transition.target);
+        const key = JSON.stringify([transition.agent, sourceId, targetId]);
+        if (!descriptors.has(key)) {
+          descriptors.set(key, {
+            sourceId: sourceId,
+            targetId: targetId,
+            agent: transition.agent,
+            left: false,
+            right: false,
+          });
+        }
+        const descriptor = descriptors.get(key);
+        if (world.index < transition.target) descriptor.right = true;
+        else descriptor.left = true;
+      });
+    });
+    return sortDescriptors([...descriptors.values()]);
+  }
+
+  function buildSnapshot(model, visualNodes, visualLinks, options) {
+    const settings = options || {};
+    const supportedAtoms = (settings.supportedAtoms || DEFAULT_SUPPORTED_ATOMS).slice();
+    const selectableRelationLabels =
+      (settings.selectableRelationLabels || DEFAULT_SELECTABLE_RELATIONS).slice();
+    const displayedAtomCount = Math.max(
+      0,
+      Math.min(supportedAtoms.length, Number(settings.displayedAtomCount) || 0)
+    );
+    const supportedSet = new Set(supportedAtoms);
+    const selectableSet = new Set(selectableRelationLabels);
+    const rawStates = model.getRawStates();
+    const trueAtomKeys = new Set();
+    const relationLabels = new Set();
+    let storedTransitionCount = 0;
+    let storedSelfLoopCount = 0;
+
+    const semanticWorlds = rawStates.map(function(state, index) {
+      if (state === null) return null;
+      const trueAssignments = Object.keys(state.assignment)
+        .filter(function(atom) { return state.assignment[atom] === true; })
+        .sort(compareText);
+      trueAssignments.forEach(function(atom) { trueAtomKeys.add(atom); });
+
+      const outgoingTransitions = state.successors.map(function(successor) {
+        const agent = String(successor.agent);
+        relationLabels.add(agent);
+        storedTransitionCount++;
+        if (successor.target === index) storedSelfLoopCount++;
+        return { target: successor.target, agent: agent };
+      }).sort(function(left, right) {
+        return left.target - right.target || compareText(left.agent, right.agent);
+      });
+
+      return {
+        index: index,
+        trueAssignments: trueAssignments,
+        outgoingTransitions: outgoingTransitions,
+      };
+    });
+
+    const allTrueAtomKeys = [...trueAtomKeys].sort(compareText);
+    const displayedAtomRows = supportedAtoms.slice(0, displayedAtomCount);
+    const displayedSet = new Set(displayedAtomRows);
+    const hiddenSupportedTrueAtomKeys = allTrueAtomKeys.filter(function(atom) {
+      return supportedSet.has(atom) && !displayedSet.has(atom);
+    });
+    const unsupportedTrueAtomKeys = allTrueAtomKeys.filter(function(atom) {
+      return !supportedSet.has(atom);
+    });
+    const activeRelationLabels = [...relationLabels].sort(compareText);
+    const labelsWithoutAgentButton = activeRelationLabels.filter(function(label) {
+      return !selectableSet.has(label);
+    });
+
+    const visualNodeIds = sortedUnique((visualNodes || []).map(function(node) { return node.id; }))
+      .map(function(id) { return Number(id); })
+      .sort(function(left, right) { return left - right; });
+    const visualNonLoopLinks = sortDescriptors((visualLinks || [])
+      .map(function(link) {
+        return {
+          sourceId: Number(endpointId(link.source)),
+          targetId: Number(endpointId(link.target)),
+          agent: String(link.agent),
+          left: !!link.left,
+          right: !!link.right,
+        };
+      })
+      .filter(function(link) { return link.sourceId !== link.targetId; }));
+
+    const liveWorldIds = semanticWorlds
+      .filter(function(world) { return world !== null; })
+      .map(function(world) { return world.index; });
+    const visualNodeSet = new Set(visualNodeIds);
+    const liveWorldSet = new Set(liveWorldIds);
+    const expectedVisualLinks = buildSemanticProjection(semanticWorlds);
+    const expectedLinkKeys = new Set(expectedVisualLinks.map(descriptorKey));
+    const visualLinkKeys = new Set(visualNonLoopLinks.map(descriptorKey));
+    const projectionDifferences = {
+      hiddenStoredSelfLoops: storedSelfLoopCount,
+      missingVisualNodeIds: liveWorldIds.filter(function(id) { return !visualNodeSet.has(id); }),
+      extraVisualNodeIds: visualNodeIds.filter(function(id) { return !liveWorldSet.has(id); }),
+      missingVisualLinkDescriptors: expectedVisualLinks.filter(function(descriptor) {
+        return !visualLinkKeys.has(descriptorKey(descriptor));
+      }),
+      extraVisualLinkDescriptors: visualNonLoopLinks.filter(function(descriptor) {
+        return !expectedLinkKeys.has(descriptorKey(descriptor));
+      }),
+    };
+
+    const warnings = [];
+    if (hiddenSupportedTrueAtomKeys.length > 0) {
+      warnings.push(
+        'Supported true atom keys hidden by the current display projection: ' +
+        hiddenSupportedTrueAtomKeys.join(', ') + '.'
+      );
+    }
+    if (unsupportedTrueAtomKeys.length > 0) {
+      warnings.push(
+        'Unsupported semantic atom keys are preserved and affect truth/valuation classes, but browser import rejects them: ' +
+        unsupportedTrueAtomKeys.join(', ') + '.'
+      );
+    }
+    if (labelsWithoutAgentButton.length > 0) {
+      warnings.push(
+        'Active relation labels without a direct agent selection button: ' +
+        labelsWithoutAgentButton.join(', ') + '.'
+      );
+    }
+    if (storedSelfLoopCount > 0) {
+      warnings.push(
+        storedSelfLoopCount + ' stored semantic self-loop' +
+        (storedSelfLoopCount === 1 ? ' is' : 's are') +
+        ' intentionally omitted from the non-loop graph projection.'
+      );
+    }
+    if (
+      projectionDifferences.missingVisualNodeIds.length > 0 ||
+      projectionDifferences.extraVisualNodeIds.length > 0 ||
+      projectionDifferences.missingVisualLinkDescriptors.length > 0 ||
+      projectionDifferences.extraVisualLinkDescriptors.length > 0
+    ) {
+      warnings.push('The current graph projection differs from the authoritative semantic model; see projectionDifferences.');
+    }
+    if (settings.importError) {
+      warnings.push(
+        'Browser import failed (' + settings.importError.code + '); the prior complete model was retained.'
+      );
+    }
+
+    return {
+      liveWorldCount: liveWorldIds.length,
+      nullWorldIndices: semanticWorlds.map(function(world, index) {
+        return world === null ? index : null;
+      }).filter(function(index) { return index !== null; }),
+      trueAtomKeys: allTrueAtomKeys,
+      browserSupportedAtomVocabulary: supportedAtoms,
+      displayedAtomRows: displayedAtomRows,
+      hiddenSupportedTrueAtomKeys: hiddenSupportedTrueAtomKeys,
+      unsupportedTrueAtomKeys: unsupportedTrueAtomKeys,
+      activeRelationLabels: activeRelationLabels,
+      storedTransitionCount: storedTransitionCount,
+      storedSelfLoopCount: storedSelfLoopCount,
+      visibleNonLoopLinkCount: visualNonLoopLinks.length,
+      labelsWithoutAgentButton: labelsWithoutAgentButton,
+      s5ModeState: settings.s5ModeEnabled ? 'on' : 'off',
+      warnings: warnings,
+      semanticWorlds: semanticWorlds,
+      visualNodeIds: visualNodeIds,
+      visualNonLoopLinks: visualNonLoopLinks,
+      projectionDifferences: projectionDifferences,
+    };
+  }
+
+  return {
+    DEFAULT_SUPPORTED_ATOMS: DEFAULT_SUPPORTED_ATOMS.slice(),
+    validateBrowserImport: validateBrowserImport,
+    buildSnapshot: buildSnapshot,
+  };
+})();
+
 // app mode constants
 var MODE = {
       EDIT: 0,
@@ -95,21 +363,33 @@ const s5EditMessage = d3.select('#s5-edit-message');
 const s5RelationEditMessage = 'S5 mode keeps relations as equivalence classes. Switch S5 mode off to edit individual arrows.';
 
 const model = new MPL.Model();
-let modelString = ';AS0a,';
+const defaultModelString = ';AS';
+const defaultModelResult = model.loadFromModelString(defaultModelString);
+if (!defaultModelResult.ok) {
+  throw new Error('The built-in default model is invalid: ' + defaultModelResult.error.message);
+}
 
 const params = new URLSearchParams(window.location.search);
 let modelParam = params.get('model');
 let formulaParam = params.get('formula');
 let legacyFormulaParam = false;
+let modelImportError = null;
 if (modelParam && !formulaParam && modelParam.includes('?formula=')) {
   const legacyParts = modelParam.split('?formula=');
   modelParam = legacyParts[0];
   formulaParam = legacyParts.slice(1).join('?formula=');
   legacyFormulaParam = true;
 }
-if (modelParam) modelString = modelParam;
-
-model.loadFromModelString(modelString);
+if (modelParam) {
+  const parsedImport = MPL.parseModelString(modelParam);
+  const boundaryResult = SemanticState.validateBrowserImport(parsedImport, propvars);
+  if (!boundaryResult.ok) {
+    modelImportError = boundaryResult.error;
+  } else {
+    const importResult = model.loadFromModelString(modelParam);
+    if (!importResult.ok) modelImportError = importResult.error;
+  }
+}
 
 // set up initial nodes and links (edges) of graph, based on MPL model
 var lastNodeId = -1,
@@ -281,6 +561,81 @@ var varCountButtons = d3.selectAll('#edit-pane .var-count button'),
     evalInput = d3.select('#eval-pane .eval-input'),
     evalOutput = d3.select('#eval-pane .eval-output'),
     currentFormula = d3.select('#app-body .current-formula');
+
+const semanticInspectorSummary = d3.select('#semantic-state-summary');
+const semanticInspectorWarnings = d3.select('#semantic-state-warnings');
+const semanticInspectorJson = d3.select('#semantic-state-json');
+const semanticInspectorFields = {
+  liveWorldCount: d3.select('#semantic-live-world-count'),
+  nullWorldIndices: d3.select('#semantic-null-world-indices'),
+  trueAtomKeys: d3.select('#semantic-true-atom-keys'),
+  browserSupportedAtomVocabulary: d3.select('#semantic-supported-atoms'),
+  displayedAtomRows: d3.select('#semantic-displayed-atoms'),
+  hiddenSupportedTrueAtomKeys: d3.select('#semantic-hidden-supported-atoms'),
+  unsupportedTrueAtomKeys: d3.select('#semantic-unsupported-atoms'),
+  activeRelationLabels: d3.select('#semantic-active-relations'),
+  storedTransitionCount: d3.select('#semantic-transition-count'),
+  storedSelfLoopCount: d3.select('#semantic-self-loop-count'),
+  visibleNonLoopLinkCount: d3.select('#semantic-visible-link-count'),
+  labelsWithoutAgentButton: d3.select('#semantic-unselectable-relations'),
+  s5ModeState: d3.select('#semantic-s5-state'),
+};
+let semanticStateSnapshot = null;
+
+function inspectorList(values) {
+  return values.length > 0
+    ? values.map(function(value) { return JSON.stringify(value); }).join(', ')
+    : 'None';
+}
+
+function refreshSemanticStateInspector() {
+  semanticStateSnapshot = SemanticState.buildSnapshot(model, nodes, links, {
+    supportedAtoms: propvars,
+    displayedAtomCount: varCount,
+    selectableRelationLabels: epistemicAgents,
+    s5ModeEnabled: s5ModeEnabled,
+    importError: modelImportError,
+  });
+
+  semanticInspectorSummary.text(
+    semanticStateSnapshot.liveWorldCount + ' live world' +
+    (semanticStateSnapshot.liveWorldCount === 1 ? '' : 's') + ', ' +
+    semanticStateSnapshot.storedTransitionCount + ' stored transition' +
+    (semanticStateSnapshot.storedTransitionCount === 1 ? '' : 's') + ', ' +
+    semanticStateSnapshot.warnings.length + ' warning' +
+    (semanticStateSnapshot.warnings.length === 1 ? '' : 's') + '.'
+  );
+  semanticInspectorFields.liveWorldCount.text(semanticStateSnapshot.liveWorldCount);
+  semanticInspectorFields.nullWorldIndices.text(inspectorList(semanticStateSnapshot.nullWorldIndices));
+  semanticInspectorFields.trueAtomKeys.text(inspectorList(semanticStateSnapshot.trueAtomKeys));
+  semanticInspectorFields.browserSupportedAtomVocabulary.text(
+    inspectorList(semanticStateSnapshot.browserSupportedAtomVocabulary)
+  );
+  semanticInspectorFields.displayedAtomRows.text(inspectorList(semanticStateSnapshot.displayedAtomRows));
+  semanticInspectorFields.hiddenSupportedTrueAtomKeys.text(
+    inspectorList(semanticStateSnapshot.hiddenSupportedTrueAtomKeys)
+  );
+  semanticInspectorFields.unsupportedTrueAtomKeys.text(
+    inspectorList(semanticStateSnapshot.unsupportedTrueAtomKeys)
+  );
+  semanticInspectorFields.activeRelationLabels.text(
+    inspectorList(semanticStateSnapshot.activeRelationLabels)
+  );
+  semanticInspectorFields.storedTransitionCount.text(semanticStateSnapshot.storedTransitionCount);
+  semanticInspectorFields.storedSelfLoopCount.text(semanticStateSnapshot.storedSelfLoopCount);
+  semanticInspectorFields.visibleNonLoopLinkCount.text(semanticStateSnapshot.visibleNonLoopLinkCount);
+  semanticInspectorFields.labelsWithoutAgentButton.text(
+    inspectorList(semanticStateSnapshot.labelsWithoutAgentButton)
+  );
+  semanticInspectorFields.s5ModeState.text(semanticStateSnapshot.s5ModeState);
+  semanticInspectorWarnings.text(
+    semanticStateSnapshot.warnings.length > 0
+      ? semanticStateSnapshot.warnings.join('\n')
+      : 'None.'
+  );
+  semanticInspectorJson.text(JSON.stringify(semanticStateSnapshot, null, 2));
+  return semanticStateSnapshot;
+}
 
 function announceFormula() {
   // make sure a formula has been input
@@ -583,6 +938,7 @@ function updateS5ModeToggle() {
     .property('checked', s5ModeEnabled)
     .attr('aria-checked', s5ModeEnabled ? 'true' : 'false');
   s5ModeState.text(s5ModeEnabled ? 'On' : 'Off');
+  refreshSemanticStateInspector();
 }
 
 function showS5Message(message) {
@@ -625,6 +981,7 @@ function setVarCount(count) {
     if(i < varCount) d3.select(this).classed('inactive', false);
     else d3.select(this).classed('inactive', true);
   });
+  refreshSemanticStateInspector();
 }
 
 function setVarForSelectedNode(varnum, value) {
@@ -903,20 +1260,25 @@ function restart() {
 
   // set the graph in motion
   force.start();
+  refreshSemanticStateInspector();
 }
 
 // Set the reflexive, symmetric, and transitive checkboxes to the correct state whenever the model
 // changes. Also update the URL with the shareable model and formula state.
-function onStateModified() {
-  const params = new URLSearchParams();
-  params.set('model', model.getModelString());
+function onStateModified(options) {
+  const currentSnapshot = refreshSemanticStateInspector();
+  const updateUrl = !options || options.updateUrl !== false;
+  if (updateUrl && currentSnapshot.unsupportedTrueAtomKeys.length === 0) {
+    const params = new URLSearchParams();
+    params.set('model', model.getModelString());
 
-  const formulaValue = evalInput.select('input').node().value;
-  if (formulaValue) {
-    params.set('formula', formulaValue);
+    const formulaValue = evalInput.select('input').node().value;
+    if (formulaValue) {
+      params.set('formula', formulaValue);
+    }
+
+    history.pushState({}, '', location.pathname + '?' + params.toString());
   }
-
-  history.pushState({}, '', location.pathname + '?' + params.toString());
 
   const reflexiveCheckEl = document.getElementById('reflexive-check');
   const symmetricCheckEl = document.getElementById('symmetric-check');
@@ -927,8 +1289,7 @@ function onStateModified() {
     reflexiveCheckEl.checked = false;
     symmetricCheckEl.checked = false;
     transitiveCheckEl.checked = false;
-    document.getElementById('checks-title').innerHTML =
-    `No agents in use!`;
+    document.getElementById('checks-title').textContent = 'No agents in use!';
   } else {
     let reflexiveForActiveAgents = true;
     let symmetricForActiveAgents = true;
@@ -941,11 +1302,23 @@ function onStateModified() {
     reflexiveCheckEl.checked = reflexiveForActiveAgents;
     symmetricCheckEl.checked = symmetricForActiveAgents;
     transitiveCheckEl.checked = transitiveForActiveAgents;
-    document.getElementById('checks-title').innerHTML =
-    `For agent${activeAgents.length === 1 ? '' : 's'} ${activeAgents.join()} :`;
+    document.getElementById('checks-title').textContent =
+      `For agent${activeAgents.length === 1 ? '' : 's'} ${activeAgents.join()} :`;
   }
+  return currentSnapshot;
 }
-onStateModified();
+if (modelImportError) {
+  s5EditMessage
+    .text(
+      'Model import failed (' + modelImportError.code + '): ' +
+      modelImportError.message + ' The default model was retained.'
+    )
+    .attr('role', 'alert')
+    .classed('inactive', false);
+  onStateModified({ updateUrl: false });
+} else {
+  onStateModified();
+}
 
 function mousedown() {
   // prevent I-bar on drag
@@ -1386,7 +1759,7 @@ setAppMode(MODE.EDIT);
 
 setVarCount(varCount);
 
-if (formulaParam && formulaParam.length > 0) {
+if (!modelImportError && formulaParam && formulaParam.length > 0) {
   let formulaValue = formulaParam;
   if (legacyFormulaParam) {
     formulaValue = formulaValue.split('-').join('->');

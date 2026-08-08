@@ -42,9 +42,19 @@ The following three files are read-only audit products. They record findings abo
 - **Final audited log-only HEAD:** `04f264a5e5900719eb70a0eaf77bd64f73b3ef0c`
 - **Verdict:** **PASS SUBJECT TO ONE SCOPED ROUND 3 UI REPAIR**
 - **Technical conclusion:** P1-02 is closed at `6bd3369`; the semantic/model part of P1-03 passes, but P1-03 remains open because stored relation labels outside `a`–`e` lacked visible SVG rendering.
-- **Local repair status:** the focused raw-label rendering repair is implemented locally and awaits a focused Work Max closure recheck.
+- **Follow-up status:** the focused raw-label rendering repair was subsequently passed by Audit 07 and P1-03 is now closed.
 - **Stage status:** Stage 0 remains open.
-- **Next-round gate:** Round 4 remains blocked until the focused P1-03 rendering recheck passes.
+
+## Round 3 focused rendering closure recheck
+
+- **Report:** [BAPAL Round 3 Raw-Label Relation Rendering Closure Recheck](07_BAPAL_ROUND_3_RENDERING_CLOSURE_RECHECK.md)
+- **Audit date:** 2026-08-08 UTC
+- **Scoped rendering-repair commit:** `3f27ac2d4476ecc23da0358f23f2ced87db5500d`
+- **Verdict:** **PASS — P1-03 CLOSED; ROUND 3 CLOSED; PROCEED TO ROUND 4**
+- **Rendering contract:** every projected non-loop relation label receives a deterministic visible stroke, direction markers backed by real deduplicated SVG definitions, and a visible mid-edge label preserving the complete semantic relation string. Raw labels use safe injective DOM/SVG keys; declared `a`–`e` retain their prior colors and marker identities; semantic self-loops remain stored while omitted from the non-loop graph projection.
+- **Technical conclusion:** P1-03 and Round 3 are closed narrowly at `3f27ac2` under Audit 07's stated rendering boundary. P1-02 remains closed.
+- **Stage status:** Stage 0 remains open.
+- **Next round:** Round 4 — atomic model import and visible semantic state is authorized.
 
 [`BAPAL_VERIFICATION.md`](../BAPAL_VERIFICATION.md) is project documentation and is not one of the audit reports.
 

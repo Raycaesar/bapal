@@ -184,6 +184,219 @@ function _jsonToASCII(json) {
   }
 
   /**
+   * Parses the legacy compact model format into plain data without mutating a
+   * Model. Empty state records are preserved as null slots, including the one
+   * empty record produced by the empty string. Live state records have the
+   * form A<one-character word atoms>S<decimal-target><one-character-agent>,...
+   * with an optional final transition comma.
+   * Exposed as MPL.parseModelString for independent boundary validation.
+   */
+  function _modelStringFailure(code, message, details) {
+    return {
+      ok: false,
+      error: Object.assign({
+        code: code,
+        message: message,
+        offset: null,
+        stateIndex: null,
+        tokenIndex: null,
+        token: null,
+      }, details || {}),
+    };
+  }
+
+  function _parseModelString(modelString) {
+    if (typeof modelString !== 'string') {
+      return _modelStringFailure(
+        'INPUT_NOT_STRING',
+        'Compact model input must be a string.'
+      );
+    }
+
+    const stateStrings = modelString.split(';');
+    const states = [];
+    const transitionsToAdd = [];
+    let stateOffset = 0;
+
+    for (let stateIndex = 0; stateIndex < stateStrings.length; stateIndex++) {
+      const stateString = stateStrings[stateIndex];
+      if (stateString === '') {
+        states.push(null);
+        stateOffset += 1;
+        continue;
+      }
+
+      if (stateString[0] !== 'A') {
+        return _modelStringFailure(
+          'MISSING_STATE_START',
+          'State ' + stateIndex + ' must begin with A.',
+          { offset: stateOffset, stateIndex: stateIndex, token: stateString }
+        );
+      }
+
+      const indexOfS = stateString.indexOf('S', 1);
+      if (indexOfS === -1) {
+        return _modelStringFailure(
+          'MISSING_STATE_SEPARATOR',
+          'State ' + stateIndex + ' is missing the S assignment/transition separator.',
+          { offset: stateOffset + stateString.length, stateIndex: stateIndex, token: stateString }
+        );
+      }
+
+      const assignment = {};
+      const propvarsSubstring = stateString.slice(1, indexOfS);
+      for (const propvar of propvarsSubstring) {
+        if (!/^[A-Za-z0-9_]$/.test(propvar) || propvar === 'A' || propvar === 'S') {
+          return _modelStringFailure(
+            'INVALID_ATOM_CHARACTER',
+            'State ' + stateIndex + ' contains an invalid compact atom character.',
+            { offset: stateOffset + 1, stateIndex: stateIndex, token: propvar }
+          );
+        }
+        assignment[propvar] = true;
+      }
+      states.push({ assignment: assignment, successors: [] });
+
+      const transitionsSubstring = stateString.slice(indexOfS + 1);
+      if (transitionsSubstring === '') {
+        stateOffset += stateString.length + 1;
+        continue;
+      }
+
+      const transitionStrings = transitionsSubstring.split(',');
+      if (transitionStrings[transitionStrings.length - 1] === '') {
+        transitionStrings.pop();
+      }
+      if (transitionStrings.length === 0 || transitionStrings.some(function(transition) {
+        return transition === '';
+      })) {
+        return _modelStringFailure(
+          'EMPTY_TRANSITION_RECORD',
+          'State ' + stateIndex + ' contains an empty transition record.',
+          { offset: stateOffset + indexOfS + 1, stateIndex: stateIndex, token: '' }
+        );
+      }
+
+      let transitionOffset = stateOffset + indexOfS + 1;
+      for (let tokenIndex = 0; tokenIndex < transitionStrings.length; tokenIndex++) {
+        const transitionString = transitionStrings[tokenIndex];
+        const codePoints = Array.from(transitionString);
+        if (codePoints.length < 2) {
+          const code = /^[0-9]+$/.test(transitionString)
+            ? 'MISSING_AGENT'
+            : 'INVALID_TARGET_FORMAT';
+          return _modelStringFailure(
+            code,
+            'State ' + stateIndex + ' transition ' + tokenIndex + ' is incomplete.',
+            {
+              offset: transitionOffset,
+              stateIndex: stateIndex,
+              tokenIndex: tokenIndex,
+              token: transitionString,
+            }
+          );
+        }
+
+        const agent = codePoints[codePoints.length - 1];
+        const targetString = codePoints.slice(0, -1).join('');
+        if (!/^[0-9]+$/.test(targetString)) {
+          const code = /^[0-9]/.test(transitionString)
+            ? 'UNEXPECTED_TRANSITION_MATERIAL'
+            : 'INVALID_TARGET_FORMAT';
+          return _modelStringFailure(
+            code,
+            'State ' + stateIndex + ' transition ' + tokenIndex + ' has an invalid target.',
+            {
+              offset: transitionOffset,
+              stateIndex: stateIndex,
+              tokenIndex: tokenIndex,
+              token: transitionString,
+            }
+          );
+        }
+
+        const targetIndex = Number(targetString);
+        if (!Number.isSafeInteger(targetIndex)) {
+          return _modelStringFailure(
+            'TARGET_NOT_SAFE_INTEGER',
+            'State ' + stateIndex + ' transition ' + tokenIndex + ' target is not a safe integer.',
+            {
+              offset: transitionOffset,
+              stateIndex: stateIndex,
+              tokenIndex: tokenIndex,
+              token: transitionString,
+            }
+          );
+        }
+        transitionsToAdd.push({
+          source: stateIndex,
+          target: targetIndex,
+          agent: agent,
+          offset: transitionOffset,
+          tokenIndex: tokenIndex,
+          token: transitionString,
+        });
+        transitionOffset += transitionString.length + 1;
+      }
+
+      stateOffset += stateString.length + 1;
+    }
+
+    let duplicateTransitionsSuppressed = 0;
+    for (const transition of transitionsToAdd) {
+      if (transition.target < 0 || transition.target >= states.length) {
+        return _modelStringFailure(
+          'TARGET_OUT_OF_RANGE',
+          'State ' + transition.source + ' transition ' + transition.tokenIndex +
+            ' targets out-of-range world ' + transition.target + '.',
+          {
+            offset: transition.offset,
+            stateIndex: transition.source,
+            tokenIndex: transition.tokenIndex,
+            token: transition.token,
+            target: transition.target,
+          }
+        );
+      }
+      if (states[transition.target] === null) {
+        return _modelStringFailure(
+          'TARGET_NOT_LIVE',
+          'State ' + transition.source + ' transition ' + transition.tokenIndex +
+            ' targets null world ' + transition.target + '.',
+          {
+            offset: transition.offset,
+            stateIndex: transition.source,
+            tokenIndex: transition.tokenIndex,
+            token: transition.token,
+            target: transition.target,
+          }
+        );
+      }
+
+      const successors = states[transition.source].successors;
+      const isDuplicate = successors.some(function(successor) {
+        return successor.target === transition.target && successor.agent === transition.agent;
+      });
+      if (isDuplicate) {
+        duplicateTransitionsSuppressed++;
+      } else {
+        successors.push({ target: transition.target, agent: transition.agent });
+      }
+    }
+
+    return {
+      ok: true,
+      modelData: { states: states },
+      stateCount: states.length,
+      liveStateCount: states.filter(function(state) { return state !== null; }).length,
+      nullStateIndices: states.map(function(state, index) {
+        return state === null ? index : null;
+      }).filter(function(index) { return index !== null; }),
+      duplicateTransitionsSuppressed: duplicateTransitionsSuppressed,
+    };
+  }
+
+  /**
    * Constructor for Kripke model. Takes no initial input.
    * @constructor
    */
@@ -344,49 +557,38 @@ function _jsonToASCII(json) {
      * Restores a model from a given model string.
      */
     this.loadFromModelString = function (modelString) {
-      this.removeAllStatesAndTransitions();
+      const parsed = _parseModelString(modelString);
+      if (!parsed.ok) return parsed;
 
-      const transitionsToAdd = [];
-      const statesToRemove = [];
-      for (const stateString of modelString.split(';')) {
-        if (stateString === '') {
-          const stateIndex = this.addState();
-          statesToRemove.push(stateIndex);
-        } else {
-          const indexOfA = stateString.lastIndexOf('A');
-          const indexOfS = stateString.lastIndexOf('S');
-          if (indexOfA === -1 || indexOfS === -1) {
-            break;
-          }
+      let nextStates;
+      try {
+        nextStates = parsed.modelData.states.map(function(state) {
+          if (state === null) return null;
+          return {
+            assignment: Object.assign({}, state.assignment),
+            successors: state.successors.map(function(successor) {
+              return { target: successor.target, agent: successor.agent };
+            }),
+          };
+        });
+      } catch (error) {
+        return _modelStringFailure(
+          'COMMIT_PREPARATION_FAILED',
+          'The validated compact model could not be prepared for commit.',
+          { cause: error && error.message ? error.message : String(error) }
+        );
+      }
 
-          const propvarsSubstring = stateString.slice(indexOfA+1, indexOfS);
-          let assignment = {};
-          for (const propvar of propvarsSubstring) {
-            assignment[propvar] = true;
-          }
-          const stateIndex = this.addState(assignment);
-
-          const transitionsSubstring = stateString.slice(indexOfS+1);
-          const transitionStrings = transitionsSubstring.split(',');
-          for (const transitionString of transitionStrings) {
-            if (transitionString === '') {
-              break;
-            }
-            const targetString = transitionString.slice(0, transitionString.length - 1);
-            const targetIndex = Number.parseInt(targetString);
-            const agent = transitionString[transitionString.length - 1];
-            transitionsToAdd.push([stateIndex, targetIndex, agent]);
-          }
-        }
-      }
-      // transitions must be added after all states are added becase the states being referenced by
-      // the transitions must be present when the transition is added
-      for (const [stateIndex, targetIndex, agent] of transitionsToAdd) {
-        this.addTransition(stateIndex, targetIndex, agent);
-      }
-      for (const stateIndex of statesToRemove) {
-        this.removeState(stateIndex);
-      }
+      // The sole mutation occurs after the complete model has been parsed,
+      // validated, and independently cloned into its final representation.
+      _states = nextStates;
+      return {
+        ok: true,
+        stateCount: parsed.stateCount,
+        liveStateCount: parsed.liveStateCount,
+        nullStateIndices: parsed.nullStateIndices.slice(),
+        duplicateTransitionsSuppressed: parsed.duplicateTransitionsSuppressed,
+      };
     };
 
     /**
@@ -711,6 +913,7 @@ function _jsonToASCII(json) {
   return {
     Wff: Wff,
     Model: Model,
+    parseModelString: _parseModelString,
     truth: truth
   };
 

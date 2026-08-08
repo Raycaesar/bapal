@@ -85,7 +85,7 @@ Keep these five layers distinct:
 
 The audit's zero-mismatch result applies only to the recorded one-character representation and the exact bounded test matrices in `audit/02_BAPAL_INDEPENDENT_VERIFICATION_REPORT.md`: 6,501,302 model–world–formula comparisons, not all possible inputs.
 
-Round 1 P0-01 is closed for internal semantic copying at `55f557c` by Audit 04. Round 2 P1-01 is closed at `e0c816f` by Audit 05, and the closure remains valid at final log-only HEAD `f7c7d59`. Audit 06 closes Round 3 P1-02 at `6bd3369` and passes the semantic/model part of P1-03. P1-03 remains open only for the raw-label SVG rendering defect identified by Audit 06; its scoped rendering repair is locally implemented and pending a focused Work Max recheck. P1-04 through P1-07 and Stage 0 remain open. Round 4 must not begin before that focused P1-03 recheck passes. Do not claim that all multi-character formula interfaces are safe, that multi-character epistemic-agent syntax works end to end, that URL import/share is repaired, that P1-03 is closed, or that Stage 0 is complete.
+Round 1 P0-01 is closed for internal semantic copying at `55f557c` by Audit 04. Round 2 P1-01 is closed at `e0c816f` by Audit 05, and the closure remains valid at final log-only HEAD `f7c7d59`. Audit 06 closes Round 3 P1-02 at `6bd3369` and passes the semantic/model part of P1-03. Audit 07 closes P1-03 and Round 3 narrowly at `3f27ac2` under the audited raw-label rendering contract. Round 4 P1-04 and P1-05 are **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT** in the current local worktree; they are not yet audited or closed. P1-06, P1-07, and Stage 0 remain open. Do not claim that all multi-character formula interfaces are safe, that multi-character epistemic-agent syntax works end to end, that the legacy compact format has become a general identifier format, that Round 4 is audited/closed, or that Stage 0 is complete.
 
 ## S5 convention
 
@@ -109,7 +109,20 @@ Audit 06 passed the following Round 3 semantic/model policy and closed P1-02 at 
 
 Audit 06 established that descriptor synchronization alone does not establish visible browser rendering. Every non-loop descriptor for every relevant relation label must receive an explicit visible stroke, the start/end markers required by its direction flags, and a visible mid-edge label containing the actual semantic agent string. Marker definitions must exist, must not be duplicated, and unknown raw labels must use safe injective DOM/SVG keys rather than raw agent text. Declared agents `a`–`e` retain their existing colors and marker identities.
 
-The focused raw-label renderer implementing that visual contract is local only until Work Max rechecks it. P1-03 remains open, and Round 4 remains blocked, until the focused recheck passes.
+Audit 07 rechecked the focused raw-label renderer and passed that visual contract at `3f27ac2`. P1-03 and Round 3 are closed. Stage 0 remains open.
+
+## Round 4 local implementation boundary
+
+**Status: IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT.** This is local implementation and regression evidence for P1-04 and P1-05, not audited closure.
+
+- **Atomic legacy import:** `MPL.parseModelString()` parses the entire legacy compact input into intermediate plain data. `Model.loadFromModelString()` validates every state, transition, target, and null reference, prepares the replacement model completely, and performs a single commit only after success. Failure returns a structured `{ok:false,error:{...}}` result and leaves the prior model unchanged; no malformed suffix or valid prefix is retained.
+- **Stable legacy structure:** successful imports preserve raw world-array length, stable indices, null/deleted slots, valuations, and set-like transition deduplication. The legacy format remains unversioned and limited; Round 4 does not make it a general multi-character identifier format.
+- **Browser atom boundary:** browser/share-URL compact imports support exactly `p`, `q`, `r`, `s`, and `t`. A parsed import containing any other atom key is rejected atomically with `UNSUPPORTED_BROWSER_ATOM` and a clear visible error. The valid default model remains intact, the failed URL is not replaced by a partial model, and S5 remains off.
+- **Raw Model API:** programmatically constructed `MPL.Model` values may contain other true atom keys such as `foo` or `bar_baz`. Those keys are preserved and disclosed as unsupported semantic keys; they are not silently deleted, renamed, or hidden from the semantic snapshot.
+- **Relation-label policy:** the compact boundary does not reject a relation merely because its one-character label lies outside browser buttons `a`–`e`. Labels such as `x` remain semantic relation identities, retain the Audit 07 rendering contract, appear in the semantic inspector, and are identified when no direct selection button exists.
+- **Variable-count policy:** the selector controls only the displayed `p`–`t` rows and node-label projection. Reducing it does not edit semantic valuations or change formula/BAPAL truth. The UI explicitly states this and lists supported true keys hidden by the current projection.
+- **Semantic inspector:** the edit pane contains a collapsed accessible `<details>` inspector. Its text summary and JSON snapshot report live and null worlds, all true keys, supported/displayed/hidden/unsupported keys, active relation labels, transition and stored-loop counts, visible non-loop link descriptors, labels without buttons, S5 state, warnings, semantic worlds by stable index, and the separate graph projection. Raw atom/agent strings are inserted through text boundaries, not HTML.
+- **No Round 5 schema:** Round 4 keeps the legacy compact format explicit and introduces no versioned JSON model/formula schema. Round 5 must not begin until Work Max closes Round 4.
 
 ## Stage 0 correctness freeze
 
@@ -136,9 +149,10 @@ Every future implementation task must include minimized regression cases and a r
 - `audit/04_BAPAL_STAGE_0_ROUND_1_CLOSURE_AUDIT.md` is the read-only closure audit for candidate commit `55f557c210a6a6ad78c928bb1b94b2010929d2a2`; it closes only P0-01's internal semantic-copy defect.
 - `audit/05_BAPAL_STAGE_0_ROUND_2_CLOSURE_AUDIT.md` is the read-only PASS closure audit for Round 2 implementation commit `e0c816f9b7e8a6e58774df635ca13e166d24a0d8` and final log-only HEAD `f7c7d599afca5622c227ea51d930dfd14005b016`; it closes P1-01 under the audited supported-AST ASCII-printing contract while leaving Stage 0 open.
 - `audit/06_BAPAL_STAGE_0_ROUND_3_CLOSURE_AUDIT.md` is the read-only **PASS SUBJECT TO ONE SCOPED ROUND 3 UI REPAIR** audit for complete implementation candidate `6bd33697491820db3d0999ac7c7ccf99b05291d5` and final audited log-only HEAD `04f264a5e5900719eb70a0eaf77bd64f73b3ef0c`. It closes P1-02, passes P1-03's semantic/model behavior, and leaves P1-03 open pending the focused raw-label rendering repair and recheck.
+- `audit/07_BAPAL_ROUND_3_RENDERING_CLOSURE_RECHECK.md` is the read-only **PASS — P1-03 CLOSED; ROUND 3 CLOSED; PROCEED TO ROUND 4** focused recheck for rendering-repair commit `3f27ac2d4476ecc23da0358f23f2ced87db5500d`. It closes only Audit 06's remaining raw-label SVG rendering defect and leaves Stage 0 open.
 - `audit/00_AUDIT_INDEX.md` identifies the audit date, scope, and audited baseline.
 - `BAPAL_VERIFICATION.md` is project documentation, not an audit report.
-- Except for the narrow Round 1 conclusion in Audit 04, the narrow Round 2 conclusion in Audit 05, and the precise Round 3 disposition in Audit 06, later code changes are not covered by those audits. A separate re-audit is required before claiming that later behavior or repairs are audited, certified, or independently verified.
+- Except for the narrow Round 1 conclusion in Audit 04, the narrow Round 2 conclusion in Audit 05, the semantic/model Round 3 disposition in Audit 06, and the focused rendering closure in Audit 07, later code changes are not covered by those audits. In particular, current Round 4 changes require their own Work Max closure audit before P1-04/P1-05 may be called closed or certified.
 
 ## Engineering rules
 

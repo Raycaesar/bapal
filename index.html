@@ -43,7 +43,7 @@
                 </div>
               </div>
               <div class="var-count mt-3">
-                Number of propositional variables:<br>
+                Visible propositional-variable rows:<br>
                 <div class="btn-group">
                   <button class="btn btn-secondary" onclick="setVarCount(1)">1</button>
                   <button class="btn btn-secondary active" onclick="setVarCount(2)">2</button>
@@ -51,6 +51,9 @@
                   <button class="btn btn-secondary" onclick="setVarCount(4)">4</button>
                   <button class="btn btn-secondary" onclick="setVarCount(5)">5</button>
                 </div>
+                <p class="display-projection-note mb-0">
+                  Changing this display does not delete semantic valuations.
+                </p>
               </div>
               <div class="alert alert-info">
                 <div class="selected-node-id">No world selected</div>
@@ -79,6 +82,34 @@
                   </tbody>
                 </table>
               </div>
+              <details id="semantic-state-inspector" class="semantic-state-inspector">
+                <summary>Semantic-state inspector</summary>
+                <p id="semantic-state-summary" class="semantic-state-summary" aria-live="polite">
+                  Loading semantic state.
+                </p>
+                <p class="semantic-state-note">
+                  The semantic model is authoritative. The graph information below is a separate visual projection.
+                </p>
+                <dl class="semantic-state-fields">
+                  <div><dt>Live worlds</dt><dd id="semantic-live-world-count">0</dd></div>
+                  <div><dt>Null/deleted slots</dt><dd id="semantic-null-world-indices">None</dd></div>
+                  <div><dt>All true atom keys</dt><dd id="semantic-true-atom-keys">None</dd></div>
+                  <div><dt>Browser-supported atoms</dt><dd id="semantic-supported-atoms">p, q, r, s, t</dd></div>
+                  <div><dt>Displayed atom rows</dt><dd id="semantic-displayed-atoms">p, q</dd></div>
+                  <div><dt>Hidden supported true keys</dt><dd id="semantic-hidden-supported-atoms">None</dd></div>
+                  <div><dt>Unsupported true keys</dt><dd id="semantic-unsupported-atoms">None</dd></div>
+                  <div><dt>Active relation labels</dt><dd id="semantic-active-relations">None</dd></div>
+                  <div><dt>Stored transitions</dt><dd id="semantic-transition-count">0</dd></div>
+                  <div><dt>Stored self-loops</dt><dd id="semantic-self-loop-count">0</dd></div>
+                  <div><dt>Visible non-loop links</dt><dd id="semantic-visible-link-count">0</dd></div>
+                  <div><dt>Labels without agent buttons</dt><dd id="semantic-unselectable-relations">None</dd></div>
+                  <div><dt>S5 mode</dt><dd id="semantic-s5-state">off</dd></div>
+                </dl>
+                <h3 class="semantic-state-heading">Warnings</h3>
+                <div id="semantic-state-warnings" class="semantic-state-warnings" role="status" aria-live="polite">None.</div>
+                <h3 class="semantic-state-heading">Machine-readable snapshot</h3>
+                <pre id="semantic-state-json" class="semantic-state-json" tabindex="0" aria-label="Semantic model and graph projection JSON"></pre>
+              </details>
             </div>
             <div id="eval-pane" class="tab-pane">
               <div class="eval-input">

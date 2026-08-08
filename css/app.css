@@ -82,6 +82,90 @@ div.var-count {
   margin-bottom: 15px;
 }
 
+.display-projection-note {
+  color: #495057;
+  font-size: 12px;
+  line-height: 1.35;
+  margin-top: 7px;
+}
+
+.semantic-state-inspector {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background: #fff;
+  font-size: 12px;
+  margin-bottom: 12px;
+  padding: 8px 10px;
+}
+
+.semantic-state-inspector > summary {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.semantic-state-inspector > summary:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+.semantic-state-summary,
+.semantic-state-note {
+  line-height: 1.4;
+  margin: 8px 0;
+}
+
+.semantic-state-note {
+  color: #495057;
+}
+
+.semantic-state-fields {
+  margin: 0;
+}
+
+.semantic-state-fields > div {
+  border-top: 1px solid #e9ecef;
+  padding: 5px 0;
+}
+
+.semantic-state-fields dt {
+  font-weight: 600;
+}
+
+.semantic-state-fields dd {
+  margin: 1px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.semantic-state-heading {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 10px 0 4px;
+}
+
+.semantic-state-warnings {
+  background: #fff3cd;
+  border: 1px solid #ffeeba;
+  border-radius: 3px;
+  overflow-wrap: anywhere;
+  padding: 6px;
+  white-space: pre-line;
+}
+
+.semantic-state-json {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 3px;
+  font-size: 10px;
+  line-height: 1.35;
+  margin: 0;
+  max-height: 220px;
+  overflow: auto;
+  padding: 6px;
+  white-space: pre;
+}
+
 .s5-switch {
   align-items: center;
   cursor: pointer;

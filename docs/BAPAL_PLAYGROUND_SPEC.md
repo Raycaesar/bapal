@@ -56,7 +56,8 @@ Audit 05 closes P1-01 only for supported AST ASCII printing under the audited Ro
 - **Closure audit:** [`audit/06_BAPAL_STAGE_0_ROUND_3_CLOSURE_AUDIT.md`](../audit/06_BAPAL_STAGE_0_ROUND_3_CLOSURE_AUDIT.md)
 - **Audit verdict:** **PASS SUBJECT TO ONE SCOPED ROUND 3 UI REPAIR**
 - **P1-02 status:** **CLOSED AT `6bd3369` — WORK MAX AUDIT 06**
-- **P1-03 status:** **SCOPED RENDERING REPAIR IMPLEMENTED — PENDING FOCUSED WORK MAX RECHECK**
+- **Focused rendering closure audit:** [`audit/07_BAPAL_ROUND_3_RENDERING_CLOSURE_RECHECK.md`](../audit/07_BAPAL_ROUND_3_RENDERING_CLOSURE_RECHECK.md)
+- **P1-03 status:** **CLOSED AT `3f27ac2` — WORK MAX AUDIT 07**
 - **Relevant-agent policy:** the deterministic sorted union of browser-declared agents `a`–`e`, every relation label currently stored in the semantic model, and the currently selected agent.
 - **Enable policy:** if every relevant-agent relation is already an equivalence relation, S5 is enabled without confirmation or model mutation. Otherwise the application asks for explicit confirmation before any normalization.
 - **Cancellation:** cancelling confirmation leaves S5 off and leaves both the semantic model and its D3 relation projection unchanged.
@@ -69,7 +70,25 @@ Audit 05 closes P1-01 only for supported AST ASCII printing under the audited Ro
 - **Focused local rendering policy:** every non-loop descriptor now receives an explicit visible stroke, marker URLs backed by deduplicated start/end/mid definitions, and a mid-edge text label preserving the actual semantic agent string. Declared agents `a`–`e` retain their colors and marker identities. Other labels use a fixed accessible neutral color and an injective Unicode-code-point marker key, and deterministic pair-local geometry keeps overlapping declared/raw and raw/raw relations distinct.
 - **Protected semantics:** parser configuration, Round 2 ASCII printing, PAL/BAPAL and inherited truth clauses, Round 1 `deepCopy()`, compact serialization, and the report generator were unchanged.
 
-Audit 06 closes P1-02 and passes P1-03's semantic/model behavior. The focused raw-label rendering repair is local evidence only; P1-03 remains open until Work Max performs the focused closure recheck. Stage 0 remains open, and Round 4 remains blocked until that recheck passes.
+Audit 06 closes P1-02 and passes P1-03's semantic/model behavior. Audit 07 passes the focused raw-label rendering repair, closes P1-03 and Round 3 narrowly at `3f27ac2`, and authorizes Round 4. Stage 0 remains open.
+
+### Round 4 — atomic legacy import and visible semantic state
+
+- **Defects:** P1-04 and P1-05
+- **Status:** **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**
+- **Audit boundary:** the statements below describe the completed local implementation and deterministic evidence. They are not an audited closure claim.
+- **Historical baseline:** at `92a4ba6`, `loadFromModelString()` cleared the current model before validation, stopped silently at malformed state/transition fragments, could keep only a valid prefix, and could ignore invalid transitions. Hidden or unsupported valuation keys could affect semantic truth and BAPAL valuation classes without browser disclosure.
+- **Transactional import:** the current local implementation completely parses the legacy compact string into an intermediate plain-data representation, validates every record and target, prepares the full replacement, and mutates the model only after all work succeeds. Failure is an explicit structured result and preserves the exact prior world array, null slots, valuations, and transitions.
+- **Legacy compatibility:** successful import preserves stable raw indices, leading/internal/trailing null slots, empty assignments, multi-digit targets, optional trailing transition commas, arbitrary supported one-character relation labels such as `x`, and existing duplicate-transition suppression. The direct empty-string contract is one explicit null slot; an empty browser URL model parameter retains the valid default model.
+- **Browser atom boundary:** browser formula/edit/import support remains exactly `p`–`t`. A browser/share-URL compact import containing another atom character is rejected atomically with `UNSUPPORTED_BROWSER_ATOM`, a visible error, and no partial graph, URL rewrite, or S5-on claim.
+- **Raw Model API:** raw programmatic `MPL.Model` objects may contain other keys such as `foo` and `bar_baz`. Such true keys remain semantically active and preserved, and the inspector identifies them as unsupported browser keys rather than deleting or renaming them.
+- **Relation labels:** relation labels are not rejected merely because they lie outside the five selection buttons `a`–`e`. They remain semantic identities, receive the audited Round 3/Audit 07 rendering behavior when projected, and are listed as active labels without direct selection buttons where applicable.
+- **Display projection:** the variable-count selector is “Visible propositional-variable rows.” It controls node/table display only; it does not edit semantic valuations. Supported true keys hidden by the current row count are listed explicitly.
+- **Semantic/graph distinction:** the semantic `MPL.Model` is authoritative. The inspector separately reports semantic worlds, true assignments, outgoing labelled transitions, stable null indices, and stored self-loops versus visual node IDs and non-loop D3 link descriptors. Projection differences generate warnings rather than causing silent semantic-data deletion.
+- **Inspector contract:** the edit pane contains a collapsed keyboard-accessible `<details>` inspector with a concise summary, warnings, all supported/hidden/unsupported atom sets, active labels, transition/loop/projection counts, S5 status, and a machine-readable JSON `<pre>`. Raw atom and relation strings are rendered through text boundaries.
+- **No Round 5 schema:** this delta does not version or replace the compact model/formula format and introduces no JSON interchange schema. Round 5 remains gated on Round 4 Work Max closure.
+
+The permanent Round 4 suites and the concentrated independent local review pass, but P1-04 and P1-05 remain pending until Work Max audits the implementation commit. Stage 0 remains open.
 
 ## 2. Product identity
 
@@ -242,7 +261,7 @@ Restricting an equivalence relation to a subset of surviving worlds preserves re
 
 **HISTORICAL BASELINE LIMITATION.** At audited baseline `92a4ba6`, the S5 toggle is an editing aid: turning it on does not validate or repair every existing relation, and adding a world can break reflexivity for another active agent. Audit 06 closes the post-baseline P1-02 repair and passes P1-03's semantic/model policy at `6bd3369`.
 
-**CURRENT ROUND 3 STATUS.** The audited semantic/model policy makes the S5 state and underlying invariant agree for the relevant-agent set defined in the post-baseline delta: entering S5 either requires no change because every relation is already an equivalence relation, is cancelled without mutation, or explicitly normalizes every relevant relation to its least equivalence closure. Every accepted S5-on edit preserves that invariant. P1-03 nevertheless remains open because Audit 06 found that an extra stored label could be projected without visible SVG output. The focused renderer is locally repaired but pending Work Max recheck.
+**CURRENT ROUND 3 STATUS.** The audited semantic/model policy makes the S5 state and underlying invariant agree for the relevant-agent set defined in the post-baseline delta: entering S5 either requires no change because every relation is already an equivalence relation, is cancelled without mutation, or explicitly normalizes every relevant relation to its least equivalence closure. Every accepted S5-on edit preserves that invariant. Audit 07 additionally closes the raw-label rendering defect: every non-loop descriptor receives the visible rendering contract below. P1-03 and Round 3 are closed; Stage 0 remains open.
 
 **NORMATIVE RENDERING CONTRACT.** Every non-loop semantic descriptor must render with a visible stroke, direction markers matching its left/right flags, and a visible mid-edge label containing the actual semantic relation label. A synchronized JavaScript descriptor alone is insufficient evidence of visible browser rendering. Raw relation strings must remain unchanged in the semantic model and D3 datum; any DOM/SVG identifier derived from them must use a safe injective encoding.
 
@@ -264,7 +283,7 @@ The application currently has several non-identical formula interfaces.
 
 ## 8. Identifier and vocabulary policy
 
-**CURRENT SUPPORTED CONTRACT.** The audited dependable compatibility subset uses one-character atom and agent identifiers. Browser-visible atoms are `p`, `q`, `r`, `s`, and `t`; browser-visible agents are `a`, `b`, `c`, `d`, and `e`.
+**CURRENT SUPPORTED CONTRACT.** The audited dependable compatibility subset uses one-character atom and agent identifiers. Browser formula/edit/import atoms are exactly `p`, `q`, `r`, `s`, and `t`; browser-selectable agents are `a`, `b`, `c`, `d`, and `e`. The current local Round 4 browser boundary rejects other compact-import atom keys before mutation. It does not reject a supported compact relation solely because its label is outside `a`–`e`; such labels remain visible and disclosed but are not directly selectable by the five buttons.
 
 **AUDITED BASELINE BEHAVIOR at commit `92a4ba6`.** Raw parser acceptance of a multi-character identifier did not guarantee correct PAL or BAPAL behavior. The compact serialization-based deep-copy path could flatten a true atom such as `foo` into the separate keys `f` and `o`, causing a wrong PAL result or a BAPAL exception. See the post-baseline Round 1 delta above for the audited structural internal-copy repair. Multi-character agents still do not have a dependable end-to-end serialization or formula-interface contract.
 
@@ -282,9 +301,11 @@ The application currently has several non-identical formula interfaces.
 
 **AUDITED BASELINE BEHAVIOR at commit `92a4ba6`.** Internal PAL and BAPAL copying called `getModelString()` and then `loadFromModelString()`. Semantic copying therefore inherited the compact URL format's identifier loss and validation defects. See the post-baseline Round 1 delta above: candidate `55f557c` replaced that internal path with structural copying without changing the compact external format.
 
-**KNOWN LIMITATION.** A malformed model string can clear the old model, stop at the first malformed fragment, and silently retain only a valid prefix.
+**HISTORICAL BASELINE LIMITATION at commit `92a4ba6`.** A malformed model string could clear the old model, stop at the first malformed fragment, and silently retain only a valid prefix.
 
-**FUTURE REQUIREMENT.** Semantic restriction and copying must become structural operations independent of URL serialization. Imports must validate atomically: either the complete input is accepted or the prior model remains unchanged with an explicit error. A future versioned schema must represent atoms, agents, worlds, valuations, relations, frame claims, and errors without ambiguous concatenation. No versioned schema is implemented by this Stage 0 document.
+**CURRENT LOCAL ROUND 4 BEHAVIOR — PENDING WORK MAX AUDIT.** Legacy import is transactional. Complete parsing and validation produce intermediate plain data before the current model is replaced. Every target must resolve to a live indexed world, malformed suffixes are rejected, and failure returns structured error data without changing the prior model. Browser startup first establishes a complete valid default, then attempts URL import; failure retains the default, keeps S5 off, exposes the error, and does not replace the failed URL with a partial state.
+
+**FUTURE REQUIREMENT.** Round 1 already made semantic restriction/copying structural, and Round 4 locally implements atomic legacy import. Work Max must still audit the Round 4 boundary. A future versioned schema must represent atoms, agents, worlds, valuations, relations, frame claims, and errors without ambiguous concatenation. No versioned schema is implemented by Round 4 or this Stage 0 document.
 
 ## 10. Result terminology
 
@@ -376,9 +397,9 @@ Small, separately reviewable changes are preferred. Multiple P0/P1 repairs must 
 - **P0-01 — lossy identifiers:** multi-character atoms accepted by the parser/API are flattened during serialization-based copying, causing wrong PAL results or BAPAL exceptions.
 - **P1-01 — parser/printer non-closure:** at the audited baseline, a knowledge-rooted PAL precondition could print without required parentheses, so raw reparsing failed. See the Round 2 delta; P1-01 is closed at `e0c816f` by Audit 05 under the supported-AST ASCII-printing contract.
 - **P1-02 — S5 new-world reflexivity:** at the audited baseline, adding a world in S5 mode adds only the selected agent's loop and can break reflexivity for another active agent. Audit 06 closes P1-02 at `6bd3369` under the recorded relevant-agent policy.
-- **P1-03 — S5 toggle/invariant mismatch and visible projection:** at the audited baseline, enabling S5 mode does not validate or repair the existing model, and seeded closure can leave another malformed component unchanged. Audit 06 passes the semantic/model repair but leaves P1-03 open for the raw-label SVG counterexample. The scoped renderer repair is locally implemented pending focused Work Max recheck.
-- **P1-04 — partial malformed import:** malformed compact model input clears the old model and can silently load only a valid prefix.
-- **P1-05 — hidden semantic valuation keys:** hidden, stale, or unsupported atom keys can change BAPAL valuation classes while remaining invisible or unmentionable in the UI.
+- **P1-03 — CLOSED AT `3f27ac2` BY AUDIT 07:** Audit 06 passed the semantic/model S5 policy; Audit 07 passed the focused raw-label SVG rendering repair and closed Round 3.
+- **P1-04 — IMPLEMENTED, PENDING WORK MAX:** the local transactional parser/loader rejects malformed compact input explicitly and preserves the complete prior model; closure audit remains pending.
+- **P1-05 — IMPLEMENTED, PENDING WORK MAX:** the local browser boundary rejects unsupported imported atoms and the semantic inspector discloses hidden supported keys, unsupported raw keys, relation labels, stored loops, and graph-projection differences; closure audit remains pending.
 - **P1-06 — incorrect report terminology:** within-one-model truth is labelled “satisfiable” or “globally true,” inviting invalid logical conclusions.
 - **P1-07 — insufficient independent verification gate:** repository checks call the production evaluator, and the independent oracle/corpus is not yet a checked-in automated conformance gate.
 
