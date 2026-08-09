@@ -1,5 +1,5 @@
-/* Small post-Stage-0 UI polish layer.
-   This file intentionally changes presentation only. */
+/* Post-Stage-0 presentation and usability layer.
+   This file intentionally does not change logical semantics. */
 
 .language-switch {
   position: absolute;
@@ -22,9 +22,10 @@
 }
 
 /*
- * The browser/OS crosshair can become white on the white graph canvas.
- * Use an explicit black crosshair with a white outline so it remains visible
- * on both light and dark node/link backgrounds.
+ * Some browser/OS themes render the built-in crosshair in white, which makes
+ * it almost invisible on the white graph canvas.  Use an explicit black
+ * crosshair with a white outline so it remains visible on both light and dark
+ * graph content.
  */
 svg.edit:not(.active):not(.ctrl) {
   cursor:
@@ -36,3 +37,73 @@ svg.edit:not(.active):not(.ctrl) {
 #s5-edit-message {
   line-height: 1.4;
 }
+
+/*
+ * app.js still owns the original <input> and reads its value.  ui-polish.js
+ * keeps that input as a hidden storage bridge and exposes this larger textarea
+ * to the user.  Long formulas soft-wrap visually without inserting newlines
+ * into the formula string.
+ */
+#eval-pane .eval-input .formula-storage-input {
+  display: none !important;
+}
+
+#eval-pane .eval-input .formula-input-expanded {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-height: 86px;
+  max-height: 190px;
+  margin: 6px 0 8px;
+  padding: 8px 10px;
+  resize: vertical;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  font-family: Monaco, Menlo, Consolas, "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+#eval-pane .eval-input .formula-input-expanded:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.18);
+  outline: 0;
+}
+
+.formula-input-help {
+  color: #6c757d;
+  font-size: 11px;
+  line-height: 1.3;
+  margin: -3px 0 8px;
+}
+
+/*
+ * Long rendered formulas used to disappear beyond the right edge of app-body.
+ * Give the formula banner the full graph width.  MathJax v2 automatic
+ * linebreaking is enabled from ui-polish.js; horizontal scrolling remains a
+ * fallback for expressions with no legal mathematical break point.
+ */
+#app-body .current-formula {
+  left: 320px;
+  right: 8px;
+  width: auto;
+  max-width: none;
+  max-height: 150px;
+  box-sizing: border-box;
+  overflow-x: auto;
+  overflow-y: auto;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  z-index: 8;
+  border-bottom-left-radius: 4px;
+}
+
+#app-body .current-formula .MathJax,
+#app-body .current-formula .MathJax_CHTML,
+#app-body .current-formula .MathJax_SVG {
+  max-width: 100%;
+}
+
+/* Make the UI-state parameters unobtrusive; no visual control is needed. */

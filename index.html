@@ -409,11 +409,92 @@
           <li><code>^~K{a}p</code>: there is a Boolean announcement after which agent <code>a</code> does not know <code>p</code>.</li>
           <li><code>^K{a}~K{b}p</code>: there is a Boolean announcement after which agent <code>a</code> knows that agent <code>b</code> does not know <code>p</code>.</li>
         </ul>
+        <h3>Two research counterexamples</h3>
+        <h4>Hans van Ditmarsch and Tim French: the vocabulary-extension issue</h4>
         <p>
-          Further reading: Hans van Ditmarsch and Tim French,
-          <a href="https://doi.org/10.46298/lmcs-18(1:20)2022">"Quantifying over Boolean Announcements"</a>,
-          <em>Logical Methods in Computer Science</em>, 2022. The paper studies BAPAL as a
-          restriction of APAL where quantification is over Boolean announcements.
+          Hans van Ditmarsch and Tim French,
+          <a href="https://doi.org/10.46298/lmcs-18(1:20)2022"><em>Quantifying over Boolean Announcements</em></a>,
+          study BAPAL as the restriction of APAL in which quantified announcements are Boolean.
+          Lemma 3.15, statement (3.3), claimed that for $P\subseteq Q$,
+        </p>
+        <p>
+          $\forall A\in\mathcal L(P)\;\forall M_s(Q):
+          M_s(Q)\models A \Longrightarrow M_s(P)\models A.$
+        </p>
+        <p>
+          The claim is false. The issue was first noticed by Yiting Wang. The following finite-model
+          illustration uses $P=\{p\}$ and $Q=\{p,q\}$.
+          <a href="index.html?model=%3BApqS1a%2C1b%2C1c%2C1d%2C1e%2C2a%2C3b%2C%3BApS2a%2C2b%2C2c%2C2d%2C2e%2C1a%2C%3BAS3a%2C3b%2C3c%2C3d%2C3e%2C1b%2C&formula=%5EK%7Ba%7D~K%7Bb%7D~~p&s5=1&vars=2">
+            In the $Q$-side model, $w_1$ satisfies
+            $\Diamond_\beta K_a\widehat K_b\neg p$.
+          </a>
+          By contrast,
+          <a href="index.html?model=%3BApS2a%2C1a%2C1b%2C1c%2C1d%2C1e%2C3b%2C%3BApS1a%2C2a%2C2b%2C2c%2C2d%2C2e%2C%3BAS3a%2C3b%2C3c%2C3d%2C3e%2C1b%2C&formula=%5EK%7Ba%7D~K%7Bb%7D~~p&s5=1&vars=1">
+            the corresponding $P$-side illustration does not satisfy it at $w_1$.
+          </a>
+        </p>
+        <p>
+          A witnessing Boolean announcement on the $Q$ side is <code>(p &lt;-&gt; q)</code>. It is true
+          at $w_1$ (where $p,q$ are both true) and $w_3$ (where both are false), but false at $w_2$
+          (where $p$ is true and $q$ is false). Thus it removes exactly $w_2$ while retaining
+          $w_1,w_3$. After the update, the only remaining $a$-successor of $w_1$ is $w_1$, while
+          its $b$-successors still include a world where $p$ is false. Hence
+          $K_a\neg K_bp$ holds at $w_1$.
+        </p>
+        <p>
+          The playground does not literally shrink the model vocabulary from $Q$ to $P$: browser
+          atoms $p,q,r,s,t$ remain available. The $P$-side link is therefore a finite-model
+          simulation rather than a literal implementation of $M_s(P)$. It makes $q$ (and the other
+          unused atoms) false at every world, so they cannot refine the valuation classes used by
+          the BAPAL evaluator. At the level of Boolean-definable subsets of this finite model, this
+          reproduces the relevant loss of separation power.
+        </p>
+
+        <h4>Kuijer's APAL counterexample and the BAPAL restriction</h4>
+        <p>
+          A second classical counterexample is due to Louwe B. Kuijer in the unpublished manuscript
+          <a href="https://personal.us.es/hvd/APAL_counterexample.pdf"><em>Unsoundness of $R(\Box)$</em></a> (2015).
+          It shows that a finitary APAL rule $R(\Box)$ is unsound. Let
+          $\gamma := p\wedge\widehat K_b\neg p\wedge\widehat K_aK_bp$.
+          The key APAL pattern is that
+          $[\widehat K_b p]\Box\neg\gamma\rightarrow[q]\neg\gamma$ can hold,
+          whereas replacing the specific announcement $[q]$ on the right by the arbitrary-announcement
+          quantifier $\Box\neg\gamma$ can fail.
+        </p>
+        <p>
+          This particular counterexample does not transfer directly to BAPAL. Replacing the APAL
+          quantifier by the Boolean-announcement quantifier gives
+          $\mathsf{pre}_\beta :=
+          [\widehat K_b p]\Box_\beta\neg\gamma\rightarrow[q]\neg\gamma$.
+          <br>
+          <a href="index.html?model=%3BApS1a%2C1b%2C1c%2C1d%2C1e%2C2a%2C3b%2C%3BApS2a%2C2b%2C2c%2C2d%2C2e%2C1a%2C5b%2C%3BAS3a%2C3b%2C3c%2C3d%2C3e%2C1b%2C4a%2C%3BArS4a%2C4b%2C4c%2C4d%2C4e%2C3a%2C%3BAS5a%2C5b%2C5c%2C5d%2C5e%2C2b%2C6a%2C%3BAS6a%2C6b%2C6c%2C6d%2C6e%2C5a%2C&formula=+%5B~K%7Bb%7D~p%5D~%5E~~%28p+%26+~K%7Bb%7D~~p+%26+~K%7Ba%7D~K%7Bb%7Dp%29+->+%5Bq%5D~%28p+%26+~K%7Bb%7D~~p+%26+~K%7Ba%7D~K%7Bb%7Dp%29&s5=1&vars=3">
+            On Kuijer's countermodel, $\mathsf{pre}_\beta$ is true at every displayed world.
+          </a>
+        </p>
+        <p>
+          The corresponding BAPAL conclusion is
+          $\mathsf{con}_\beta :=
+          [\widehat K_b p]\Box_\beta\neg\gamma\rightarrow\Box_\beta\neg\gamma$.
+          <br>
+          <a href="index.html?model=%3BApS1a%2C1b%2C1c%2C1d%2C1e%2C2a%2C3b%2C%3BApS2a%2C2b%2C2c%2C2d%2C2e%2C1a%2C5b%2C%3BAS3a%2C3b%2C3c%2C3d%2C3e%2C1b%2C4a%2C%3BArS4a%2C4b%2C4c%2C4d%2C4e%2C3a%2C%3BAS5a%2C5b%2C5c%2C5d%2C5e%2C2b%2C6a%2C%3BAS6a%2C6b%2C6c%2C6d%2C6e%2C5a%2C&formula=%5B~K%7Bb%7D~p%5D~%5E~~%28p+%26+~K%7Bb%7D~~p+%26+~K%7Ba%7D~K%7Bb%7Dp%29+->+~%5E~~%28p+%26+~K%7Bb%7D~~p+%26+~K%7Ba%7D~K%7Bb%7Dp%29&s5=1&vars=3">
+            It is also true at every world of this particular model.
+          </a>
+          This is a model-local observation: it shows that Kuijer's APAL countermodel no longer
+          refutes the Boolean-restricted formula, not by itself that some general BAPAL rule is sound.
+        </p>
+        <p>
+          The mechanism can be seen by writing Kuijer's crucial witness announcement explicitly.
+          It contains an epistemic operator and is therefore not Boolean:
+          $\mathsf{exp} :=
+          [\widehat K_b p]\Box_\beta\neg\gamma
+          \rightarrow[p\vee\widehat K_ar]\neg\gamma$.
+          <br>
+          <a href="index.html?model=%3BApS1a%2C1b%2C1c%2C1d%2C1e%2C2a%2C3b%2C%3BApS2a%2C2b%2C2c%2C2d%2C2e%2C1a%2C5b%2C%3BAS3a%2C3b%2C3c%2C3d%2C3e%2C1b%2C4a%2C%3BArS4a%2C4b%2C4c%2C4d%2C4e%2C3a%2C%3BAS5a%2C5b%2C5c%2C5d%2C5e%2C2b%2C6a%2C%3BAS6a%2C6b%2C6c%2C6d%2C6e%2C5a%2C&formula=%5B~K%7Bb%7D~p%5D~%5E~~%28p+%26+~K%7Bb%7D~~p+%26+~K%7Ba%7D~K%7Bb%7Dp%29+->%5Bp+%7C~K%7Ba%7D~r%5D~%28p+%26+~K%7Bb%7D~~p+%26+~K%7Ba%7D~K%7Bb%7Dp%29&s5=1&vars=3">
+            With this non-Boolean announcement explicitly restored on the right,
+            $\mathsf{exp}$ is not true at every world of the countermodel.
+          </a>
+          The example therefore illustrates why the original APAL witness is excluded from the
+          quantification domain of $\Box_\beta$.
         </p>
       </section>
       <section class="text-section">
@@ -445,6 +526,7 @@
   <script src="js/MPL.js"></script>
   <script src="js/schema-v1.js"></script>
   <script src="js/s5-policy.js"></script>
+  <script src="js/ui-state-bootstrap.js"></script>
   <script src="js/app.js"></script>
   <script src="js/ui-polish.js"></script>
 </html>

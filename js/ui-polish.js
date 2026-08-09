@@ -2,8 +2,20 @@
  * BAPAL Playground UI polish / lightweight localization layer.
  *
  * Loaded after js/app.js.
- * It does not change MPL truth conditions, model mutation semantics, S5Policy,
- * Schema v1, or the conformance/oracle package.
+ *
+ * This file deliberately does NOT change:
+ *   - MPL.truth or any logical truth condition;
+ *   - the BAPAL valuation-class algorithm;
+ *   - S5Policy semantics;
+ *   - Model / Formula Schema v1;
+ *   - oracle / conformance behavior.
+ *
+ * It adds presentation and browser-state behavior only:
+ *   1. a larger soft-wrapping formula editor;
+ *   2. long-formula rendering support;
+ *   3. S5 edit-lock wording beside the S5 toggle;
+ *   4. URL persistence for S5 mode and displayed atom-row count;
+ *   5. Chinese runtime labels on zh.html.
  */
 (function() {
   'use strict';
@@ -21,7 +33,36 @@
     ' S5 模式下不能单独删除关系箭头，也不能用 L/R/B 改变单条关系的方向；' +
     '如需逐条编辑关系，请先关闭 S5 模式。删除整个世界仍然允许。';
 
-  function preserveLanguageSwitchQuery() {
+  const capturedUiState = window.__BAPAL_UI_BOOTSTRAP || (function() {
+    const fallbackParams = new URLSearchParams(window.location.search);
+    const rawVars = fallbackParams.get('vars');
+    return {
+      s5Requested: fallbackParams.get('s5') === '1',
+      varsRequested: rawVars !== null && /^[1-5]$/.test(rawVars) ? Number(rawVars) : null,
+      hadVarsParameter: fallbackParams.has('vars'),
+    };
+  })();
+
+  let persistVarCount = !!capturedUiState.hadVarsParameter;
+  let restoringUiState = false;
+
+  function getCurrentVarCount() {
+    try {
+      return (typeof varCount !== 'undefined') ? Number(varCount) : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function isS5On() {
+    try {
+      return typeof s5ModeEnabled !== 'undefined' && !!s5ModeEnabled;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function updateLanguageSwitchHref() {
     const link = document.querySelector('[data-language-target]');
     if (!link) return;
     const target = link.getAttribute('data-language-target');
@@ -29,11 +70,143 @@
     link.setAttribute('href', target + window.location.search + window.location.hash);
   }
 
+  function installLiveLanguageSwitch() {
+    const link = document.querySelector('[data-language-target]');
+    if (!link || link.dataset.uiPolishBound === '1') return;
+    link.dataset.uiPolishBound = '1';
+
+    const refresh = function() {
+      updateLanguageSwitchHref();
+    };
+    link.addEventListener('pointerenter', refresh);
+    link.addEventListener('focus', refresh);
+    link.addEventListener('click', refresh);
+    updateLanguageSwitchHref();
+  }
+
+  /**
+   * Keep presentation state in the shareable URL without changing the compact
+   * semantic model format.
+   *
+   *   s5=1    -- editor is in S5 mode
+   *   vars=N  -- number of displayed propositional-variable rows (1..5)
+   *
+   * app.js still writes model/formula.  This wrapper runs afterwards and uses
+   * replaceState so it does not create a second history entry.
+   */
+  function persistUiStateToUrl() {
+    if (restoringUiState) return;
+
+    const params = new URLSearchParams(window.location.search);
+
+    if (isS5On()) params.set('s5', '1');
+    else params.delete('s5');
+
+    const count = getCurrentVarCount();
+    if (persistVarCount && Number.isInteger(count) && count >= 1 && count <= 5) {
+      params.set('vars', String(count));
+    } else {
+      params.delete('vars');
+    }
+
+    const query = params.toString();
+    const nextUrl =
+      window.location.pathname +
+      (query ? '?' + query : '') +
+      window.location.hash;
+
+    window.history.replaceState(window.history.state || {}, '', nextUrl);
+    updateLanguageSwitchHref();
+  }
+
+  function rebuildVisualProjection(hideSelfLoops) {
+    /*
+     * app.js exposes syncVisualLinksFromModel(), but that helper intentionally
+     * hard-codes hideSelfLoops=true for S5 presentation. For ordinary mode we
+     * rebuild the same descriptor list with hideSelfLoops=false so stored
+     * reflexive arrows become visible immediately instead of only after F5.
+     */
+    if (hideSelfLoops && typeof window.syncVisualLinksFromModel === 'function') {
+      window.syncVisualLinksFromModel();
+    } else if (typeof S5Policy !== 'undefined' &&
+               typeof S5Policy.buildLinkProjection === 'function' &&
+               typeof model !== 'undefined' &&
+               typeof links !== 'undefined' &&
+               typeof getNodeById === 'function') {
+      const projection = S5Policy.buildLinkProjection(model, !!hideSelfLoops);
+      if (typeof selected_link !== 'undefined') selected_link = null;
+      links.splice(0, links.length);
+      projection.forEach(function(descriptor) {
+        const source = getNodeById(descriptor.sourceId);
+        const target = getNodeById(descriptor.targetId);
+        if (!source || !target) return;
+        links.push({
+          source: source,
+          target: target,
+          left: descriptor.left,
+          right: descriptor.right,
+          agent: descriptor.agent,
+        });
+      });
+    }
+
+    if (typeof window.restart === 'function') {
+      window.restart();
+    }
+  }
+
+  function refreshS5VisualProjection() {
+    if (!isS5On()) return;
+    rebuildVisualProjection(true);
+  }
+
+  function refreshOrdinaryVisualProjection() {
+    if (isS5On()) return;
+    rebuildVisualProjection(false);
+  }
+
+  function restoreUiStateFromCapturedUrl() {
+    restoringUiState = true;
+
+    if (capturedUiState.varsRequested !== null &&
+        typeof window.setVarCount === 'function') {
+      persistVarCount = true;
+      window.setVarCount(capturedUiState.varsRequested);
+    }
+
+    if (capturedUiState.s5Requested &&
+        !isS5On() &&
+        typeof window.setS5Mode === 'function') {
+      /*
+       * A normal URL produced while S5 mode was on already contains the stored
+       * S5 relation in `model`.  setS5Mode(true) therefore normally takes the
+       * already-S5 branch and does not mutate the semantic relation.
+       *
+       * If somebody hand-edits the URL so that s5=1 accompanies a non-S5 model,
+       * the existing S5Policy confirmation remains authoritative.
+       */
+      window.setS5Mode(true);
+    }
+
+    /*
+     * app.js renders stored self-loops when it starts in ordinary mode.
+     * When an already-S5 model is subsequently restored to S5 mode,
+     * app.js's setS5Mode() does not resync the graph if no normalization was
+     * required.  Force the existing audited projection helper once so the
+     * visual graph matches normal S5 presentation (self-loops hidden).
+     */
+    refreshS5VisualProjection();
+
+    restoringUiState = false;
+    persistUiStateToUrl();
+  }
+
   function translateS5Message(message) {
     const text = String(message == null ? '' : message);
 
     if (!isZh) {
-      if (text.startsWith('S5 mode is on.') && !text.includes('individual relation arrows')) {
+      if (text.startsWith('S5 mode is on.') &&
+          !text.includes('individual relation arrows')) {
         return text + S5_RULE_EN;
       }
       return text;
@@ -148,7 +321,7 @@
   function localizeS5Dom() {
     const state = document.getElementById('s5-mode-state');
     if (state && isZh) {
-      state.textContent = state.textContent.trim().toLowerCase() === 'on' ? '开' : '关';
+      state.textContent = isS5On() ? '开' : '关';
     }
 
     const message = document.getElementById('s5-edit-message');
@@ -213,6 +386,85 @@
     }
   }
 
+  /**
+   * Keep app.js's original input in the DOM as the authoritative storage node,
+   * but expose a larger textarea to the user.  This avoids touching app.js:
+   * evaluateFormula(), announceFormula(), URL serialization, and startup code
+   * continue to read the original input exactly as before.
+   */
+  function installExpandedFormulaEditor() {
+    const container = document.querySelector('#eval-pane .eval-input');
+    if (!container || container.querySelector('.formula-input-expanded')) return;
+
+    const storage = container.querySelector('input[type="text"]');
+    if (!storage) return;
+
+    storage.classList.add('formula-storage-input');
+    storage.setAttribute('aria-hidden', 'true');
+    storage.tabIndex = -1;
+
+    const textarea = document.createElement('textarea');
+    textarea.className = 'formula-input-expanded form-control';
+    textarea.rows = 4;
+    textarea.wrap = 'soft';
+    textarea.spellcheck = false;
+    textarea.autocapitalize = 'off';
+    textarea.autocomplete = 'off';
+    textarea.value = storage.value;
+    textarea.placeholder = storage.placeholder || '';
+    textarea.setAttribute('aria-label', isZh ? '公式输入' : 'Formula input');
+
+    storage.insertAdjacentElement('afterend', textarea);
+
+    const help = document.createElement('div');
+    help.className = 'formula-input-help';
+    help.textContent = isZh
+      ? '长公式会自动换行显示；按 Enter 求值。'
+      : 'Long formulas wrap automatically; press Enter to evaluate.';
+    textarea.insertAdjacentElement('afterend', help);
+
+    const syncToStorage = function() {
+      storage.value = textarea.value;
+    };
+
+    textarea.addEventListener('input', syncToStorage);
+    textarea.addEventListener('change', syncToStorage);
+
+    textarea.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        syncToStorage();
+        if (typeof window.evaluateFormula === 'function') {
+          window.evaluateFormula();
+        }
+      }
+    });
+
+    /*
+     * If some later code writes directly to the hidden storage input, callers
+     * can dispatch a normal input/change event; for current app.js the only
+     * programmatic write occurs before this layer is installed.
+     */
+  }
+
+  /**
+   * MathJax 2 disables automatic equation line breaking by default.  Configure
+   * all output processors used by MathJax 2 so dynamic long formulas can break
+   * at legal mathematical break points.  CSS scrolling remains the fallback.
+   */
+  function configureMathJaxLinebreaks() {
+    if (!window.MathJax || !MathJax.Hub || typeof MathJax.Hub.Config !== 'function') {
+      return false;
+    }
+
+    MathJax.Hub.Config({
+      CommonHTML: { linebreaks: { automatic: true, width: 'container' } },
+      'HTML-CSS': { linebreaks: { automatic: true, width: 'container' } },
+      SVG: { linebreaks: { automatic: true, width: 'container' } }
+    });
+    return true;
+  }
+
   function wrapGlobal(name, factory) {
     const original = window[name];
     if (typeof original !== 'function') return;
@@ -220,9 +472,8 @@
   }
 
   /*
-   * showS5Message is the only English-page behavioral presentation patch:
-   * when S5 turns on, put the "individual arrows are locked" rule directly in
-   * the top S5 status message instead of leaving it only in instructions below.
+   * Put the S5 individual-arrow restriction beside the S5 toggle itself,
+   * rather than only in the long instructions below.
    */
   wrapGlobal('showS5Message', function(original) {
     return function(message) {
@@ -239,9 +490,24 @@
   });
 
   wrapGlobal('setS5Mode', function(original) {
-    return function() {
+    return function(enabled) {
       const result = original.apply(this, arguments);
+      if (enabled && isS5On()) {
+        refreshS5VisualProjection();
+      } else if (!enabled && !isS5On()) {
+        refreshOrdinaryVisualProjection();
+      }
       localizeS5Dom();
+      persistUiStateToUrl();
+      return result;
+    };
+  });
+
+  wrapGlobal('setVarCount', function(original) {
+    return function(count) {
+      const result = original.apply(this, arguments);
+      if (!restoringUiState) persistVarCount = true;
+      persistUiStateToUrl();
       return result;
     };
   });
@@ -260,6 +526,7 @@
       localizeInspector(snapshot);
       localizeChecksTitle();
       localizeS5Dom();
+      persistUiStateToUrl();
       return snapshot;
     };
   });
@@ -276,6 +543,7 @@
     return function() {
       const result = original.apply(this, arguments);
       localizeEvalDom();
+      persistUiStateToUrl();
       return result;
     };
   });
@@ -284,16 +552,25 @@
     return function() {
       const result = original.apply(this, arguments);
       localizeEvalDom();
+      persistUiStateToUrl();
       return result;
     };
   });
 
-  preserveLanguageSwitchQuery();
+  installLiveLanguageSwitch();
+  installExpandedFormulaEditor();
+
+  if (!configureMathJaxLinebreaks()) {
+    window.addEventListener('load', configureMathJaxLinebreaks, { once: true });
+  }
 
   /*
-   * app.js has already performed its initial render by the time this file is
-   * loaded, so localize the current DOM once as well.
+   * app.js has already loaded the model/formula before this layer runs and,
+   * during that startup, may already have rewritten the URL.  Restore from the
+   * values captured by ui-state-bootstrap.js before app.js executed.
    */
+  restoreUiStateFromCapturedUrl();
+
   if (isZh) {
     try {
       if (typeof window.refreshSemanticStateInspector === 'function') {
@@ -308,4 +585,6 @@
     localizeS5Dom();
     localizeEvalDom();
   }
+
+  updateLanguageSwitchHref();
 })();

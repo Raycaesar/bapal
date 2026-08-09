@@ -17,7 +17,7 @@
       <p>
         一个用于模态逻辑、认知逻辑、公开宣告逻辑（PAL）和存在型布尔任意公开宣告逻辑（BAPAL）
         的交互式有限模型 Playground 与模型检验器。它只在页面中明确给出的有限模型上求值；
-        它不是可满足性求解器、有效性检验器、定理证明器，也不是一般的 BAPAL 决定程序。
+        它不是可满足性求解器、有效性检验器、定理证明器，也不是一般的 BAPAL 判定程序。
       </p>
 
       <section id="app">
@@ -280,6 +280,8 @@
         <p>
           S5 模式会在语义模型中保存自环，但为了避免图形拥挤，自环默认不画在图上。
           页面左下角的“自反 / 对称 / 传递”复选框检查的是底层已存储模型，而不只是当前可见图形。
+          关闭 S5 模式并不会删除这些关系；界面会立即恢复普通关系投影，因此已存储的自环会重新显示，
+          之后也可以逐条编辑关系。
         </p>
 
         <h3>语法</h3>
@@ -304,9 +306,98 @@
           <li><code>^K{a}~K{b}p</code>：存在一个布尔宣告，使主体 <code>a</code> 知道主体 <code>b</code> 不知道 <code>p</code>。</li>
         </ul>
         <p>
-          延伸阅读：Hans van Ditmarsch 与 Tim French，
+          示例与延伸阅读：Hans van Ditmarsch 与 Tim French，
           <a href="https://doi.org/10.46298/lmcs-18(1:20)2022">“Quantifying over Boolean Announcements”</a>，
           <em>Logical Methods in Computer Science</em>，2022。该文研究把 APAL 的宣告量化限制到布尔宣告后的 BAPAL。
+        </p>
+        <p>
+          不过原文的Lemma 3.15 (statement 3.3) 断言：
+ <br> 
+  <br>        
+        $ \forall A\in\mathcal L(P)\ \forall M_s(Q):
+ 
+ M_s(Q)\models A
+ \Longrightarrow
+ M_s(P)\models A. $
+ <br>
+  <br>        
+ 其中 $P \subseteq Q$ 是命题变元集，$M_s(P)$ 是 $P$ 上的 Kripke 模型，$M_s(Q)$ 是 $Q$ 上的 Kripke 模型。该断言
+ 有误，问题最早由王一廷博士发现。我们通过这个程序可以展示反例，其中 $P = \{p\}, Q = \{p, q\}$。
+
+ <a href="zh.html?model=%3BApqS1a%2C1b%2C1c%2C1d%2C1e%2C2a%2C3b%2C%3BApS2a%2C2b%2C2c%2C2d%2C2e%2C1a%2C%3BAS3a%2C3b%2C3c%2C3d%2C3e%2C1b%2C&formula=%5EK%7Ba%7D~K%7Bb%7D~~p&s5=1&vars=2">$Q$-模型在$w_1$上 满足 </a>$\Diamond_\beta K_a\widehat K_b\neg p$。但<a href="zh.html?model=%3BApS2a%2C1a%2C1b%2C1c%2C1d%2C1e%2C3b%2C%3BApS1a%2C2a%2C2b%2C2c%2C2d%2C2e%2C%3BAS3a%2C3b%2C3c%2C3d%2C3e%2C1b%2C&formula=%5EK%7Ba%7D~K%7Bb%7D~~p&s5=1&vars=1">$P$-模型在$w_1$上 不满足 </a>$\Diamond_\beta K_a\widehat K_b\neg p$
+          <br><br>
+          这里 $Q$-模型中的一个见证宣告是 <code>(p &lt;-&gt; q)</code>。它在
+          $w_1$（$p,q$ 都真）和 $w_3$（$p,q$ 都假）上为真，而在
+          $w_2$（$p$ 真、$q$ 假）上为假，因此公开宣告后恰好删除 $w_2$ 而保留
+          $w_1,w_3$。此时 $w_1$ 的 $a$-可达世界只剩 $w_1$；而
+          $w_1$ 的 $b$-可达世界仍包含 $w_1,w_3$，其中 $p$ 在 $w_3$ 为假，
+          所以 $K_b p$ 在 $w_1$ 为假，即
+          $\neg K_b\neg\neg p$ 为真，从而
+          $K_a\neg K_b\neg\neg p$ 为真。
+          <br><br>
+          相比之下，这个 Playground 目前不能字面地把模型的命题语言从 $Q$ 缩成 $P$：
+          浏览器界面始终保留 $p,q,r,s,t$ 这些可用原子。因此下面的 $P$-侧链接应当理解为
+          <em>有限模型层面的模拟</em>，而不是对 $M_s(P)$ 定义的逐字实现。我们让 $q$（以及其他未用原子）
+          在所有世界都为假；这样它们无法进一步细分当前模型中的命题赋值类。就本程序实际枚举的
+          布尔可定义世界集合而言，这产生了与忽略 $q$ 相同的区分能力。此时 $w_1,w_2$ 对 $p$
+          的赋值完全相同，任何依靠当前赋值类、且保留 $w_1$ 的布尔宣告都无法删除 $w_2$。
+          这正是该有限模型演示所利用的关键。
+          
+        </p>
+
+        <h3>Kuijer 的 APAL 反例与 BAPAL 的差别</h3>
+        <p>
+          另一个经典反例来自 Louwe B. Kuijer 的未发表手稿
+          <a href="https://personal.us.es/hvd/APAL_counterexample.pdf"><em>Unsoundness of $R(\Box)$</em></a>（2015）。
+          Kuijer 说明 APAL 的一条有穷规则 $R(\Box)$ 并不可靠。令
+          $\gamma := p \wedge \widehat K_b\neg p \wedge \widehat K_aK_bp$。
+          其关键结构是
+          $[\widehat K_b p]\Box\neg\gamma \rightarrow [q]\neg\gamma$
+          可以成立，而把右端的具体宣告 $[q]$ 换成任意宣告量词
+          $\Box\neg\gamma$ 后会失败。这里的 $\Box$ 是 APAL 对所有允许公开宣告的量化。
+        </p>
+        <p>
+          这个具体反例不能直接移植到 BAPAL。为了在 Playground 中比较，把 APAL 的
+          $\Box$ 换成只量化布尔宣告的 $\Box_\beta$。对应的 BAPAL 前提为
+        </p>
+        <p>
+          $\mathsf{pre}_\beta :=
+          [\widehat K_b p]\Box_\beta\neg\gamma
+          \rightarrow [q]\neg\gamma.$
+        </p>
+        <p>
+          <a href="zh.html?model=%3BApS1a%2C1b%2C1c%2C1d%2C1e%2C2a%2C3b%2C%3BApS2a%2C2b%2C2c%2C2d%2C2e%2C1a%2C5b%2C%3BAS3a%2C3b%2C3c%2C3d%2C3e%2C1b%2C4a%2C%3BArS4a%2C4b%2C4c%2C4d%2C4e%2C3a%2C%3BAS5a%2C5b%2C5c%2C5d%2C5e%2C2b%2C6a%2C%3BAS6a%2C6b%2C6c%2C6d%2C6e%2C5a%2C&formula=+%5B~K%7Bb%7D~p%5D~%5E~~%28p+%26+~K%7Bb%7D~~p+%26+~K%7Ba%7D~K%7Bb%7Dp%29+->+%5Bq%5D~%28p+%26+~K%7Bb%7D~~p+%26+~K%7Ba%7D~K%7Bb%7Dp%29&s5=1&vars=3">
+            在 Kuijer 的原反模型上，$\mathsf{pre}_\beta$ 在每个世界都为真。
+          </a>
+          对应的 BAPAL 结论为
+        </p>
+        <p>
+          $\mathsf{con}_\beta :=
+          [\widehat K_b p]\Box_\beta\neg\gamma
+          \rightarrow \Box_\beta\neg\gamma.$
+        </p>
+        <p>
+          <a href="zh.html?model=%3BApS1a%2C1b%2C1c%2C1d%2C1e%2C2a%2C3b%2C%3BApS2a%2C2b%2C2c%2C2d%2C2e%2C1a%2C5b%2C%3BAS3a%2C3b%2C3c%2C3d%2C3e%2C1b%2C4a%2C%3BArS4a%2C4b%2C4c%2C4d%2C4e%2C3a%2C%3BAS5a%2C5b%2C5c%2C5d%2C5e%2C2b%2C6a%2C%3BAS6a%2C6b%2C6c%2C6d%2C6e%2C5a%2C&formula=%5B~K%7Bb%7D~p%5D~%5E~~%28p+%26+~K%7Bb%7D~~p+%26+~K%7Ba%7D~K%7Bb%7Dp%29+->+~%5E~~%28p+%26+~K%7Bb%7D~~p+%26+~K%7Ba%7D~K%7Bb%7Dp%29&s5=1&vars=3">
+            在同一个模型上，$\mathsf{con}_\beta$ 也在每个世界都为真。
+          </a>
+          这只说明 Kuijer 的这个 APAL 反模型不再反驳相应的 BAPAL 公式；
+          它本身并不是对某个一般 BAPAL 规则可靠性的证明。
+        </p>
+        <p>
+          为什么原来的 APAL 机制消失了，可以直接把 Kuijer 反例中的关键见证宣告写出来。
+          该见证含有认识算子，因此不是布尔宣告：
+        </p>
+        <p>
+          $\mathsf{exp} :=
+          [\widehat K_b p]\Box_\beta\neg\gamma
+          \rightarrow [p \vee \widehat K_a r]\neg\gamma.$
+        </p>
+        <p>
+          <a href="zh.html?model=%3BApS1a%2C1b%2C1c%2C1d%2C1e%2C2a%2C3b%2C%3BApS2a%2C2b%2C2c%2C2d%2C2e%2C1a%2C5b%2C%3BAS3a%2C3b%2C3c%2C3d%2C3e%2C1b%2C4a%2C%3BArS4a%2C4b%2C4c%2C4d%2C4e%2C3a%2C%3BAS5a%2C5b%2C5c%2C5d%2C5e%2C2b%2C6a%2C%3BAS6a%2C6b%2C6c%2C6d%2C6e%2C5a%2C&formula=%5B~K%7Bb%7D~p%5D~%5E~~%28p+%26+~K%7Bb%7D~~p+%26+~K%7Ba%7D~K%7Bb%7Dp%29+->%5Bp+%7C~K%7Ba%7D~r%5D~%28p+%26+~K%7Bb%7D~~p+%26+~K%7Ba%7D~K%7Bb%7Dp%29&s5=1&vars=3">
+            把这个非布尔宣告显式放回右端后，$\mathsf{exp}$ 就不再在该模型的每个世界都为真。
+          </a>
+          因此这个例子直观地显示：Kuijer 的破坏性见证依赖一个带认识算子的公开宣告，
+          而 $\Box_\beta$ 的量化域排除了这样的宣告。
         </p>
       </section>
 
@@ -337,6 +428,7 @@
   <script src="js/MPL.js"></script>
   <script src="js/schema-v1.js"></script>
   <script src="js/s5-policy.js"></script>
+  <script src="js/ui-state-bootstrap.js"></script>
   <script src="js/app.js"></script>
   <script src="js/ui-polish.js"></script>
 </html>
