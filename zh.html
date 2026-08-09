@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <title>BAPAL Playground — 有限模型检验器</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/ui-polish.css">
+  </head>
+
+  <body>
+    <div id="page-container">
+      <div class="language-switch"><a href="index.html" data-language-target="index.html">English</a></div>
+      <a href="https://github.com/Raycaesar/bapal"><img class="github-link" src="img/blacktocat-32.png" title="在 GitHub 查看 BAPAL Playground 源代码"></a>
+
+      <h1>BAPAL Playground</h1>
+      <p>
+        一个用于模态逻辑、认知逻辑、公开宣告逻辑（PAL）和存在型布尔任意公开宣告逻辑（BAPAL）
+        的交互式有限模型 Playground 与模型检验器。它只在页面中明确给出的有限模型上求值；
+        它不是可满足性求解器、有效性检验器、定理证明器，也不是一般的 BAPAL 决定程序。
+      </p>
+
+      <section id="app">
+        <div id="mode-select" class="btn-group">
+          <button class="btn btn-primary active" onclick="setAppMode(MODE.EDIT)">
+            <i class="icon-pencil icon-white"></i> 编辑模型
+          </button>
+          <button class="btn btn-primary" onclick="setAppMode(MODE.EVAL)">
+            <i class="icon-eye-open icon-white"></i> 公式求值
+          </button>
+        </div>
+
+        <div id="app-body">
+          <div class="panel tab-content">
+            <div id="edit-pane" class="tab-pane active">
+              <div class="agent-btns">
+                当前主体：<br>
+                <div class="btn-group">
+                  <button class="btn btn-secondary active" onclick="setCurrentAgent(0)">a</button>
+                  <button class="btn btn-secondary" onclick="setCurrentAgent(1)">b</button>
+                  <button class="btn btn-secondary" onclick="setCurrentAgent(2)">c</button>
+                  <button class="btn btn-secondary" onclick="setCurrentAgent(3)">d</button>
+                  <button class="btn btn-secondary" onclick="setCurrentAgent(4)">e</button>
+                </div>
+
+                <div class="s5-mode mt-2">
+                  <label class="s5-switch" for="s5-mode-toggle">
+                    <span class="s5-switch-label">S5 模式</span>
+                    <input id="s5-mode-toggle" type="checkbox" role="switch" onchange="setS5Mode(this.checked)">
+                    <span class="s5-switch-slider" aria-hidden="true"></span>
+                    <span id="s5-mode-state" class="s5-switch-state">关</span>
+                  </label>
+                  <div id="s5-edit-message" class="alert alert-info mt-2 mb-0 inactive"></div>
+                </div>
+              </div>
+
+              <div class="var-count mt-3">
+                显示的命题变元行数：<br>
+                <div class="btn-group">
+                  <button class="btn btn-secondary" onclick="setVarCount(1)">1</button>
+                  <button class="btn btn-secondary active" onclick="setVarCount(2)">2</button>
+                  <button class="btn btn-secondary" onclick="setVarCount(3)">3</button>
+                  <button class="btn btn-secondary" onclick="setVarCount(4)">4</button>
+                  <button class="btn btn-secondary" onclick="setVarCount(5)">5</button>
+                </div>
+                <p class="display-projection-note mb-0">
+                  改变这里的显示行数不会删除模型中的语义赋值。
+                </p>
+              </div>
+
+              <div class="alert alert-info">
+                <div class="selected-node-id">未选择世界</div>
+                <table class="propvars inactive">
+                  <tbody>
+                    <tr><td class="var-name">p:</td><td class="var-value"><div class="btn-group">
+                      <button class="btn btn-small btn-success" onclick="setVarForSelectedNode(0,true)">真</button>
+                      <button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(0,false)">假</button>
+                    </div></td></tr>
+                    <tr><td class="var-name">q:</td><td class="var-value"><div class="btn-group">
+                      <button class="btn btn-small btn-success" onclick="setVarForSelectedNode(1,true)">真</button>
+                      <button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(1,false)">假</button>
+                    </div></td></tr>
+                    <tr class="inactive"><td class="var-name">r:</td><td class="var-value"><div class="btn-group">
+                      <button class="btn btn-small btn-success" onclick="setVarForSelectedNode(2,true)">真</button>
+                      <button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(2,false)">假</button>
+                    </div></td></tr>
+                    <tr class="inactive"><td class="var-name">s:</td><td class="var-value"><div class="btn-group">
+                      <button class="btn btn-small btn-success" onclick="setVarForSelectedNode(3,true)">真</button>
+                      <button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(3,false)">假</button>
+                    </div></td></tr>
+                    <tr class="inactive"><td class="var-name">t:</td><td class="var-value"><div class="btn-group">
+                      <button class="btn btn-small btn-success" onclick="setVarForSelectedNode(4,true)">真</button>
+                      <button class="btn btn-small btn-danger" onclick="setVarForSelectedNode(4,false)">假</button>
+                    </div></td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <details id="semantic-state-inspector" class="semantic-state-inspector">
+                <summary>语义状态检查器</summary>
+                <p id="semantic-state-summary" class="semantic-state-summary" aria-live="polite">
+                  正在载入语义状态。
+                </p>
+                <p class="semantic-state-note">
+                  语义模型是权威状态；下面的图形信息只是一个独立的可视化投影。
+                </p>
+                <dl class="semantic-state-fields">
+                  <div><dt>活动世界</dt><dd id="semantic-live-world-count">0</dd></div>
+                  <div><dt>空槽 / 已删除槽</dt><dd id="semantic-null-world-indices">无</dd></div>
+                  <div><dt>所有为真的原子键</dt><dd id="semantic-true-atom-keys">无</dd></div>
+                  <div><dt>浏览器支持的原子</dt><dd id="semantic-supported-atoms">p, q, r, s, t</dd></div>
+                  <div><dt>当前显示的原子行</dt><dd id="semantic-displayed-atoms">p, q</dd></div>
+                  <div><dt>被显示投影隐藏的受支持真原子</dt><dd id="semantic-hidden-supported-atoms">无</dd></div>
+                  <div><dt>浏览器不支持但语义上为真的键</dt><dd id="semantic-unsupported-atoms">无</dd></div>
+                  <div><dt>活动关系标签</dt><dd id="semantic-active-relations">无</dd></div>
+                  <div><dt>已存储关系数</dt><dd id="semantic-transition-count">0</dd></div>
+                  <div><dt>已存储自环数</dt><dd id="semantic-self-loop-count">0</dd></div>
+                  <div><dt>可见非自环边数</dt><dd id="semantic-visible-link-count">0</dd></div>
+                  <div><dt>没有主体按钮的关系标签</dt><dd id="semantic-unselectable-relations">无</dd></div>
+                  <div><dt>S5 模式</dt><dd id="semantic-s5-state">关</dd></div>
+                </dl>
+                <h3 class="semantic-state-heading">警告</h3>
+                <div id="semantic-state-warnings" class="semantic-state-warnings" role="status" aria-live="polite">无。</div>
+                <h3 class="semantic-state-heading">机器可读快照</h3>
+                <pre id="semantic-state-json" class="semantic-state-json" tabindex="0" aria-label="语义模型与图形投影 JSON"></pre>
+              </details>
+            </div>
+
+            <div id="eval-pane" class="tab-pane">
+              <div class="eval-input">
+                输入公式：
+                <input type="text" placeholder="例如：(p -> K{a}p)">
+                <button class="btn btn-primary" onclick="evaluateFormula()">求值</button>
+                或
+                <button class="btn btn-dark" onclick="announceFormula()">[📣] 公开宣告</button>
+              </div>
+
+              <div class="eval-output inactive"></div>
+
+              <div class="instructions">
+                <ul class="unstyled pl-4">
+                  <li>用 <code>~A</code> 表示 $\lnot{}A$</li>
+                  <li>用 <code>(A &amp; B)</code> 表示 $A\land{}B$</li>
+                  <li>用 <code>(A | B)</code> 表示 $A\lor{}B$</li>
+                  <li>用 <code>(A -&gt; B)</code> 表示 $A\rightarrow{}B$</li>
+                  <li>用 <code>(A &lt;-&gt; B)</code> 表示 $A\leftrightarrow{}B$</li>
+                  <li>用 <code>&#9633;A</code> 表示普通模态逻辑中“所有后继世界”的方块算子</li>
+                  <li>用 <code>&lt;&gt;A</code> 表示普通模态逻辑中“存在后继世界”的菱形算子</li>
+                  <li>用 <code>K{a}A</code> 表示主体 <code>a</code> 知道 <code>A</code></li>
+                  <li><code>K{abc}A</code> 是 <code>K{a}A</code>、<code>K{b}A</code>、<code>K{c}A</code> 都成立的简写</li>
+                  <li>用 <code>[A]B</code> 表示公开宣告</li>
+                  <li>用 <code>^A</code> 表示存在型布尔任意宣告菱形 &#9671;&#7517;A</li>
+                </ul>
+                <p>
+                  求值只标记这个明确给出的有限模型中各世界上的真值。在当前模型的某个世界为真，
+                  并不等于逻辑可满足；在当前模型所有世界都为真，也不等于逻辑有效。
+                  上面的普通模态方/菱形也不是 BAPAL 算子。
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div style="position: absolute; bottom: 10px; left: 310px; z-index: 10;">
+            <i style="color: gray;" id="checks-title">正在载入……</i><br>
+            <input type="checkbox" class="form-check-input ml-1" id="reflexive-check" disabled>
+            <label class="form-check-label ml-4" for="reflexive-check">自反</label><br>
+            <input type="checkbox" class="form-check-input ml-1" id="symmetric-check" disabled>
+            <label class="form-check-label ml-4" for="symmetric-check">对称</label><br>
+            <input type="checkbox" class="form-check-input ml-1" id="transitive-check" disabled>
+            <label class="form-check-label ml-4" for="transitive-check">传递</label>
+          </div>
+
+          <div class="graph"></div>
+          <div class="current-formula inactive"></div>
+        </div>
+      </section>
+
+      <section class="text-section">
+        <h2>编辑说明</h2>
+        <ul class="unstyled">
+          <li class="mb-1">点击画布空白处可以<strong>添加世界</strong>。</li>
+          <li class="mb-1">从一个世界拖到另一个世界，可以为当前主体<strong>添加关系</strong>。</li>
+          <li class="mb-1">按住 Ctrl 拖动世界，可以<strong>调整图形布局</strong>。</li>
+          <li class="mb-1">点击世界或关系边，可以<strong>选中</strong>它。</li>
+          <li class="mb-1">
+            选中世界时：
+            <ul>
+              <li>普通模式下按 <strong>R</strong> 切换当前主体的自反关系；S5 模式下按 R 会加入当前主体所需的自反 S5 关系，自环仍默认不显示。</li>
+              <li><strong>Delete</strong> 删除整个世界。</li>
+            </ul>
+          </li>
+          <li class="mb-1">
+            选中关系边时：
+            <ul>
+              <li>普通模式下，<strong>L</strong>（左）、<strong>R</strong>（右）、<strong>B</strong>（双向）改变关系方向。</li>
+              <li>普通模式下，<strong>Delete</strong> 删除该关系。</li>
+              <li><strong>S5 模式下不能逐条删除关系边，也不能用 Delete/L/R/B 改变单条关系。</strong>因为 S5 关系按等价类存储；如需逐条编辑箭头，请先关闭 S5 模式。</li>
+            </ul>
+          </li>
+          <li class="mb-1">复制浏览器地址栏中的 URL 即可分享当前模型。</li>
+        </ul>
+      </section>
+
+      <section class="text-section">
+        <h2>示例</h2>
+        <ul>
+          <li><a href="zh.html?model=%3BAqS&formula=(p-%3Eq)%26(q-%3Ep)">一个简单的经典逻辑示例：$p$ 与 $q$ 是否同真同假？</a></li>
+          <li><a href="zh.html?model=%3BAqS&formula=p%7C~p">$p\lor\lnot p$ 是重言式。</a></li>
+          <li><a href="zh.html?model=ApS1a%2C0a%2C%3BAS0a%2C1a%2C&formula=K%7Ba%7Dp%7C(K%7Ba%7D(~p))">主体 $a$ 不知道 $p$ 为真，也不知道 $p$ 为假。</a></li>
+          <li><a href="zh.html?model=ApqS1a%2C0a%2C2b%2C0b%2C1b%2C4a%2C%3BApqS0a%2C1a%2C2b%2C1b%2C0b%2C4a%2C%3BApqS0b%2C1b%2C2b%2C2a%2C%3B%3BAS1a%2C0a%2C4a%2C4b%2C&formula=K%7Ba%7DK%7Bb%7Dp">$a$ 知道 $b$ 知道 $p$。</a></li>
+        </ul>
+      </section>
+
+      <section class="text-section">
+        <h2>什么是认知逻辑？</h2>
+        <p>
+          认知逻辑（Epistemic Logic）用于形式化推理主体的知识。经典命题逻辑先给出命题变元
+          $p,q,r,s,t$ 及其真假赋值，再利用否定、合取、析取、蕴含等联结词构成复杂公式。
+        </p>
+        <p>
+          认知逻辑进一步引入“世界”和“主体关系”。世界表示可能的情形，带主体标签的关系表示
+          该主体在一个世界中不能排除哪些其他世界。公式 $K_a A$ 在世界 $w$ 为真，当且仅当
+          对所有从 $w$ 经主体 $a$ 的关系可达的世界，$A$ 都为真。
+        </p>
+        <p>
+          例如，如果主体 $a$ 不能区分一个满足 $p$ 的世界和一个满足 $\lnot p$ 的世界，
+          那么通常既没有 $K_a p$，也没有 $K_a\lnot p$。多主体模型还可以表达高阶知识，
+          例如 $K_aK_b p$。
+        </p>
+        <p>
+          在标准认知逻辑的 S5 语义中，每个主体的可达关系是等价关系，即自反、对称且传递。
+          本页面的 S5 模式就是为了方便构造这种模型。
+        </p>
+
+        <h3>动态认知逻辑与公开宣告</h3>
+        <p>
+          动态认知逻辑加入“公开宣告”。公开宣告公式 $A$ 后，所有不满足 $A$ 的世界被删除，
+          关系相应限制在保留下来的世界上。公式 <code>[A]B</code> 表示：如果当前世界满足
+          $A$，那么公开宣告 $A$ 后 $B$ 成立；若当前世界本身会被宣告删除，则该公式按 PAL
+          的标准语义真空为真。
+        </p>
+      </section>
+
+      <section class="text-section">
+        <h2>布尔任意公开宣告逻辑（BAPAL）</h2>
+        <p>
+          公开宣告逻辑（PAL）包含 <code>[A]B</code> 这样的公式：公开宣告 <code>A</code> 后，
+          <code>B</code> 成立。任意公开宣告逻辑（APAL）进一步对可能的公开宣告进行量化。
+          BAPAL 则把这种量化限制在布尔（纯命题）宣告上。
+        </p>
+        <p>
+          布尔宣告只能由命题原子和布尔联结词构成，不含 <code>K{a}</code>、<code>[A]B</code>
+          或 BAPAL 自身的 <code>^A</code>。因此，在一个固定的有限模型中，布尔宣告不能区分
+          完全命题赋值相同的两个世界。实现上可以把世界按完整命题赋值划分为有限个赋值类，
+          再枚举这些赋值类的并。
+        </p>
+        <p>
+          本页面用 <code>^A</code> 输入存在型布尔任意宣告菱形 &#9671;&#7517;A：
+          存在某个在当前世界为真的布尔宣告 $\alpha$，公开宣告 $\alpha$ 后 <code>A</code>
+          为真。例如 <code>^K{a}p</code> 表示：存在某个布尔公开宣告，使得宣告之后主体
+          <code>a</code> 知道 <code>p</code>。
+        </p>
+
+        <h3>S5 模式</h3>
+        <p>
+          BAPAL 通常在 S5 认知模型上解释，因此每个主体的可达关系应为等价关系。S5 模式是一个
+          模型构造辅助工具：当你连接两个世界时，程序会把它们视为当前主体同一等价类中的成员，
+          并在底层模型中补齐所需的自反、对称和传递关系。
+        </p>
+        <p>
+          如果当前关系还不是 S5，开启 S5 模式时程序会询问是否把相关关系规范化为其
+          <strong>最小等价闭包</strong>。关闭 S5 模式时，求值器仍然可以在任意已存储关系上做
+          显式模型检验，但这些结果不能自动当作关于形式 S5 BAPAL 的定理。
+        </p>
+        <p>
+          <strong>S5 模式下，选中的单条关系不能用 Delete 删除，也不能用 L/R/B 单独改变方向。</strong>
+          这是为了防止等价关系被悄悄破坏。如需逐条编辑关系，请先关闭 S5 模式。删除整个世界仍然允许，
+          删除后剩余关系继续保持 S5 性质。
+        </p>
+        <p>
+          S5 模式会在语义模型中保存自环，但为了避免图形拥挤，自环默认不画在图上。
+          页面左下角的“自反 / 对称 / 传递”复选框检查的是底层已存储模型，而不只是当前可见图形。
+        </p>
+
+        <h3>语法</h3>
+        <ul>
+          <li><code>~A</code>：否定</li>
+          <li><code>(A &amp; B)</code>：合取</li>
+          <li><code>(A | B)</code>：析取</li>
+          <li><code>(A -&gt; B)</code>：蕴含</li>
+          <li><code>(A &lt;-&gt; B)</code>：等价</li>
+          <li><code>&#9633;A</code>：普通全后继模态方块</li>
+          <li><code>&lt;&gt;A</code>：普通存在后继模态菱形</li>
+          <li><code>K{a}A</code>：主体 <code>a</code> 知道 <code>A</code></li>
+          <li><code>K{abc}A</code>：列出的各主体都知道 <code>A</code> 的字符式简写</li>
+          <li><code>[A]B</code>：公开宣告</li>
+          <li><code>^A</code>：存在型布尔任意宣告菱形 &#9671;&#7517;A</li>
+        </ul>
+
+        <h3>例子</h3>
+        <ul>
+          <li><code>^K{a}p</code>：存在一个布尔宣告，使主体 <code>a</code> 在宣告后知道 <code>p</code>。</li>
+          <li><code>^~K{a}p</code>：存在一个布尔宣告，使主体 <code>a</code> 在宣告后不知道 <code>p</code>。</li>
+          <li><code>^K{a}~K{b}p</code>：存在一个布尔宣告，使主体 <code>a</code> 知道主体 <code>b</code> 不知道 <code>p</code>。</li>
+        </ul>
+        <p>
+          延伸阅读：Hans van Ditmarsch 与 Tim French，
+          <a href="https://doi.org/10.46298/lmcs-18(1:20)2022">“Quantifying over Boolean Announcements”</a>，
+          <em>Logical Methods in Computer Science</em>，2022。该文研究把 APAL 的宣告量化限制到布尔宣告后的 BAPAL。
+        </p>
+      </section>
+
+      <section class="text-section">
+        <h2>项目信息</h2>
+        <p>
+          本项目基于 Ross Kirsling 的开源
+          <a href="http://rkirsling.github.io/modallogic/">Modal Logic Playground</a>。
+          Epistemic Logic Playground 由 <a href="https://elliot.website">Elliot Evans</a> 开发。
+          原项目还感谢 Richard Zach、Audrey Yap 以及 Jaxson、Parker、Koray、Alejandro、Tina
+          等提供课程与项目反馈的人。
+        </p>
+        <ul>
+          <li><a href="https://github.com/Raycaesar/bapal">BAPAL Playground GitHub 源代码</a></li>
+          <li><a href="https://github.com/Raycaesar/bapal/issues">发现问题或有建议？在这里提交 issue。</a></li>
+          <li><a href="https://plato.stanford.edu/entries/dynamic-epistemic/appendix-A-kripke.html">斯坦福哲学百科：模态逻辑的 Kripke 模型</a></li>
+        </ul>
+      </section>
+    </div>
+  </body>
+
+  <script type="text/x-mathjax-config">MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$']] } });</script>
+  <script type="text/javascript" async
+    src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+  </script>
+  <script src="lib/d3.min.js"></script>
+  <script src="lib/formula-parser.min.js"></script>
+  <script src="js/MPL.js"></script>
+  <script src="js/schema-v1.js"></script>
+  <script src="js/s5-policy.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/ui-polish.js"></script>
+</html>
