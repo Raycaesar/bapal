@@ -1,61 +1,57 @@
 # BAPAL Playground
 
-The BAPAL Playground continues the Modal Logic Playground / Epistemic Logic Playground lineage.
+BAPAL Playground is an interactive finite-model playground and checker for modal logic, epistemic logic, public announcement logic (PAL), and the existential Boolean Arbitrary Public Announcement Logic (BAPAL) modality. It evaluates formulas at worlds of an explicit finite model and visualizes that model.
 
-This project is based on the open-source <a href="http://rkirsling.github.io/modallogic/">Modal Logic Playground</a> by <a href="https://github.com/rkirsling">Ross Kirsling</a>.
-The Epistemic Logic Playground was made by <a href="https://elliot.website">Elliot Evans</a>.
-Special thanks to my non-classical logic instructors Richard Zach and Audrey Yap, as well as my classmates who provided feedback on this project.
-
-
-The BAPAL Playground is a graphical finite-model interface for modal logic, epistemic logic, public announcement logic, and existential Boolean Arbitrary Public Announcement Logic. It is built using [D3](http://d3js.org/), [MathJax](http://www.mathjax.org/), and [Bootstrap](http://getbootstrap.com/).
-
-BAPAL formulas use `^A` as the ASCII input syntax for the existential Boolean-announcement diamond `◇ᵝA`. The superscript β means Boolean announcement and should not be confused with agent `b`.
+The application includes S5-aware model editing, PAL and existential BAPAL evaluation, versioned Model and Formula Schema v1 interchange, deterministic regressions, and bounded conformance checks against an independent Python oracle. BAPAL input uses `^A` for the existential Boolean-announcement diamond `◇ᵝA`; `β` means Boolean announcement, not agent `b`.
 
 Repository: [github.com/Raycaesar/bapal](https://github.com/Raycaesar/bapal).
 
-## Current scope
+## Scope
 
-This application is an explicit finite-model checker and visualizer. It evaluates formulas at worlds of one supplied finite model. It is not a general satisfiability solver, a validity checker, or a BAPAL decision procedure.
+The formal target semantics is S5. S5 mode enforces the audited editing contract for the relevant stored relations. The evaluator can also inspect arbitrary stored relations for finite-model checking and robustness work; such a run is not automatically a result about the formal S5 logic.
+
+This project is not a theorem prover, satisfiability solver, validity checker, or complete BAPAL decision procedure. Truth at some or every world of one supplied or generated model remains a result about that model. See the normative [result terminology contract](docs/RESULT_TERMINOLOGY.md).
+
+The public interfaces intentionally have different identifier boundaries:
+
+- the browser editor and formula surface use atoms `p`–`t` and selectable agents `a`–`e`;
+- raw `MPL.Wff` parsing accepts a broader ASCII word-like atom vocabulary, while knowledge syntax retains the current character-wise shorthand behavior;
+- Model Schema v1 preserves exact Unicode scalar atom and relation-label strings, while Formula Schema v1 atoms are ASCII word identifiers and each knowledge entry is one ASCII shorthand unit; and
+- the legacy compact model/share format remains a one-character compatibility format and is not general identifier interchange.
+
+These boundaries are documented limitations, not interchangeable syntax contracts.
 
 ## Documentation
 
-- [Stage 0 semantic and product specification](docs/BAPAL_PLAYGROUND_SPEC.md)
+- [Semantic and product specification](docs/BAPAL_PLAYGROUND_SPEC.md)
 - [Schema v1 developer contract](docs/SCHEMA_V1.md)
-- [Independent oracle and conformance guide](docs/CONFORMANCE.md)
+- [Independent oracle and bounded conformance guide](docs/CONFORMANCE.md)
+- [Normative result terminology](docs/RESULT_TERMINOLOGY.md)
+- [Current API reference](API-Reference.md)
+- [BAPAL verification notes](BAPAL_VERIFICATION.md)
 - [Audit index](audit/00_AUDIT_INDEX.md)
-- [Stage 0 scope and repair register](revision/00_STAGE_0_SCOPE_AND_REPAIR_REGISTER.md)
-- [Project verification notes](BAPAL_VERIFICATION.md)
 
-## Audit status
+## Checks and reports
 
-The audited baseline is commit `92a4ba6c7ae070d1f64a1088dbbe7ddfbb02d287`. At that commit, the evaluator completed 6,501,302 bounded independent differential evaluations with zero mismatches within the recorded one-character supported subset and exact test bounds. This is bounded evidence, not a mathematical proof. The known P0/P1 defects remain open at the Stage 0 baseline; see the [repair register](revision/00_STAGE_0_SCOPE_AND_REPAIR_REGISTER.md).
-
-## Tests
-
-Run the Node-based semantic regression checks with:
+Run the ordinary non-writing aggregate and the independent FAST conformance profile with:
 
 ```sh
 node scripts/check-all.js
-node scripts/check-logic-regressions.js
-node scripts/check-bapal-regression.js
-node scripts/check-s5-closure.js
-node scripts/check-report-links.js
+python3 scripts/check-independent-oracle.py
+python3 scripts/check-oracle-sensitivity.py
+python3 scripts/check-oracle-conformance.py --profile fast
 ```
 
-These repository checks are regression tests that exercise the production evaluator; they are not an independent semantic oracle. `scripts/check-all.js` currently invokes report generation and may rewrite tracked report artifacts, so inspect its commands before using it in a task that requires reports to remain unchanged.
+FAST, FULL, the hand-authored core corpus, and the inherited regressions provide bounded evidence only. Zero mismatches is not a mathematical proof of soundness, completeness, satisfiability, validity, decidability, or correctness for unbounded inputs.
 
-Generate a reproducible random BAPAL evaluation report with:
+Report generation is an explicit writing operation. A reproducible sampled finite-model evaluation report can be generated with:
 
 ```sh
-node scripts/random-bapal-evaluation.js
-node scripts/random-bapal-evaluation.js --s5
-node scripts/random-bapal-evaluation.js --arbitrary
-node scripts/random-bapal-evaluation.js --seed 12345
+node scripts/random-bapal-evaluation.js --s5 --seed 12345
 ```
 
-The generated report records results within generated finite models. It does not establish logical satisfiability or validity.
+This command writes `reports/random-bapal-evaluation.html`. Ordinary deterministic checking does not regenerate that tracked report.
 
-## Reusable code
+## Lineage
 
-- The core part of the code is MPL.js, a library for parsing and evaluating well-formed formulas of modal propositional logic. The [legacy API reference](API-Reference.md) is incomplete and is not the normative BAPAL specification.
-- The directed graph editing code was also extracted for reuse and is available [here](http://bl.ocks.org/rkirsling/5001347).
+The BAPAL Playground continues the Modal Logic Playground / Epistemic Logic Playground lineage. It is based on Ross Kirsling's open-source [Modal Logic Playground](http://rkirsling.github.io/modallogic/), and the Epistemic Logic Playground was created by [Elliot Evans](https://elliot.website). The application uses [D3](http://d3js.org/), [MathJax](http://www.mathjax.org/), and [Bootstrap](http://getbootstrap.com/).

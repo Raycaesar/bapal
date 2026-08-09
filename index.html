@@ -2,15 +2,20 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Dynamic Epistemic Logic Playground</title>
+    <title>BAPAL Playground — Finite-Model Checker</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="css/app.css">
   </head>
 
   <body>
     <div id="page-container">
-      <a href="https://github.com/vezwork/modallogic"><img class="github-link" src="img/blacktocat-32.png" title="Fork me on GitHub"></a>
-      <h1>Dynamic Epistemic Logic Playground</h1>
+      <a href="https://github.com/Raycaesar/bapal"><img class="github-link" src="img/blacktocat-32.png" title="View BAPAL Playground source on GitHub"></a>
+      <h1>BAPAL Playground</h1>
+      <p>
+        An interactive finite-model playground and checker for modal, epistemic, PAL, and
+        existential BAPAL formulas. It evaluates the explicit model shown here; it is not a
+        satisfiability solver, validity checker, theorem prover, or general BAPAL decision procedure.
+      </p>
       <section id="app">
         <div id="mode-select" class="btn-group">
           <button class="btn btn-primary active" onclick="setAppMode(MODE.EDIT)">
@@ -128,11 +133,18 @@
                   <li>use <code>(A | B)</code> for $A\lor{}B$</li>
                   <li>use <code>(A -&gt; B)</code> for $A\rightarrow{}B$</li>
                   <li>use <code>(A &lt;-&gt; B)</code> for $A\leftrightarrow{}B$</li>
+                  <li>use <code>&#9633;A</code> for the ordinary all-successor modal box</li>
+                  <li>use <code>&lt;&gt;A</code> for the ordinary some-successor modal diamond</li>
                   <li>use <code>K{a}A</code> for agent <code>a</code> knows <code>A</code></li>
-                  <li>use <code>K{abc}A</code> for agents <code>a</code>, <code>b</code>, and <code>c</code> each know <code>A</code></li>
+                  <li>use <code>K{abc}A</code> as shorthand for <code>K{a}A</code>, <code>K{b}A</code>, and <code>K{c}A</code> all holding</li>
                   <li>use <code>[A]B</code> for public announcement</li>
                   <li>use <code>^A</code> for &#9671;&#7517;A, the existential Boolean-announcement diamond</li>
                 </ul>
+                <p>
+                  Evaluation marks truth at worlds of this explicit finite model. Truth at some
+                  world here is not a satisfiability search, and truth at every world here is not
+                  a validity result. The ordinary modal box and diamond above are not BAPAL operators.
+                </p>
               </div>
             </div>
           </div>
@@ -343,6 +355,11 @@
           such relations.
         </p>
         <p>
+          The evaluator can also run on arbitrary stored relations when S5 mode is off. Those
+          results describe that explicit model and are useful for model-checking or robustness;
+          they are not automatically theorems about the formal S5 logic.
+        </p>
+        <p>
           When S5 mode is off, the playground behaves like the old graph editor: you manually draw
           directed arrows and can adjust their directions. When S5 mode is on, you do not need to
           add a forward arrow, a backward arrow, and self-loops one by one. Dragging a relation
@@ -377,8 +394,10 @@
           <li>use <code>(A | B)</code> for disjunction</li>
           <li>use <code>(A -&gt; B)</code> for implication</li>
           <li>use <code>(A &lt;-&gt; B)</code> for equivalence</li>
+          <li>use <code>&#9633;A</code> for the ordinary all-successor modal box</li>
+          <li>use <code>&lt;&gt;A</code> for the ordinary some-successor modal diamond</li>
           <li>use <code>K{a}A</code> for agent <code>a</code> knows <code>A</code></li>
-          <li>use <code>K{abc}A</code> as shorthand for each listed agent knowing <code>A</code></li>
+          <li>use <code>K{abc}A</code> as conjunction-like shorthand for each listed agent knowing <code>A</code></li>
           <li>use <code>[A]B</code> for public announcement</li>
           <li>use <code>^A</code> for the existential Boolean-announcement diamond &#9671;&#7517;A</li>
         </ul>
@@ -407,8 +426,8 @@
         More resources on Epistemic Logic and this project:
         </p>
         <ul>
-          <li><a href="https://github.com/vezwork/modallogic">This project on GitHub</a></li>
-          <li><a href="https://github.com/vezwork/modallogic/issues/new">Having issues with this project or have a suggestion? Submit an issue here!</a></li>
+          <li><a href="https://github.com/Raycaesar/bapal">BAPAL Playground source on GitHub</a></li>
+          <li><a href="https://github.com/Raycaesar/bapal/issues">Having issues with this project or have a suggestion? Open an issue here.</a></li>
           <li><a href="https://plato.stanford.edu/entries/dynamic-epistemic/appendix-A-kripke.html">Kripke models for modal logic (Stanford Encyclopedia of Philosophy)</a></li>
         </ul>
       </section>

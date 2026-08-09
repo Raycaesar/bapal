@@ -114,8 +114,8 @@ The normative developer-level Schema v1 contract and examples are in [`docs/SCHE
 
 ### Round 6 — Independent oracle, conformance corpus, and CI
 
-- **Status:** **SUBSTANTIVE IMPLEMENTATION PASSED AUDIT 11 — DOCUMENTARY REPAIR APPLIED — PENDING FOCUSED WORK MAX CLOSURE RECHECK**
-- **Defect target:** P1-07, non-independent verification/no permanent gate. The executable package has substantively passed Audit 11; P1-07 and Round 6 remain administratively open only pending the focused documentary closure recheck. Stage 0 remains open.
+- **Status:** **CLOSED — WORK MAX AUDIT 12**
+- **Defect target:** P1-07, non-independent verification/no permanent gate. Audit 11 substantively passed the executable package subject to R6-A11-01 documentary synchronization. The focused [`Audit 12`](../audit/12_BAPAL_ROUND_6_DOCUMENTARY_CLOSURE_RECHECK.md) recheck passed that repair, closed P1-07 and Round 6, and authorized Round 7. Stage 0 remains open.
 - **Independence architecture:** `oracle/bapal_oracle.py` is a Python 3 standard-library-only semantic evaluator. It parses Schema v1 JSON into its own structures and neither imports nor invokes Node, reads production JavaScript at runtime, calls production `MPL.truth`/`MPL.SchemaV1`, parses production ASCII formulas, nor uses production output as expected truth. `oracle/production_runner.js` does the complementary production-only work: it decodes Schema v1 through `MPL.SchemaV1`, calls `MPL.truth`, and emits actual results without implementing expected semantics. `oracle/conformance.py` compares those explicit expected and actual roles.
 - **Interchange boundary:** independently authored or generated Model Schema v1 and Formula Schema v1 documents are the only semantic interchange. Generated cases originate in Python rather than production encoders. Stable world-array indices, including null slots, remain stable.
 - **Semantic coverage:** the oracle implements atoms; `not`, `and`, `or`, `implies`, and `iff`; ordinary `box` and `diamond` over all outgoing successors regardless of label; character-wise knowledge shorthand over only matching labels; PAL source-model precondition evaluation, false-precondition vacuity, and whole-domain restriction; and existential BAPAL over unions of complete exact-atom valuation classes that retain the pointed class. It enumerates class unions, not syntactic Boolean announcements.
@@ -128,10 +128,24 @@ The normative developer-level Schema v1 contract and examples are in [`docs/SCHE
 - **Mismatch and reduction artifacts:** a mismatch writes `mismatch.json` containing profile/seed/index/ID, the top-level replay data and results, source hashes, the preserved original case, the reduced replayable case, and deterministic reduction steps. The reducer attempts transition, true-atom, safe nonpointed-world, and formula-subtree reductions while retaining only reproducing changes. It truthfully calls the result “minimized by the implemented deterministic shrinker; not globally minimal.”
 - **Deliberate sensitivity:** the sensitivity check first requires a small normal set with zero real mismatches, then flips exactly one copied production Boolean outside production code, runs the same comparator, requires one detected mismatch and a replayable temporary artifact, exercises and replays reduction, and cleans the temporary directory. No mutation switch exists in production.
 - **CI:** `.github/workflows/bapal-conformance.yml` runs FAST on pull requests, pushes to `bapal-core`, and manual dispatch. FULL runs on weekly schedule and manual dispatch. Jobs have `contents: read`, use official pinned-major setup/upload actions, run inherited deterministic non-writing checks, require complete zero-mismatch manifests, verify whitespace and a clean worktree, always upload artifact directories, and never invoke random report generation.
-- **Scoped repair and audited evidence:** the first executable remote FAST run, `31278938374`, stopped at `core-073-bapal-delimiter-collision-exact-atoms`, where comma-joined production valuation keys conflated `{"a","b"}` with the single atom set `{"a,b"}`. The authorized repair uses a collision-free canonical structural key for the sorted exact atom array. The unchanged hand expectation and independent oracle now agree with production. Candidate `ffcd7cb2d14217859069acd8ac23cdc5ea450cbc` passed push FAST in run `31279961371` and manual FAST/FULL in runs `31280106548` and `31280325814`; final log-only HEAD `e9b8bd37a380c74375c7cd161711f76e605bf483` passed push FAST in run `31281388941`. Successful FAST runs completed exactly 50,000 comparisons and successful FULL runs exactly 500,000, all with zero mismatches. Audit 11 substantively passed the executable package; only R6-A11-01 documentary synchronization remains pending focused recheck, so P1-07 is not yet closed.
+- **Scoped repair and audited evidence:** the first executable remote FAST run, `31278938374`, stopped at `core-073-bapal-delimiter-collision-exact-atoms`, where comma-joined production valuation keys conflated `{"a","b"}` with the single atom set `{"a,b"}`. The authorized repair uses a collision-free canonical structural key for the sorted exact atom array. The unchanged hand expectation and independent oracle now agree with production. Candidate `ffcd7cb2d14217859069acd8ac23cdc5ea450cbc` passed push FAST in run `31279961371` and manual FAST/FULL in runs `31280106548` and `31280325814`; final log-only HEAD `e9b8bd37a380c74375c7cd161711f76e605bf483` passed push FAST in run `31281388941`. Successful FAST runs completed exactly 50,000 comparisons and successful FULL runs exactly 500,000, all with zero mismatches. Audit 11 substantively passed the executable package, and Audit 12 closed its sole documentary follow-up R6-A11-01.
 - **Scope limitations:** the system supplies bounded finite regression and differential evidence. Oracle agreement is not a formal proof and does not establish semantic correctness, soundness, completeness, satisfiability, validity, decidability, or behavior outside the finite profile bounds. The scoped repair changes only production valuation-class identity; it does not alter the BAPAL quantification architecture, PAL, knowledge, ordinary modal semantics, parser/printer, Schema v1 identifier policy, S5 policy, legacy import, rendering, inspector, result terminology, report generation, or reports.
 
-The normative developer guide is [`docs/CONFORMANCE.md`](CONFORMANCE.md). Round 7 must not begin until a Work Max Round 6 closure audit authorizes it.
+The normative developer guide is [`docs/CONFORMANCE.md`](CONFORMANCE.md). Audit 12 authorized Round 7 after closing P1-07 and Round 6.
+
+### Round 7 — Result terminology and documentation closure
+
+- **Status:** **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**
+- **Defect target:** P1-06. The historical sampled report used the machine fields `satisfiable` and `globallyTrue` and the result labels “Satisfiable” and “Globally true” for aggregates over one generated model. Those names could be mistaken for logical satisfiability and validity claims.
+- **Machine terminology:** pointwise results use `truthAtWorld`; aggregation over one explicit model uses exactly `trueSomewhereInModel` and `trueAtEveryWorldInModel`. The old misleading fields are removed rather than retained as aliases.
+- **Human terminology:** report headings use “True at some world in this model” and “True at every live world in this model.” Console summaries use the same model-local concepts.
+- **Sampled-report nonclaim:** every generated report visibly states that it evaluates formulas only in the explicit generated finite model shown; truth somewhere does not establish logical satisfiability, failure everywhere does not establish unsatisfiability, truth everywhere does not establish logical validity, and sampled/generated evidence is not a decision procedure.
+- **Checking boundary:** `MPL.truth` remains pointed finite-model evaluation of `M,w \models \varphi`. The report derives some-world and every-live-world summaries only within that supplied model; it performs no model search and no satisfiability or validity inference.
+- **Documentation alignment:** the README, browser metadata/help, API reference, verification guide, and technical docs distinguish ordinary modal operators, PAL, existential Boolean arbitrary announcement, the universal BAPAL operator used in literature, formal S5 target semantics, arbitrary stored-relation evaluation, browser/raw/schema identifier vocabularies, and the legacy compact/Schema v1 boundaries.
+- **Verification wording:** on one finite explicit model, valuation-class definability is justified with a finite separator construction over the finitely many occurring exact-atom classes. It is not justified by an infinite complete-valuation conjunction and does not imply a finite-model property or general BAPAL decidability.
+- **Permanent regression:** `scripts/check-report-terminology.js` exercises actual evaluation and rendering. It checks exact fields, formulas true at some but not all live worlds, true at all live worlds, and false at all live worlds, accurate HTML/console labels, the visible disclaimer, absence of old result fields, tracked-report alignment, valid non-writing rendering, and preservation of the tracked report during ordinary deterministic execution.
+
+P1-06 remains open until the Round 7 Work Max closure audit passes. Stage 0 remains open; the closed Round 6 independent conformance contract remains protected.
 
 ## 2. Product identity
 
@@ -167,11 +181,15 @@ The concrete application notation is:
 | Disjunction | `(A | B)` |
 | Implication | `(A -> B)` |
 | Biconditional | `(A <-> B)` |
+| Ordinary modal box | `□A` |
+| Ordinary modal diamond | `<>A` |
 | Individual knowledge | `K{a}A` |
 | Public-announcement box | `[A]B` |
 | Existential Boolean arbitrary announcement | `^A` |
 
 **NORMATIVE.** The BAPAL existential modality has ASCII form `^A`, Unicode display `◇ᵝA`, and LaTeX display `\Diamond_{\beta}A`. The `β` marks quantification over Boolean announcements; it does not denote agent `b`.
+
+**NORMATIVE.** `□A` and `<>A` are the inherited ordinary accessibility modalities. They are not the universal or existential BAPAL operators. The universal BAPAL operator used as a primitive in some literature has no separate application syntax here.
 
 **CURRENT.** The inherited raw parser also accepts ordinary accessibility operators `□` and `<>`. Their implementation quantifies over stored outgoing accessibility edges without treating them as BAPAL quantifiers.
 
@@ -350,29 +368,15 @@ The application currently has several non-identical formula interfaces.
 
 **CURRENT AUDITED ROUND 4 BEHAVIOR — CLOSED AT `5c89ab5` BY AUDIT 08.** Legacy import is transactional. Complete parsing and validation produce intermediate plain data before the current model is replaced. Every target must resolve to a live indexed world, malformed suffixes are rejected, and failure returns structured error data without changing the prior model. Browser startup first establishes a complete valid default, then attempts URL import; failure retains the default, keeps S5 off, exposes the error, and does not replace the failed URL with a partial state.
 
-**CURRENT SCHEMA V1 IMPLEMENTATION — CLOSED, WORK MAX AUDIT 10.** Round 5 provides separate versioned model and formula semantic documents without ambiguous concatenation, as specified in the post-baseline delta and [`docs/SCHEMA_V1.md`](SCHEMA_V1.md). Audit 10 closed the versioned Schema v1 implementation under the exact Audit 09/10 contracts. It deliberately makes no frame-class assertion and does not replace or certify the compact share URL as lossless. Formula Schema v1 knowledge remains character-wise, P1-06 remains open, and the audited Round 4 boundary remains unchanged.
+**CURRENT SCHEMA V1 IMPLEMENTATION — CLOSED, WORK MAX AUDIT 10.** Round 5 provides separate versioned model and formula semantic documents without ambiguous concatenation, as specified in the post-baseline delta and [`docs/SCHEMA_V1.md`](SCHEMA_V1.md). Audit 10 closed the versioned Schema v1 implementation under the exact Audit 09/10 contracts. It deliberately makes no frame-class assertion and does not replace or certify the compact share URL as lossless. Formula Schema v1 knowledge remains character-wise, result names are governed separately by [`RESULT_TERMINOLOGY.md`](RESULT_TERMINOLOGY.md), and the audited Round 4 boundary remains unchanged.
 
 ## 10. Result terminology
 
-**NORMATIVE.** Approved result descriptions are:
+[`RESULT_TERMINOLOGY.md`](RESULT_TERMINOLOGY.md) is the normative naming contract. The supported concepts are pointed `truthAtWorld`, `trueSomewhereInModel`, and `trueAtEveryWorldInModel` for one explicit finite model.
 
-- “true at world `w` in model `M`”;
-- “true worlds in this model”;
-- “false worlds in this model”;
-- “true somewhere in this model”;
-- “true at every world in this model.”
+**NORMATIVE.** A within-model aggregation must not be presented as an implemented satisfiability or validity search. Failure at every live world of one model does not establish unsatisfiability; truth at every live world of one model does not establish validity. The sampled report, hand-authored core corpus, FAST profile, and FULL profile are distinct bounded artifacts, and none is an unbounded decision procedure or mathematical proof.
 
-When only one supplied model or a finite sample has been checked, do not use the following terms without a precise logical qualification:
-
-- satisfiable;
-- unsatisfiable;
-- valid;
-- invalid;
-- globally valid.
-
-**NORMATIVE.** Exhibiting one correctly represented S5 pointed model `(M,w)` with `M,w ⊨ A` is a witness that `A` is satisfiable under the represented semantics. Failure at every world of one model, failure in a finite sample, or failure within a bounded search does not establish unsatisfiability. Truth at every world of one supplied model does not establish validity.
-
-**KNOWN LIMITATION.** The baseline random report uses “satisfiable” and “globally true” for within-one-model results. Those labels are P1-06 repair targets and are not approved terminology.
+**HISTORICAL BASELINE LIMITATION.** The baseline random report labelled within-one-model aggregates “satisfiable” and “globally true.” The Round 7 P1-06 implementation replaces those fields and labels, adds a visible nonclaim, and protects the contract with `scripts/check-report-terminology.js`; formal closure remains subject to the Round 7 review boundary.
 
 ## 11. Verification claims
 
@@ -445,8 +449,8 @@ Small, separately reviewable changes are preferred. Multiple P0/P1 repairs must 
 - **P1-03 — CLOSED AT `3f27ac2` BY AUDIT 07:** Audit 06 passed the semantic/model S5 policy; Audit 07 passed the focused raw-label SVG rendering repair and closed Round 3.
 - **P1-04 — CLOSED AT `5c89ab5` — WORK MAX AUDIT 08:** the transactional parser/loader rejects malformed compact input explicitly and preserves the complete prior model.
 - **P1-05 — CLOSED AT `5c89ab5` — WORK MAX AUDIT 08:** the browser boundary rejects unsupported imported atoms and the semantic inspector discloses hidden supported keys, unsupported raw keys, relation labels, stored loops, and graph-projection differences.
-- **P1-06 — incorrect report terminology:** within-one-model truth is labelled “satisfiable” or “globally true,” inviting invalid logical conclusions.
-- **P1-07 — insufficient independent verification gate:** Round 6 now checks in the independent Python oracle, the explicit 73-case corpus, deterministic 50,000-case FAST and 500,000-case FULL profiles, sensitivity/reducer/manifests, and the CI gate. Candidate remote FAST and FULL runs and final-log-only-HEAD remote FAST have succeeded with zero mismatches. Audit 11 substantively passed this executable package; P1-07 remains administratively **OPEN** only pending the focused R6-A11-01 documentary closure recheck.
+- **P1-06 — Round 7 implementation pending closure review:** the report now uses `truthAtWorld`, `trueSomewhereInModel`, and `trueAtEveryWorldInModel`, with accurate display labels, explicit nonclaims, and a permanent non-writing regression. The baseline defect remains historical evidence until the Round 7 closure boundary is certified.
+- **P1-07 — CLOSED BY AUDIT 12:** Round 6 checks in the independent Python oracle, the explicit 73-case corpus, deterministic 50,000-case FAST and 500,000-case FULL profiles, sensitivity/reducer/manifests, and the CI gate. Candidate remote FAST and FULL runs and final-log-only-HEAD remote FAST succeeded with zero mismatches. Audit 11 passed the executable package subject to one documentary repair, and Audit 12 passed that repair and closed P1-07 and Round 6.
 
 **FUTURE REQUIREMENT.** Each defect must be closed by a separately reviewable repair with minimized regression coverage and a repair log. Closure of one item does not certify the others or complete Stage 0.
 

@@ -9,7 +9,7 @@ Model and formula documents are different formats and are versioned independentl
 - `bapal-model`, version `1`;
 - `bapal-formula`, version `1`.
 
-This document is normative for Schema v1. The broader semantic and product contract remains [`BAPAL_PLAYGROUND_SPEC.md`](BAPAL_PLAYGROUND_SPEC.md).
+This document is normative for Schema v1. The broader semantic and product contract remains [`BAPAL_PLAYGROUND_SPEC.md`](BAPAL_PLAYGROUND_SPEC.md). Schema documents carry semantic inputs, not satisfiability or validity classifications; evaluation result names are governed by [`RESULT_TERMINOLOGY.md`](RESULT_TERMINOLOGY.md).
 
 ## 2. Non-goals
 
@@ -273,4 +273,4 @@ Such changes must not be retroactively attributed to v1. Moving schema documents
 - The browser has no Schema v1 import/export control, and current share URLs still use the compact compatibility format.
 - Canonical output is deterministic under this contract but is not RFC 8785 canonical JSON.
 - Audit 09 found the JSON Schema resource-identity issue R5-A09-01 as the only Round 5 closure blocker. Audit 10 verified its repair and closed Round 5: **Versioned Schema v1 is CLOSED — WORK MAX AUDIT 10**. Model Schema v1 and Formula Schema v1 are closed under the exact Audit 09/10 contracts, and Round 6 does not reopen them.
-- Legacy compact share URLs remain a limited compatibility boundary and are not certified as lossless for general identifiers. Formula Schema v1 knowledge entries remain character-wise shorthand units. P1-06 remains **OPEN**; P1-07 remains **OPEN pending the focused Audit 11 documentary recheck**; Stage 0 remains **OPEN**.
+- Legacy compact share URLs remain a limited compatibility boundary and are not certified as lossless for general identifiers. Formula Schema v1 knowledge entries remain character-wise shorthand units. Audit 12 closes P1-07 and Round 6 without changing Schema v1; the separate Round 7 result-terminology repair does not change Schema v1 semantics. Stage 0 remains **OPEN**.

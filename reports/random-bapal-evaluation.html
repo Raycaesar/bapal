@@ -2,22 +2,25 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Random BAPAL Evaluation</title>
+    <title>Generated Finite-Model Evaluation Report</title>
     <style>
       body { font-family: Arial, sans-serif; line-height: 1.45; margin: 32px; }
       code { background: #f5f5f5; padding: 1px 4px; }
       table { border-collapse: collapse; margin: 16px 0; width: 100%; }
       th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; vertical-align: top; }
       th { background: #eee; }
+      .scope-note { background: #eef6ff; border: 1px solid #9fc5e8; padding: 10px 12px; }
       .true { background: #d7f5d0; text-align: center; }
       .false { background: #ffd6d6; text-align: center; }
     </style>
   </head>
   <body>
-    <h1>Random BAPAL Evaluation</h1>
+    <h1>Generated Finite-Model Evaluation Report</h1>
     <p><strong>Mode:</strong> s5<br>
     <strong>Seed:</strong> 12345<br>
     <strong>Model string:</strong> <code>ApqS0a,1a,2a,0b,3b,;AqrS0a,1a,2a,1b,;ArS0a,1a,2a,2b,;AqsS3a,4a,0b,3b,;AprS3a,4a,4b,</code></p>
+
+    <p class="scope-note"><strong>Scope:</strong> This generated finite-model evaluation report evaluates formulas only in the explicit generated finite model shown here. Truth at some world in this model is not logical satisfiability; truth at every live world in this model is not logical validity; and failure at every live world in this sampled model is not an unsatisfiability result. Sampled/generated evidence is not a decision procedure.</p>
 
     <p>
       Playground links use standard query parameters with encoded model and formula values.
@@ -49,7 +52,9 @@
         <tr>
           <th>#</th><th>ASCII</th><th>Unicode</th><th>LaTeX</th><th>Length</th>
           <th>w0</th><th>w1</th><th>w2</th><th>w3</th><th>w4</th>
-          <th>Satisfiable</th><th>Globally true</th><th>Playground</th>
+          <th>True at some world in this model</th>
+          <th>True at every live world in this model</th>
+          <th>Playground</th>
         </tr>
       </thead>
       <tbody><tr>

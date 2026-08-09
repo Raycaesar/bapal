@@ -1,369 +1,234 @@
-# MPL.js: API Reference
+# BAPAL Playground API Reference
 
-> **Stage 0 warning — legacy and incomplete API reference**
->
-> This document is inherited from the earlier Modal Logic / Epistemic Logic Playground and remains incomplete for the current BAPAL Playground. It is not the normative BAPAL specification; current normative behavior is documented in [`docs/BAPAL_PLAYGROUND_SPEC.md`](docs/BAPAL_PLAYGROUND_SPEC.md). Raw-parser, browser, compact-format, and Schema v1 identifier boundaries differ; only the explicit Schema v1 contract below guarantees its stated multi-character identifiers. The inherited ordinary `□` and `<>` operators are not the universal and existential BAPAL operators. This reference is scheduled to be replaced during Stage 1 extraction of the typed semantic core.
->
-> **CORRECTION / DEPRECATION:** The legacy table and examples below claim that ASCII `[]A` is accepted as the ordinary box. That claim is false for the audited baseline: the raw parser accepts the literal `□A` token instead. Any `[]p` examples below are retained only as legacy documentation and must not be treated as accepted current syntax. The ordinary `□` and `<>` modalities remain distinct from BAPAL; existential BAPAL input is `^A`.
+This reference describes the current JavaScript interfaces in `js/MPL.js`, `js/s5-policy.js`, and `js/schema-v1.js`. The normative semantic contract is [`docs/BAPAL_PLAYGROUND_SPEC.md`](docs/BAPAL_PLAYGROUND_SPEC.md), and result names are governed by [`docs/RESULT_TERMINOLOGY.md`](docs/RESULT_TERMINOLOGY.md).
 
-MPL is a library for parsing and evaluating well-formed formulas (wffs) of modal propositional logic.
+The library performs pointed evaluation in explicit finite models. It does not search for satisfiability or validity.
 
-MPL has a single dependency, [formula-parser](https://www.npmjs.com/package/formula-parser).
+## Loading
+
+In a browser, load the current components in this order:
+
+```html
+<script src="lib/formula-parser.min.js"></script>
+<script src="js/MPL.js"></script>
+<script src="js/schema-v1.js"></script>
+<script src="js/s5-policy.js"></script>
+```
+
+`MPL.js` exposes `MPL.Wff`, `MPL.Model`, `MPL.parseModelString`, and `MPL.truth`. Schema v1 extends `MPL` with `MPL.SchemaV1`. The S5 editing helper exposes the separate global `S5Policy`.
+
+## Formula API
+
+### `new MPL.Wff(asciiOrJSON)`
+
+Constructs a formula from either the configured raw-parser input string or the current legacy JSON AST.
+
+```javascript
+const parsed = new MPL.Wff('[(K{a}p)]^q');
+const constructed = new MPL.Wff({
+  impl: [{prop: 'p'}, {poss: {prop: 'q'}}]
+});
+```
+
+The supported current constructors are:
+
+| Construct | Raw parser / ASCII printer | Legacy JSON shape |
+|---|---|---|
+| Atom | `p`, `foo`, `bar_baz` | `{prop: 'p'}` |
+| Negation | `~A` | `{neg: A}` |
+| Ordinary modal box | literal `□A` | `{nec: A}` |
+| Ordinary modal diamond | `<>A` | `{poss: A}` |
+| Existential Boolean announcement | `^A` | `{bapal: A}` |
+| Knowledge shorthand | `K{a}A`, `K{abc}A` | `{kno_start:{kno_end:[{prop:'a'}, A]}}` |
+| Public announcement | `[A]B` | `{annce_start:{annce_end:[A, B]}}` |
+| Conjunction | `(A & B)` | `{conj:[A, B]}` |
+| Disjunction | `(A \| B)` | `{disj:[A, B]}` |
+| Implication | `(A -> B)` | `{impl:[A, B]}` |
+| Biconditional | `(A <-> B)` | `{equi:[A, B]}` |
+
+The ordinary `□` and `<>` operators range over stored accessibility transitions. They are not universal or existential BAPAL operators. `^A` is the existential Boolean-announcement modality. The universal BAPAL operator used as a primitive in some literature has no separate application syntax here.
+
+The raw parser does **not** accept `[]A` as ordinary-box syntax. Use the literal `□A`. PAL uses the two-part form `[A]B`.
+
+Knowledge remains character-wise shorthand: `K{abc}A` behaves as the conjunction of the individual `a`, `b`, and `c` knowledge clauses. It is not one agent named `abc`, distributed knowledge, or common knowledge.
+
+### Raw parser versus browser input
+
+The raw `MPL.Wff` constructor and browser formula field are different interfaces:
+
+- the raw parser accepts ASCII word-like identifiers, the literal ordinary box `□`, `<>`, `^`, `K{...}`, and `[...]` under its configured precedence rules;
+- the browser removes commas, rewrites each `[` to `[(` and each `]` to `)]` before construction, then permits only atoms `p`–`t` and knowledge units `a`–`e`; and
+- a raw knowledge- or PAL-rooted announcement precondition needs protective parentheses, for example `[(K{a}p)]q`. The ASCII printer supplies those parentheses for supported ASTs.
+
+Browser acceptance therefore does not imply direct raw-parser acceptance, and raw multi-character atom acceptance does not broaden the browser vocabulary.
+
+### Formula representations
+
+Each `MPL.Wff` provides:
+
+```text
+wff.ascii()
+wff.json()
+wff.latex()
+wff.unicode()
+```
+
+`ascii()` is the current canonical printer for the supported legacy AST. It emits literal `□` for ordinary box, `<>` for ordinary diamond, `[A]B` for PAL, and `^A` for existential BAPAL. `latex()` renders `^` as `\Diamond_{\beta}{}`, and `unicode()` renders it as `◇ᵝ`.
+
+The constructor stores a supplied legacy JSON object directly, and `json()` exposes that stored object rather than a defensive clone. Treat it as formula representation data, not a versioned interchange document. Use Formula Schema v1 when fresh ownership and stable node names are required.
+
+## Model API
+
+### Representation
+
+`new MPL.Model()` creates an indexed finite model. Internally, each array slot is either `null` or:
+
+```javascript
+{
+  assignment: {p: true},
+  successors: [{target: 1, agent: 'a'}]
+}
+```
+
+World identity is the stable zero-based array index. Removing a world leaves a `null` slot. Assignments store only keys whose value is exactly `true`; absent keys are false. A successor combines a numeric target with its exact stored relation label.
+
+### World and valuation methods
+
+| Method | Current behavior |
+|---|---|
+| `model.addState(assignment)` | Appends a live world, copies only exactly-true keys into prototype-safe storage, and returns its index. |
+| `model.editState(world, assignment)` | Applies a partial update: `true` stores a key and `false` deletes it. |
+| `model.removeState(world)` | Replaces the slot with `null` and removes every incoming transition to it. |
+| `model.removeAllStatesAndTransitions()` | Resets the internal world array to empty. |
+| `model.valuation(atom, world)` | Returns the exact-key Boolean value; throws if the world is not live. |
+| `model.getStates()` | Returns a new slot array containing current assignment objects or `null`. The assignment objects are not cloned. |
+| `model.getRawStates()` | Exposes the internal state array used by semantic and audited infrastructure. It is not a defensive snapshot. |
+
+### Transition methods
+
+| Method | Current behavior |
+|---|---|
+| `model.addTransition(source, target, agent)` | Adds the labelled pair if both worlds are live and that exact `(target, agent)` pair is not already present. |
+| `model.removeTransition(source, target, agent)` | Removes matching target edges; when a truthy `agent` is supplied, only that exact label is removed. |
+| `model.getSuccessorsOf(source, agent)` | Returns successor records `{target, agent}`; a truthy label filters by exact equality. |
+| `model.isSuccessor(source, target, agent)` | Tests for a target, optionally filtered by a truthy exact label. |
+| `model.getActiveAgents()` | Returns the sorted distinct stored relation labels. |
+
+`getSuccessorsOf()` does not return bare world indices. Callers must read each record's `target` and `agent`.
+
+### Structural copy
+
+`model.deepCopy()` creates a fresh `MPL.Model` structurally. It preserves live and null indices, exactly-true assignment keys, targets, and relation labels without using compact serialization. Mutating the copied states or transitions does not mutate the source model.
+
+### Relation and S5 methods
+
+The model exposes these whole-relation operations:
+
+| Method | Meaning |
+|---|---|
+| `isReflexive(agent)` | Tests stored reflexivity on every live world. |
+| `isSymmetric(agent)` | Tests stored symmetry for the exact label. |
+| `isTransitive(agent)` | Tests stored transitivity for the exact label. |
+| `isEquivalenceRelation(agent)` | Conjunction of the three tests. |
+| `closeEquivalenceRelation(agent)` | Completes each undirected-support connected component as the least stored equivalence closure and returns its components. |
+| `closeEquivalenceRelations(agents)` | Deduplicates/sorts labels and closes each independently. |
+| `closeEquivalenceClass(agent, seedWorlds)` | Completes the connected class containing the live seeds and stores reflexive loops for that label on all live worlds. |
+
+`S5Policy` supplies the browser's audited editing contract:
+
+```text
+S5Policy.getRelevantAgents(model, declaredAgents, selectedAgent)
+S5Policy.planEnable(model, declaredAgents, selectedAgent)
+S5Policy.requestEnable(model, declaredAgents, selectedAgent, confirmNormalization)
+S5Policy.addWorld(model, assignment, declaredAgents, selectedAgent)
+S5Policy.addRelation(model, source, target, agent, declaredAgents, selectedAgent)
+S5Policy.removeWorld(model, world, declaredAgents, selectedAgent)
+S5Policy.attemptIndividualRelationEdit(s5Enabled, edit)
+S5Policy.buildLinkProjection(model, hideSelfLoops)
+```
+
+The relevant-agent set is the sorted union of declared browser agents, active stored labels, and the selected agent. Enabling S5 either observes already-valid relations without mutation, obtains confirmation before least-equivalence normalization, or remains disabled without mutation. Accepted S5 edits preserve the equivalence invariant.
+
+Formal BAPAL targets S5 epistemic models. `MPL.Model` and `MPL.truth` do not require or certify S5; arbitrary stored relations can be evaluated as explicit-model behavior or robustness input.
+
+## Legacy compact model boundary
+
+### `MPL.parseModelString(modelString)`
+
+Parses the complete legacy compact string into plain intermediate data without mutating a model. It returns either:
+
+```javascript
+{ok: true, modelData, stateCount, liveStateCount,
+ nullStateIndices, duplicateTransitionsSuppressed}
+```
+
+or structured failure data with `ok:false` and an error containing a code, message, location fields, and relevant token details.
+
+### `model.getModelString()` and `model.loadFromModelString(text)`
+
+`getModelString()` serializes the current model to the inherited compact/share representation. `loadFromModelString()` validates and prepares the entire replacement before one commit. Failure returns `{ok:false,error:{...}}` and leaves the previous model unchanged; success returns counts and null-slot information.
+
+The compact representation is only a compatibility boundary:
+
+- assignment names are concatenated one-character atom tokens;
+- a transition token is a decimal target followed by one terminal Unicode code point used as its label;
+- it has no escaping, vocabulary declaration, or version; and
+- it is not a lossless general-identifier format.
+
+The browser further restricts compact-import atoms to `p`–`t`. Use Model Schema v1 for exact multi-character/Unicode model identifiers.
 
 ## Schema v1 semantic interchange
 
-Load `js/schema-v1.js` after `js/MPL.js`. It exposes `MPL.SchemaV1`, a dependency-free semantic JSON interchange API distinct from legacy compact model strings, share URLs, and formula ASCII transport. The normative document shapes, identifier rules, node vocabulary, and examples are in [`docs/SCHEMA_V1.md`](docs/SCHEMA_V1.md).
+Load `js/schema-v1.js` after `js/MPL.js`. It exposes exactly:
 
-### Canonical Schema Resource Identities
+```text
+MPL.SchemaV1.validateModelDocument(document)
+MPL.SchemaV1.encodeModel(model)
+MPL.SchemaV1.decodeModel(document)
+MPL.SchemaV1.validateFormulaDocument(document)
+MPL.SchemaV1.encodeFormula(wff)
+MPL.SchemaV1.decodeFormula(document)
+MPL.SchemaV1.canonicalStringify(document)
+```
 
-Model Schema v1:
+Model and formula envelopes are separate:
+
+```json
+{"format":"bapal-model","version":1,"worlds":[]}
+```
+
+```json
+{"format":"bapal-formula","version":1,"formula":{"type":"atom","name":"p"}}
+```
+
+The canonical schema resource identifiers are:
 
 ```text
 https://raycaesar.github.io/bapal/schemas/bapal-model-v1.schema.json
-```
-
-Formula Schema v1:
-
-```text
 https://raycaesar.github.io/bapal/schemas/bapal-formula-v1.schema.json
 ```
 
-Each `$id` identifies the corresponding schema resource. It is independent of runtime `MPL.SchemaV1` API names and independent of legacy compact/share URLs. Internal `$ref` values remain local fragments. JSON Schema does not require an `$id` to be dereferenceable. Changing either canonical `$id` would be a schema-artifact identity change and requires explicit version and review consideration.
+### Return and ownership contract
 
-All Schema v1 operations use result objects. Ordinary invalid input does not throw or partially commit data:
+- `validateModelDocument` and `validateFormulaDocument` return `{ok:true,canonicalDocument}` on success.
+- `encodeModel` and `encodeFormula` return `{ok:true,document}`.
+- `decodeModel` returns `{ok:true,model,canonicalDocument}` with a fresh `MPL.Model`.
+- `decodeFormula` returns `{ok:true,wff,canonicalDocument}` with a fresh `MPL.Wff` built through direct AST mapping, not ASCII transport.
+- `canonicalStringify` returns `{ok:true,json,canonicalDocument}` for a recognized Schema v1 document.
+- Ordinary failures return `{ok:false,error:{code,message,path,...}}`; unknown versions fail explicitly rather than falling back.
 
-```javascript
-// success
-{ok: true, /* operation-specific fields */}
+Successful canonical documents are newly constructed. Decode results, canonical documents, and caller inputs do not share mutable model/formula structures. Encoding and validation do not mutate caller-owned values. Conversion never routes models through compact strings, and formula conversion never uses ASCII as semantic transport.
 
-// failure
-{
-  ok: false,
-  error: {
-    code: 'UNSUPPORTED_VERSION',
-    message: 'Unsupported bapal-model version 2.',
-    path: '/version'
-    // operation-specific replay details may follow
-  }
-}
-```
+Model Schema v1 accepts exact nonempty well-formed Unicode scalar strings for atom names and relation labels. Formula Schema v1 atoms match `[A-Za-z0-9_]+`, and every ordered `knowledge.agents` entry is exactly one `[A-Za-z0-9_]` shorthand unit. These categories are intentionally different.
 
-Every returned canonical document is newly constructed and independent of caller-owned input. Model atom arrays are sorted by Unicode scalar value, transitions by target and then relation-label scalar value, and world/null order is preserved. Formula child and knowledge-unit order is preserved exactly while object fields are rebuilt in the fixed Schema v1 order. Unknown versions and additional structural fields are explicit failures.
+The complete document shapes, canonicalization, error behavior, and versioning rules are in [`docs/SCHEMA_V1.md`](docs/SCHEMA_V1.md).
 
-### `MPL.SchemaV1.validateModelDocument(document)`
+## Pointed evaluation
 
-Input: a programmatic object intended to be a `bapal-model` version-1 document.
+### `MPL.truth(model, world, wff)`
 
-Success:
+Returns the Boolean truth value of one `MPL.Wff` at one live world of one `MPL.Model`. Invalid model/Wff instances and non-live points throw.
 
-```javascript
-{ok: true, canonicalDocument: modelDocument}
-```
+The current evaluator covers Boolean connectives, ordinary all-label box/diamond, character-wise knowledge filtered by exact relation label, PAL with source-model precondition evaluation and restriction, and existential BAPAL over valuation-class unions in the active finite model.
 
-The canonical document preserves the input world-array indices and null slots, sorts true-atom and transition sets, and shares no mutable arrays or records with `document`. The function does not mutate the input and does not create or modify an `MPL.Model`.
-
-Failure: `{ok:false,error:{code,message,path,...}}`. Structural failures, duplicate atoms/transitions, invalid identifiers, unsafe or out-of-range targets, targets to null worlds, and unsupported versions are distinguished. Target-reference paths report the transition's original supplied array index even when canonical sorting would move it.
-
-### `MPL.SchemaV1.encodeModel(model)`
-
-Input: an `MPL.Model`-compatible value exposing `getRawStates()`.
-
-Success:
-
-```javascript
-{ok: true, document: canonicalModelDocument}
-```
-
-The result is a fresh canonical `bapal-model` version-1 document. Stable world indices and null slots are retained; exact supported atom and relation strings are copied into arrays. The source model is not mutated, and later mutation of either the source or returned document does not affect the other.
-
-Failure: `{ok:false,error:{code,message,path,...}}` if the value is not model-compatible, its state data cannot be read, or its semantic content violates Schema v1. Encoding never uses `getModelString()` or any compact/URL representation.
-
-### `MPL.SchemaV1.decodeModel(document)`
-
-Input: a `bapal-model` version-1 document.
-
-Success:
-
-```javascript
-{
-  ok: true,
-  model: freshModel,
-  canonicalDocument: canonicalModelDocument
-}
-```
-
-Validation and canonicalization complete before construction. `model` is a fresh `MPL.Model`; its assignments use prototype-safe storage. `canonicalDocument` is also fresh. Neither structure aliases `document`, and subsequent mutations across those three ownership domains are independent.
-
-Failure: the same structured validation result as `validateModelDocument`, or `MODEL_CONSTRUCTION_FAILED` if a validated document cannot be materialized. No caller-owned model or document is mutated and no prefix is returned.
-
-### `MPL.SchemaV1.validateFormulaDocument(document)`
-
-Input: a programmatic object intended to be a `bapal-formula` version-1 document.
-
-Success:
-
-```javascript
-{ok: true, canonicalDocument: formulaDocument}
-```
-
-The result is a fresh stable formula tree using only the public Schema v1 node vocabulary. Formula and knowledge order is preserved exactly, while field order is canonical. The supplied document is not mutated or aliased.
-
-Failure: `{ok:false,error:{code,message,path,...}}` for wrong formats/versions, missing or extra fields, unknown or malformed nodes, invalid formula atoms or knowledge units, null descendants, cyclic programmatic objects, and other structural errors. Descendant paths identify the stable formula-tree location.
-
-### `MPL.SchemaV1.encodeFormula(wff)`
-
-Input: an `MPL.Wff`-compatible value exposing `json()`.
-
-Success:
-
-```javascript
-{ok: true, document: canonicalFormulaDocument}
-```
-
-The encoder reads the Wff JSON AST and maps it directly to the stable Schema v1 AST. It does not call `.ascii()` or the raw parser as a representation bridge. The source Wff JSON is not mutated, and the returned document is structurally independent.
-
-Failure: `{ok:false,error:{code,message,path,...}}` if the value is not Wff-compatible, its JSON cannot be read, its legacy AST is unsupported/malformed/cyclic, or its identifiers violate the Formula Schema v1 boundary.
-
-### `MPL.SchemaV1.decodeFormula(document)`
-
-Input: a `bapal-formula` version-1 document.
-
-Success:
-
-```javascript
-{
-  ok: true,
-  wff: freshWff,
-  canonicalDocument: canonicalFormulaDocument
-}
-```
-
-The decoder validates first, directly maps the stable tree to a fresh legacy JSON AST, and constructs a fresh `MPL.Wff` from that AST. ASCII is not semantic transport. The Wff, canonical document, and supplied document do not share mutable formula nodes.
-
-Failure: the same structured validation result as `validateFormulaDocument`, or `WFF_CONSTRUCTION_FAILED` if the validated stable AST cannot be materialized under the current Wff representation.
-
-### `MPL.SchemaV1.canonicalStringify(document)`
-
-Input: either exact Schema v1 document kind.
-
-Success:
-
-```javascript
-{
-  ok: true,
-  json: '{"format":"bapal-model","version":1,"worlds":[]}',
-  canonicalDocument: canonicalDocument
-}
-```
-
-The function validates with the matching runtime validator, rebuilds the canonical document, and returns compact `JSON.stringify` output plus that fresh document. It does not mutate or alias the input. Model set arrays are sorted; formula semantic order is preserved. This is deterministic project-specific Schema v1 encoding and is not an RFC 8785 claim.
-
-Failure: the corresponding structured model/formula validation result. A document with an unknown format is not treated as a generic JSON value.
-
-## Parsing and displaying wffs
-
-MPL wffs can be represented in four ways:
-* ASCII, for typing
-* JSON, for processing
-* LaTeX, for displaying nicely
-* Unicode, for displaying accessibly
-
-All four are stored in a `Wff` object, created by providing either the ASCII or JSON representation as input.
-
-In each case:
-* Parentheses and whitespace don't matter.
-* Binary connectives are strictly binary.
-* Propositional variables may be any alphanumeric string.
-
-In the table below, `p` is a propositional variable, while `A` and `B` are arbitrary subwffs.
-
-<table>
-<thead>
-<tr><th></th><th>ASCII</th><th>JSON</th><th>LaTeX</th><th>Unicode</th></tr>
-</thead>
-<tbody>
-<tr><td>Proposition</td><td><code>p</code></td><td><code>{prop: 'p'}</code></td><td><code>p</code></td><td><code>p</code></td></tr>
-<tr><td>Negation</td><td><code>~A</code></td><td><code>{neg: A}</code></td><td><code>\lnot{}A</code></td><td><code>\u00acA</code></td></tr>
-<tr><td>Necessity</td><td><code>[]A</code></td><td><code>{nec: A}</code></td><td><code>\Box{}A</code></td><td><code>\u25a1A</code></td></tr>
-<tr><td>Possibility</td><td><code>&lt;&gt;A</code></td><td><code>{poss: A}</code></td><td><code>\Diamond{}A</code></td><td><code>\u25caA</code></td></tr>
-<tr><td>Conjunction</td><td><code>(A &amp; B)</code></td><td><code>{conj: [A, B]}</code></td><td><code>(A\land{}B)</code></td><td><code>(A \u2227 B)</code></td></tr>
-<tr><td>Disjunction</td><td><code>(A | B)</code></td><td><code>{disj: [A, B]}</code></td><td><code>(A\lor{}B)</code></td><td><code>(A \u2228 B)</code></td></tr>
-<tr><td>Implication</td><td><code>(A -&gt; B)</code></td><td><code>{impl: [A, B]}</code></td><td><code>(A\rightarrow{}B)</code></td><td><code>(A \u2192 B)</code></td></tr>
-<tr><td>Equivalence</td><td><code>(A &lt;-&gt; B)</code></td><td><code>{equi: [A, B]}</code></td><td><code>(A\leftrightarrow{}B)</code></td><td><code>(A \u2194 B)</code></td></tr>
-</tbody>
-</table>
-
-### MPL.Wff( <i>asciiOrJSON</i> )
-
-Constructor for MPL wff. Takes either ASCII or JSON representation as input.
-
-```javascript
-// the following are equivalent:
-var wff = new MPL.Wff('(p -> []p)');
-var wff = new MPL.Wff({impl: [{prop: 'p'}, {nec: {prop: 'p'}}]});
-```
-
-### wff.ascii()
-
-Returns the ASCII representation of an MPL wff.
-
-```javascript
-wff.ascii();
-// => '(p -> []p)'
-```
-
-### wff.json()
-
-Returns the JSON representation of an MPL wff.
-
-```javascript
-wff.json();
-// => {impl: [{prop: 'p'}, {nec: {prop: 'p'}}]}
-```
-
-### wff.latex()
-
-Returns the LaTeX representation of an MPL wff.
-
-```javascript
-wff.latex();
-// => '(p\\rightarrow{}\\Box{}p)'
-```
-
-### wff.unicode()
-
-Returns the Unicode representation of an MPL wff.
-
-```javascript
-wff.unicode();
-// => '(p \u2192 \u25a1p)'
-```
-
-
-## Kripke models
-
-Mathematically, a Kripke model consists of:
-* a set of *states* (or *worlds*)
-* an *accessibility relation* (i.e., a set of *transitions*)
-* a *valuation* (a complete assignment of truth values to each variable at each state)
-
-Specifically, in an MPL `Model`:
-* Each state has a zero-based index and an assignment.
-* An assignment is an object in which the keys are propositional variable names and the values are booleans.
-* Only **true** propositional variables are actually stored! All others are automatically interpreted as false.
-
-Models can also be exported to, and imported from, a compact 'model string' notation.   
-
-### MPL.Model()
-
-Constructor for Kripke model. Takes no initial input.
-
-```javascript
-var model = new MPL.Model();
-```
-
-### model.addTransition( <i>source</i>, <i>target</i> )
-
-Adds a transition to the model, given source and target state indices.
-
-```javascript
-// example: a model where states 0 and 1 have been added and not removed
-model.addTransition(0, 1);
-```
-
-### model.removeTransition( <i>source</i>, <i>target</i> )
-
-Removes a transition from the model, given source and target state indices.
-
-```javascript
-// example: a model where states 0 and 1 have been added and not removed
-model.removeTransition(0, 1);
-```
-
-### model.getSuccessorsOf( <i>source</i> )
-
-Returns an array of successor states for a given state index.
-
-```javascript
-// example: a model with transitions (0,0) and (0,1)
-model.getSuccessorsOf(0);
-// => [0, 1]
-```
-
-### model.addState( <i>assignment</i> )
-
-Adds a state with a given assignment to the model.
-
-```javascript
-model.addState({'p': true});
-```
-
-### model.editState( <i>state</i>, <i>assignment</i> )
-
-Edits the assignment of a state in the model, given a state index and a new partial assignment.
-
-```javascript
-model.editState(0, {'p': false, 'q': true});
-```
-
-### model.removeState( <i>state</i> )
-
-Removes a state and all related transitions from the model, given a state index.
-
-```javascript
-model.removeState(0);
-```
-
-### model.getStates()
-
-Returns an array containing the assignment (or null) of each state in the model.  
-(Only true propositional variables are returned in each assignment.)
-
-```javascript
-// example: a model with states 0 and 2 (where state 1 has been removed); 'q' is true at 0, nothing true at 2
-model.getStates();
-// => [{'q': true}, null, {}]
-```
-
-### model.valuation( <i>propvar</i>, <i>state</i> )
-
-Returns the truth value of a given propositional variable at a given state index.
-
-```javascript
-// example: a model where only 'q' is true at state 0
-model.valuation('r', 0);
-// => false
-```
-
-### model.getModelString()
-
-Returns current model as a compact string suitable for use as a URL parameter.
-
-```javascript
-// example: a model with states 0 and 2 (where state 1 has been removed) and transitions (0,0) and (0,2);
-//          'q' is true at 0, nothing true at 2
-model.getModelString();
-// => 'AqS0,2;;AS;'
-```
-
-### model.loadFromModelString( <i>modelString</i> )
-
-Restores a model from a given model string.
-
-```javascript
-model.loadFromModelString('AqS0,2;;AS;');
-```
-
-
-## Evaluating wffs
-
-### MPL.truth( <i>model</i>, <i>state</i>, <i>wff</i> )
-
-Evaluate the truth of an MPL wff at a given state within a given model.
-
-```javascript
-// example: model is an MPL Model with only state 0 and no transitions; 'p' is true at state 0
-//          wff is the MPL Wff '(p -> []p)'  
-MPL.truth(model, 0, wff);
-// => true
-```
+This is pointed finite-model evaluation, recommended as `truthAtWorld`. Repeating it across one model can compute `trueSomewhereInModel` and `trueAtEveryWorldInModel`. None of these APIs searches across S5 models or decides logical satisfiability or validity.

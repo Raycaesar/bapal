@@ -22,6 +22,11 @@ const WORLD_COUNT = 5;
 const FORMULA_COUNT = 10;
 const MAX_FORMULA_LENGTH = 10;
 const MAX_GENERATION_RETRIES = 500;
+const REPORT_SCOPE_STATEMENT =
+  'This generated finite-model evaluation report evaluates formulas only in the explicit generated finite model shown here. ' +
+  'Truth at some world in this model is not logical satisfiability; truth at every live world in this model is not logical validity; ' +
+  'and failure at every live world in this sampled model is not an unsatisfiability result. ' +
+  'Sampled/generated evidence is not a decision procedure.';
 
 function parseArgs(argv) {
   const options = {
@@ -202,19 +207,20 @@ function generateFormulas(rng) {
 }
 
 function evaluateFormulas(model, formulas) {
+  const liveWorlds = model.getRawStates()
+    .map((state, world) => state ? world : null)
+    .filter(world => world !== null);
+
   return formulas.map((wff, index) => {
-    const truthByWorld = [];
-    for (let world = 0; world < WORLD_COUNT; world++) {
-      truthByWorld.push(MPL.truth(model, world, wff));
-    }
+    const truthAtWorld = liveWorlds.map(world => MPL.truth(model, world, wff));
 
     return {
       number: index + 1,
       wff,
       length: countJsonLength(wff.json()),
-      truthByWorld,
-      satisfiable: truthByWorld.some(Boolean),
-      globallyTrue: truthByWorld.every(Boolean),
+      truthAtWorld,
+      trueSomewhereInModel: truthAtWorld.some(Boolean),
+      trueAtEveryWorldInModel: truthAtWorld.every(Boolean),
     };
   });
 }
@@ -254,8 +260,7 @@ function htmlEscape(value) {
     .replace(/'/g, '&#39;');
 }
 
-function writeHtmlReport({ mode, seed, model, assignments, relations, results }) {
-  fs.mkdirSync(reportsDir, { recursive: true });
+function renderHtmlReport({ mode, seed, model, assignments, relations, results }) {
   const modelString = model.getModelString();
 
   const valuationRows = assignments.map((assignment, world) =>
@@ -268,7 +273,7 @@ function writeHtmlReport({ mode, seed, model, assignments, relations, results })
 
   const formulaRows = results.map(result => {
     const ascii = result.wff.ascii();
-    const truthCells = result.truthByWorld
+    const truthCells = result.truthAtWorld
       .map(value => `<td class="${value ? 'true' : 'false'}">${value ? 'T' : 'F'}</td>`)
       .join('');
     return `<tr>
@@ -278,8 +283,8 @@ function writeHtmlReport({ mode, seed, model, assignments, relations, results })
       <td><code>${htmlEscape(result.wff.latex())}</code></td>
       <td>${result.length}</td>
       ${truthCells}
-      <td>${result.satisfiable ? 'yes' : 'no'}</td>
-      <td>${result.globallyTrue ? 'yes' : 'no'}</td>
+      <td>${result.trueSomewhereInModel ? 'yes' : 'no'}</td>
+      <td>${result.trueAtEveryWorldInModel ? 'yes' : 'no'}</td>
       <td><a href="${htmlEscape(playgroundUrl(modelString, ascii))}">open</a></td>
     </tr>`;
   }).join('\n');
@@ -288,22 +293,25 @@ function writeHtmlReport({ mode, seed, model, assignments, relations, results })
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Random BAPAL Evaluation</title>
+    <title>Generated Finite-Model Evaluation Report</title>
     <style>
       body { font-family: Arial, sans-serif; line-height: 1.45; margin: 32px; }
       code { background: #f5f5f5; padding: 1px 4px; }
       table { border-collapse: collapse; margin: 16px 0; width: 100%; }
       th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; vertical-align: top; }
       th { background: #eee; }
+      .scope-note { background: #eef6ff; border: 1px solid #9fc5e8; padding: 10px 12px; }
       .true { background: #d7f5d0; text-align: center; }
       .false { background: #ffd6d6; text-align: center; }
     </style>
   </head>
   <body>
-    <h1>Random BAPAL Evaluation</h1>
+    <h1>Generated Finite-Model Evaluation Report</h1>
     <p><strong>Mode:</strong> ${htmlEscape(mode)}<br>
     <strong>Seed:</strong> ${htmlEscape(seed)}<br>
     <strong>Model string:</strong> <code>${htmlEscape(modelString)}</code></p>
+
+    <p class="scope-note"><strong>Scope:</strong> ${htmlEscape(REPORT_SCOPE_STATEMENT)}</p>
 
     <p>
       Playground links use standard query parameters with encoded model and formula values.
@@ -330,7 +338,9 @@ function writeHtmlReport({ mode, seed, model, assignments, relations, results })
         <tr>
           <th>#</th><th>ASCII</th><th>Unicode</th><th>LaTeX</th><th>Length</th>
           <th>w0</th><th>w1</th><th>w2</th><th>w3</th><th>w4</th>
-          <th>Satisfiable</th><th>Globally true</th><th>Playground</th>
+          <th>True at some world in this model</th>
+          <th>True at every live world in this model</th>
+          <th>Playground</th>
         </tr>
       </thead>
       <tbody>${formulaRows}</tbody>
@@ -339,55 +349,77 @@ function writeHtmlReport({ mode, seed, model, assignments, relations, results })
 </html>
 `;
 
-  fs.writeFileSync(reportPath, html, 'utf8');
+  return html;
 }
 
-function printConsoleReport({ mode, seed, model, assignments, relations, results }) {
-  console.log('Random BAPAL evaluation');
-  console.log(`Mode: ${mode}`);
-  console.log(`Seed: ${seed}`);
-  console.log(`Model string: ${model.getModelString()}`);
-  console.log('');
-  console.log('World valuations:');
+function writeHtmlReport(payload) {
+  fs.mkdirSync(reportsDir, { recursive: true });
+  fs.writeFileSync(reportPath, renderHtmlReport(payload), 'utf8');
+}
+
+function renderConsoleReport({ mode, seed, model, assignments, relations, results }) {
+  const lines = [];
+  lines.push('Generated finite-model evaluation report');
+  lines.push(`Mode: ${mode}`);
+  lines.push(`Seed: ${seed}`);
+  lines.push(`Model string: ${model.getModelString()}`);
+  lines.push(`Scope: ${REPORT_SCOPE_STATEMENT}`);
+  lines.push('');
+  lines.push('World valuations:');
   assignments.forEach((assignment, world) => {
-    console.log(`  w${world}: ${formatAssignment(assignment)}`);
+    lines.push(`  w${world}: ${formatAssignment(assignment)}`);
   });
-  console.log('');
-  console.log('Agent relations:');
+  lines.push('');
+  lines.push('Agent relations:');
   AGENTS.forEach(agent => {
-    console.log(`  ${agent}: ${relations[agent].join(', ') || '(none)'}`);
+    lines.push(`  ${agent}: ${relations[agent].join(', ') || '(none)'}`);
   });
-  console.log('');
-  console.log('Formula results:');
+  lines.push('');
+  lines.push('Formula results:');
   results.forEach(result => {
-    const values = result.truthByWorld.map((value, world) => `w${world}=${value ? 'T' : 'F'}`).join(', ');
-    console.log(`${result.number}. ${result.wff.ascii()} (length ${result.length})`);
-    console.log(`   Unicode: ${result.wff.unicode()}`);
-    console.log(`   LaTeX: ${result.wff.latex()}`);
-    console.log(`   Truth: ${values}`);
-    console.log(`   Satisfiable: ${result.satisfiable ? 'yes' : 'no'}; globally true: ${result.globallyTrue ? 'yes' : 'no'}`);
+    const values = result.truthAtWorld.map((value, world) => `w${world}=${value ? 'T' : 'F'}`).join(', ');
+    lines.push(`${result.number}. ${result.wff.ascii()} (length ${result.length})`);
+    lines.push(`   Unicode: ${result.wff.unicode()}`);
+    lines.push(`   LaTeX: ${result.wff.latex()}`);
+    lines.push(`   Truth at each live world: ${values}`);
+    lines.push(`   True at some world in this model: ${result.trueSomewhereInModel ? 'yes' : 'no'}`);
+    lines.push(`   True at every live world in this model: ${result.trueAtEveryWorldInModel ? 'yes' : 'no'}`);
   });
-  console.log('');
+  return lines.join('\n');
+}
+
+function printConsoleReport(payload) {
+  console.log(renderConsoleReport(payload));
   console.log(`HTML report written to: ${path.relative(root, reportPath)}`);
 }
 
-function main() {
-  const options = parseArgs(process.argv.slice(2));
-  const rng = makeRng(options.seed);
-  const { model, assignments } = buildRandomModel(rng, options.mode);
-  const formulas = generateFormulas(rng);
+function createReportPayload(options) {
+  const settings = options || {};
+  const mode = settings.mode || 's5';
+  const seed = Number.isFinite(settings.seed)
+    ? settings.seed >>> 0
+    : Math.floor(Date.now() % 0xffffffff);
+  const rng = makeRng(seed);
+  const { model, assignments } = buildRandomModel(rng, mode);
+  const formulas = Array.isArray(settings.formulaTexts)
+    ? settings.formulaTexts.map(formula => new MPL.Wff(formula))
+    : generateFormulas(rng);
   const results = evaluateFormulas(model, formulas);
   const relations = collectRelations(model);
 
-  const payload = {
-    mode: options.mode,
-    seed: options.seed,
+  return {
+    mode,
+    seed,
     model,
     assignments,
     relations,
     results,
   };
+}
 
+function main() {
+  const options = parseArgs(process.argv.slice(2));
+  const payload = createReportPayload(options);
   printConsoleReport(payload);
   writeHtmlReport(payload);
 }
@@ -402,5 +434,9 @@ if (require.main === module) {
 }
 
 module.exports = {
+  createReportPayload,
+  evaluateFormulas,
   playgroundUrl,
+  renderConsoleReport,
+  renderHtmlReport,
 };

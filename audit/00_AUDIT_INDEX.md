@@ -101,6 +101,16 @@ The following three files are read-only audit products. They record findings abo
 - **Stage status:** P1-06 remains **OPEN** and Stage 0 remains **OPEN**.
 - **Next round:** Round 7 is **BLOCKED** until the focused recheck returns PASS and authorizes it.
 
+## Round 6 documentary closure recheck
+
+- **Report:** [`audit/12_BAPAL_ROUND_6_DOCUMENTARY_CLOSURE_RECHECK.md`](12_BAPAL_ROUND_6_DOCUMENTARY_CLOSURE_RECHECK.md)
+- **Reviewed documentary-repair commit:** `2ea0e0f63f42976644d35e910b2079c3f58b58ac`
+- **Verdict:** **PASS — P1-07 CLOSED; ROUND 6 CLOSED; PROCEED TO ROUND 7**
+- **Technical conclusion:** R6-A11-01 is closed. Audit 12 verifies that the focused repair synchronizes the normative Round 6 status and remote-evidence record without changing the passed executable package.
+- **Round status:** P1-07 and Round 6 are **CLOSED** under the bounded Audit 11/Audit 12 contract. P1-06 is the Round 7 target and remains **OPEN pending Round 7 closure review**.
+- **Stage status:** Stage 0 remains **OPEN**.
+- **Next round:** Round 7 — result terminology and documentation closure is authorized.
+
 [`BAPAL_VERIFICATION.md`](../BAPAL_VERIFICATION.md) is project documentation and is not one of the audit reports.
 
 The source instructions for the audit are preserved in [`prompt/work_max_bapal_foundational_audit_prompt.md`](../prompt/work_max_bapal_foundational_audit_prompt.md).

@@ -7,7 +7,9 @@ This document is the normative developer guide for the Round 6 independent-oracl
 - an independently implemented Python semantic oracle supplies expected truth values; and
 - the JavaScript production evaluator supplies actual truth values.
 
-The checked-in corpus, generated profiles, manifests, and deliberate-mismatch test make semantic divergence reproducible and reviewable. Audit 11 substantively passed the executable Round 6 package. P1-07 remains open only pending the focused Work Max recheck of R6-A11-01 documentary synchronization; P1-06 and Stage 0 also remain open.
+The checked-in corpus, generated profiles, manifests, and deliberate-mismatch test make semantic divergence reproducible and reviewable. Audit 11 substantively passed the executable Round 6 package subject to R6-A11-01 documentary synchronization; the focused [`Audit 12`](../audit/12_BAPAL_ROUND_6_DOCUMENTARY_CLOSURE_RECHECK.md) recheck passed that repair and closed P1-07 and Round 6. Stage 0 remains open.
+
+The hand-authored core, FAST, FULL, and sampled finite-model report are different artifacts. Their approved names and nonclaims are defined in [`RESULT_TERMINOLOGY.md`](RESULT_TERMINOLOGY.md).
 
 ## 2. Independence boundary
 
@@ -218,7 +220,7 @@ No hidden mutation flag is added to production code. After the scoped repair, th
 - manual dispatch runs FAST and FULL; and
 - the weekly schedule runs FULL.
 
-Both jobs use `contents: read`, disable persisted checkout credentials, set up supported Node and Python versions with official pinned-major actions, and have explicit timeouts. FAST and FULL run the independent core, sensitivity, their exact generated profile, all inherited deterministic non-writing regressions, `git diff --check`, and a clean-worktree assertion. The workflow never invokes `scripts/check-all.js` or `scripts/random-bapal-evaluation.js` because those paths may generate tracked reports.
+Both jobs use `contents: read`, disable persisted checkout credentials, set up supported Node and Python versions with official pinned-major actions, and have explicit timeouts. FAST and FULL run the independent core, sensitivity, their exact generated profile, all inherited deterministic non-writing regressions, `git diff --check`, and a clean-worktree assertion. The workflow pins those regressions as explicit commands rather than invoking `scripts/check-all.js`, and it never invokes the writing command `scripts/random-bapal-evaluation.js`.
 
 Each job creates its runner-temporary artifact directory immediately after runtime setup and writes a small `bootstrap.json`, so an early semantic failure still leaves a useful upload target. Manifest validation runs with `if: always()` and fails a missing, incomplete, mismatching, or non-pass manifest. Artifact upload also runs with `if: always()` and includes the whole profile directory, covering the bootstrap diagnostic, manifests, mismatch artifacts, and reducer output without collecting environment dumps or secrets. No failure is hidden with `continue-on-error`.
 
@@ -243,7 +245,7 @@ python3 scripts/check-oracle-conformance.py --profile fast --artifact-dir /tmp/b
 python3 scripts/check-oracle-conformance.py --profile full --artifact-dir /tmp/bapal-full
 ```
 
-The command prints the seed, exact target, progress, artifact path, elapsed time, and mismatch count. Core, sensitivity, FAST, and FULL pass locally without weakening the corpus, comparator, authored `core-073` expectation, or exit behavior. Candidate remote FAST/FULL and final-log-only-HEAD remote FAST revalidation are complete; only the Audit 11 documentary-status repair remains pending focused recheck.
+The command prints the seed, exact target, progress, artifact path, elapsed time, and mismatch count. Core, sensitivity, FAST, and FULL pass locally without weakening the corpus, comparator, authored `core-073` expectation, or exit behavior. Candidate remote FAST/FULL and final-log-only-HEAD remote FAST revalidation are complete; Audit 12 passed the Audit 11 documentary-status repair and closed Round 6.
 
 ## 17. Failure triage
 
@@ -257,12 +259,12 @@ For an operational error, inspect `manifest.json` status, error, actual count, v
 6. add or retain the smallest understandable permanent regression before any authorized repair; and
 7. rerun core, sensitivity, FAST, FULL, inherited deterministic checks, whitespace, and clean-tree checks.
 
-Never regenerate tracked reports during triage. Never change protected production semantics as part of a Round 6 documentation or infrastructure task. The separately authorized `core-073` repair changed only the collision-prone valuation-class identity representation; future repairs still require concrete counterexamples and explicit scope. Remote revalidation is complete, but P1-07 and Round 6 remain open pending the focused Work Max recheck of R6-A11-01.
+Never regenerate tracked reports during triage. Never change protected production semantics as part of a Round 6 documentation or infrastructure task. The separately authorized `core-073` repair changed only the collision-prone valuation-class identity representation; future repairs still require concrete counterexamples and explicit scope. Remote revalidation and the focused Audit 12 documentary closure are complete; P1-07 and Round 6 are closed.
 
 ## 18. Nonclaims and limitations
 
 Oracle agreement is bounded regression evidence. The oracle is not a formal proof, and agreement does not prove either side correct. Generated profile sizes are finite: FAST checks exactly 50,000 pointed cases and FULL checks exactly 500,000. Their BAPAL models are deliberately bounded by live-world, valuation-class, and nesting limits.
 
-The system does not establish soundness, completeness, validity, satisfiability, decidability, exhaustive finite-model coverage, or correctness for all identifiers, models, or formulas. It is not a satisfiability solver, validity checker, theorem prover, or BAPAL decision procedure. It does not certify legacy compact serialization, unify raw/browser formula grammars, broaden character-wise Formula Schema v1 knowledge units, change S5 policy, or repair P1-06 terminology.
+The system does not establish soundness, completeness, validity, satisfiability, decidability, exhaustive finite-model coverage, or correctness for all identifiers, models, or formulas. It is not a satisfiability solver, validity checker, theorem prover, or BAPAL decision procedure. It does not certify legacy compact serialization, unify raw/browser formula grammars, broaden character-wise Formula Schema v1 knowledge units, or change S5 policy. Round 6 itself did not repair P1-06; the separate Round 7 terminology contract governs current result wording.
 
 Round 6 writes no tracked runtime manifest or report by default. Its CI and local commands are designed to leave the repository unchanged apart from intentionally reviewed source/documentation changes.
