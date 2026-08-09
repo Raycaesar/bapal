@@ -7,8 +7,8 @@ const commands = [
   ['node', ['scripts/check-logic-regressions.js']],
   ['node', ['scripts/check-s5-closure.js']],
   ['node', ['scripts/check-bapal-valuation-class.js']],
-  ['node', ['scripts/random-bapal-evaluation.js', '--s5', '--seed', '12345']],
-  ['node', ['scripts/random-bapal-evaluation.js', '--arbitrary', '--seed', '12345']],
+  ['node', ['scripts/check-report-terminology.js']],
+  ['node', ['scripts/check-report-links.js']],
 ];
 
 for (const [command, args] of commands) {
