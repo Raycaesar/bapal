@@ -111,6 +111,17 @@ The following three files are read-only audit products. They record findings abo
 - **Stage status:** Stage 0 remains **OPEN**.
 - **Next round:** Round 7 — result terminology and documentation closure is authorized.
 
+## Round 7 terminology closure audit
+
+- **Report:** [`audit/13_BAPAL_ROUND_7_TERMINOLOGY_CLOSURE_AUDIT.md`](13_BAPAL_ROUND_7_TERMINOLOGY_CLOSURE_AUDIT.md)
+- **Audit date:** 2026-08-09 UTC
+- **Complete Round 7 implementation candidate:** `91239f7340a330f4dc3c2b1d5546bcc3b666dc58`
+- **Final reviewed log-only HEAD:** `8d0e64cafcfa690738fe3fdc15bea784c88ea9a0`
+- **Verdict:** **PASS — P1-06 CLOSED; ROUND 7 CLOSED; PROCEED TO ROUND 8 STAGE 0 FINAL CLOSURE AUDIT**
+- **Technical conclusion:** P1-06 is **CLOSED** narrowly under Audit 13's sampled/generated finite-model terminology, report, regression, and reviewed documentation scope. Round 7 is **CLOSED**.
+- **Stage status:** All identified Stage 0 P0/P1 items are individually **CLOSED**. Stage 0 itself remains **OPEN** pending the Round 8 final Work Max closure audit.
+- **Authorization:** Round 8 final Stage 0 closure audit is authorized. Stage 1 remains blocked and is not authorized.
+
 [`BAPAL_VERIFICATION.md`](../BAPAL_VERIFICATION.md) is project documentation and is not one of the audit reports.
 
 The source instructions for the audit are preserved in [`prompt/work_max_bapal_foundational_audit_prompt.md`](../prompt/work_max_bapal_foundational_audit_prompt.md).

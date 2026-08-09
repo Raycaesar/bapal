@@ -12,7 +12,7 @@
   - [BAPAL Architecture and Correctness-First Roadmap](../audit/03_BAPAL_ARCHITECTURE_AND_ROADMAP.md)
 - **Normative contract:** [BAPAL Playground Semantic and Product Specification](../docs/BAPAL_PLAYGROUND_SPEC.md)
 
-**Stage 0 status: OPEN.** Round 1 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04**. Round 2 is **CLOSED AT `e0c816f` — WORK MAX AUDIT 05**, and the closure remains valid at final log-only HEAD `f7c7d59`. P1-02 is **CLOSED AT `6bd3369` — WORK MAX AUDIT 06**. Audit 07 closes P1-03 and Round 3 at `3f27ac2` under its focused raw-label rendering contract. P1-04 and P1-05 are **CLOSED AT `5c89ab5` — WORK MAX AUDIT 08**, and Round 4 is closed. Audit 09 passed the Round 5 runtime Schema v1 codecs subject only to R5-A09-01. Audit 10 closes R5-A09-01 and Round 5 at canonical-ID repair commit `edfbf32d07507bd43143bd518dbe3e2316a65979`, with documentary final audited HEAD `8451a1e289eb8e6efa19887e35955d3d8772c8d8`. Audit 11 substantively passes the Round 6 executable package at complete candidate `ffcd7cb2d14217859069acd8ac23cdc5ea450cbc` and final audited log-only HEAD `e9b8bd37a380c74375c7cd161711f76e605bf483`. Audit 12 verifies documentary-repair commit `2ea0e0f63f42976644d35e910b2079c3f58b58ac`, closes R6-A11-01, P1-07, and Round 6, and authorizes Round 7. P1-06 is **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**; Stage 0 remains open. All identified P0/P1 implementation items are now either previously closed or P1-06 pending Round 7 Work Max closure. The original three audit reports remain read-only historical evidence; Audits 04–12 supply only their stated narrow later-round evidence.
+**Stage 0 status: OPEN — ALL IDENTIFIED P0/P1 ITEMS INDIVIDUALLY CLOSED; PENDING FINAL WORK MAX CLOSURE AUDIT.** Round 1 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04**. Round 2 is **CLOSED AT `e0c816f` — WORK MAX AUDIT 05**, and the closure remains valid at final log-only HEAD `f7c7d59`. P1-02 is **CLOSED AT `6bd3369` — WORK MAX AUDIT 06**. Audit 07 closes P1-03 and Round 3 at `3f27ac2` under its focused raw-label rendering contract. P1-04 and P1-05 are **CLOSED AT `5c89ab5` — WORK MAX AUDIT 08**, and Round 4 is closed. Audit 09 passed the Round 5 runtime Schema v1 codecs subject only to R5-A09-01. Audit 10 closes R5-A09-01 and Round 5 at canonical-ID repair commit `edfbf32d07507bd43143bd518dbe3e2316a65979`, with documentary final audited HEAD `8451a1e289eb8e6efa19887e35955d3d8772c8d8`. Audit 11 substantively passes the Round 6 executable package at complete candidate `ffcd7cb2d14217859069acd8ac23cdc5ea450cbc` and final audited log-only HEAD `e9b8bd37a380c74375c7cd161711f76e605bf483`. Audit 12 verifies documentary-repair commit `2ea0e0f63f42976644d35e910b2079c3f58b58ac`, closes R6-A11-01, P1-07, and Round 6, and authorizes Round 7. Audit 13 closes P1-06 and Round 7 at complete candidate `91239f7340a330f4dc3c2b1d5546bcc3b666dc58`, with closure preserved at final reviewed log-only HEAD `8d0e64cafcfa690738fe3fdc15bea784c88ea9a0`. Rounds 1–7 are closed. Round 8 is **FINAL STAGE 0 CLOSURE PREPARATION — PENDING WORK MAX**. Stage 1 is **NOT STARTED / BLOCKED UNTIL STAGE 0 FINAL PASS**. The original three audit reports remain read-only historical evidence; Audits 04–13 supply only their stated narrow later-round evidence.
 
 ## 2. Stage 0 objective
 
@@ -44,7 +44,7 @@ Representation, parser, UI, and test-infrastructure repairs must be checked agai
 
 ## 4. Planned repair rounds
 
-Round 1 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04**. Round 2 is **CLOSED AT `e0c816f` — WORK MAX AUDIT 05**. Round 3 P1-02 is **CLOSED AT `6bd3369` — WORK MAX AUDIT 06** and P1-03 is **CLOSED AT `3f27ac2` — WORK MAX AUDIT 07**. Round 4 P1-04/P1-05 are **CLOSED AT `5c89ab5` — WORK MAX AUDIT 08**. Round 5 is **CLOSED AT `edfbf32` — WORK MAX AUDIT 10**. Audit 12 closes R6-A11-01, P1-07, and Round 6 at documentary-repair commit `2ea0e0f63f42976644d35e910b2079c3f58b58ac`. P1-06 Round 7 is **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**; Stage 0 remains open. If Round 7 passes, the next action is **Round 8 — final Stage 0 closure audit**.
+Round 1 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04**. Round 2 is **CLOSED AT `e0c816f` — WORK MAX AUDIT 05**. Round 3 P1-02 is **CLOSED AT `6bd3369` — WORK MAX AUDIT 06** and P1-03 is **CLOSED AT `3f27ac2` — WORK MAX AUDIT 07**. Round 4 P1-04/P1-05 are **CLOSED AT `5c89ab5` — WORK MAX AUDIT 08**. Round 5 is **CLOSED AT `edfbf32` — WORK MAX AUDIT 10**. Audit 12 closes R6-A11-01, P1-07, and Round 6 at documentary-repair commit `2ea0e0f63f42976644d35e910b2079c3f58b58ac`. Round 7 is **CLOSED — WORK MAX AUDIT 13**, closing P1-06 at `91239f7`. Round 8 is **FINAL STAGE 0 CLOSURE PREPARATION — PENDING WORK MAX**. Stage 0 is **OPEN — ALL IDENTIFIED P0/P1 ITEMS INDIVIDUALLY CLOSED; PENDING FINAL WORK MAX CLOSURE AUDIT**. Stage 1 is **NOT STARTED / BLOCKED UNTIL STAGE 0 FINAL PASS**.
 
 ### Round 1 — P0 structural model copying
 
@@ -246,7 +246,7 @@ Audit 08 closes P1-04, P1-05, and Round 4 at implementation commit `5c89ab5536d4
 
 ### Round 6 — Independent oracle, conformance corpus, and CI
 
-**Status: SUBSTANTIVE IMPLEMENTATION PASSED AUDIT 11 — DOCUMENTARY REPAIR APPLIED — PENDING FOCUSED WORK MAX CLOSURE RECHECK.**
+**Status: CLOSED — WORK MAX AUDIT 12.** Audit 11's historical verdict remains **PASS SUBJECT TO LOCAL REPAIRS**; Audit 12 passed the focused documentary repair and closed R6-A11-01, P1-07, and Round 6.
 
 **Scope**
 
@@ -292,7 +292,7 @@ The infrastructure acceptance points and zero-mismatch local and remote core/FAS
 
 ### Round 7 — Terminology and documentation closure
 
-**Status: IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT.**
+**Status: CLOSED — WORK MAX AUDIT 13.**
 
 **Scope**
 
@@ -319,9 +319,13 @@ The infrastructure acceptance points and zero-mismatch local and remote core/FAS
 - Operator, identifier, S5, serialization, and performance boundaries agree with the implemented and tested contract.
 - No audit report is rewritten.
 
-P1-06 remains **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**. Stage 0 remains **OPEN**. If Round 7 passes, the next action is **Round 8 — final Stage 0 closure audit**.
+P1-06 is **CLOSED AT `91239f7` — WORK MAX AUDIT 13**. Audit 13 closes Round 7 at complete implementation candidate `91239f7340a330f4dc3c2b1d5546bcc3b666dc58`, with closure preserved at final reviewed log-only HEAD `8d0e64cafcfa690738fe3fdc15bea784c88ea9a0`. Stage 0 remains **OPEN** pending the Round 8 final Work Max closure audit.
 
-### Round 8 — Stage 0 closure audit
+### Round 8 — Final Stage 0 closure preparation
+
+**Status: FINAL STAGE 0 CLOSURE PREPARATION — PENDING WORK MAX.**
+
+All identified Stage 0 P0/P1 items are individually closed, and Rounds 1–7 are closed under Audits 04–13's exact scopes. Stage 0 is **OPEN — ALL IDENTIFIED P0/P1 ITEMS INDIVIDUALLY CLOSED; PENDING FINAL WORK MAX CLOSURE AUDIT**. Stage 1 is **NOT STARTED / BLOCKED UNTIL STAGE 0 FINAL PASS**.
 
 **Scope**
 
@@ -338,7 +342,7 @@ P1-06 remains **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**. Stage 0 remain
 
 ## 5. Defect-to-round mapping
 
-Every P0/P1 defect from the foundational audit appears exactly once below with one primary repair round. P0-01 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04** for internal semantic copying. P1-01 is **CLOSED AT `e0c816f` — WORK MAX AUDIT 05** under the supported-AST ASCII-printing contract. P1-02 is **CLOSED AT `6bd3369` — WORK MAX AUDIT 06**. P1-03 is **CLOSED AT `3f27ac2` — WORK MAX AUDIT 07**. P1-04 and P1-05 are **CLOSED AT `5c89ab5` — WORK MAX AUDIT 08**. P1-07 and Round 6 are **CLOSED — WORK MAX AUDIT 12**. P1-06 is **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**. All identified P0/P1 implementation items are therefore either previously closed or awaiting only P1-06's Round 7 closure audit; Stage 0 remains open.
+Every P0/P1 defect from the foundational audit appears exactly once below with one primary repair round. P0-01 is **CLOSED AT `55f557c` — WORK MAX AUDIT 04** for internal semantic copying. P1-01 is **CLOSED AT `e0c816f` — WORK MAX AUDIT 05** under the supported-AST ASCII-printing contract. P1-02 is **CLOSED AT `6bd3369` — WORK MAX AUDIT 06**. P1-03 is **CLOSED AT `3f27ac2` — WORK MAX AUDIT 07**. P1-04 and P1-05 are **CLOSED AT `5c89ab5` — WORK MAX AUDIT 08**. P1-06 is **CLOSED AT `91239f7` — WORK MAX AUDIT 13**. P1-07 and Round 6 are **CLOSED — WORK MAX AUDIT 12**. All identified P0/P1 implementation items are individually closed; Stage 0 remains open pending the final Work Max closure audit.
 
 | Defect ID | Status | Severity | Affected files/functions | Primary round | Dependencies | Required minimized regression | Closure evidence |
 |---|---|---|---|---|---|---|---|
@@ -349,7 +353,7 @@ Every P0/P1 defect from the foundational audit appears exactly once below with o
 | P1-04 | CLOSED AT `5c89ab5` — WORK MAX AUDIT 08 | P1 — non-atomic model import | `js/MPL.js`: `parseModelString`, `loadFromModelString`; `js/app.js`: startup/share-URL load path | Round 4 | Round 3 closed by Audit 07; Round 1 structural model operations | Load `ApS;BROKEN;AqS` over a known existing model; receive structured failure and retain the exact complete prior model | Nine minimized failures; 16 compatibility cases; permanent 100,000-case oracle/fuzz with 50,000 exact rollbacks; separate 250,000-case independent review with 125,000 exact rollbacks; three startup cases; Audit 08 closure |
 | P1-05 | CLOSED AT `5c89ab5` — WORK MAX AUDIT 08 | P1 — hidden semantic state | `js/app.js`: browser boundary, `SemanticState`, model-to-D3 projection, `setVarCount`, inspector synchronization; `index.html`; `css/app.css` | Round 4 | Round 1 identifier preservation; browser atom policy `p`–`t`; Audit 07 relation renderer | Hide true `r/s/t`, inject raw `foo`/`bar_baz`, import unsupported atom `x`, and store relation `x`/self-loops/null slots; every semantic fact is disclosed or browser import is rejected before mutation | 11 semantic-visibility groups; exact semantic/visual JSON comparison; valuation-class/formula/BAPAL invariance; executable production VM/DOM/D3 startup, S5, formula, rendering, escaping, URL, and mutation-path coverage; Audit 08 closure |
 | P1-07 | CLOSED — WORK MAX AUDIT 12 | P1 — non-independent verification/no gate | `oracle/`, `conformance/v1/`, `scripts/check-independent-oracle.py`, `scripts/check-oracle-*.py`, `.github/workflows/bapal-conformance.yml`, `docs/CONFORMANCE.md` | Round 6 | Round 5 closed by Audit 10; exact Schema v1 interchange | A deliberately altered copied result is detected, reduced, retained, and replayed; exact-atom collision case `core-073` is independently detected and repaired without changing its expectation | 73-case manual core; sensitivity `0xBAD0C0DE`; five production and three oracle mutants killed; local FAST `0x6F524143`/50,000 and FULL `0xC0DEC0DE`/500,000 complete with zero mismatches; candidate push FAST and manual FAST/FULL plus final-log-only-HEAD push FAST passed remotely; Audit 11 found no executable blocker; Audit 12 closed R6-A11-01, P1-07, and Round 6 at `2ea0e0f63f42976644d35e910b2079c3f58b58ac` |
-| P1-06 | IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT | P1 — invalid result terminology | `scripts/random-bapal-evaluation.js`: `evaluateFormulas`, report table and console labels; generated report schema; README/API/UI verification text | Round 7 | Stable result/schema naming from Rounds 4–6 | A formula true at some but not all worlds is reported only as “true somewhere in this model”; a formula true at all worlds only as “true at every world in this model” | `scripts/check-report-terminology.js`; three minimized behavioral classifications; synchronized tracked seed-12345 sample; updated public/API/verification docs; Prompt 7.3 PASS; pending Round 7 Work Max closure audit |
+| P1-06 | CLOSED AT `91239f7` — WORK MAX AUDIT 13 | P1 — invalid result terminology | `scripts/random-bapal-evaluation.js`: `evaluateFormulas`, report table and console labels; generated report schema; README/API/UI verification text | Round 7 | Stable result/schema naming from Rounds 4–6 | A formula true at some but not all worlds is reported only as “true somewhere in this model”; a formula true at all worlds only as “true at every world in this model” | `scripts/check-report-terminology.js`; three minimized behavioral classifications; synchronized tracked seed-12345 sample; updated public/API/verification docs; Prompt 7.3 PASS; Audit 13 closes P1-06 and Round 7 at complete candidate `91239f7340a330f4dc3c2b1d5546bcc3b666dc58`, preserved at final reviewed log-only HEAD `8d0e64cafcfa690738fe3fdc15bea784c88ea9a0` |
 
 ## 6. Non-goals
 

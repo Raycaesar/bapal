@@ -135,7 +135,7 @@ The normative developer guide is [`docs/CONFORMANCE.md`](CONFORMANCE.md). Audit 
 
 ### Round 7 — Result terminology and documentation closure
 
-- **Status:** **IMPLEMENTED — PENDING WORK MAX CLOSURE AUDIT**
+- **Status:** **CLOSED AT `91239f7` — WORK MAX AUDIT 13**
 - **Defect target:** P1-06. The historical sampled report used the machine fields `satisfiable` and `globallyTrue` and the result labels “Satisfiable” and “Globally true” for aggregates over one generated model. Those names could be mistaken for logical satisfiability and validity claims.
 - **Machine terminology:** pointwise results use `truthAtWorld`; aggregation over one explicit model uses exactly `trueSomewhereInModel` and `trueAtEveryWorldInModel`. The old misleading fields are removed rather than retained as aliases.
 - **Human terminology:** report headings use “True at some world in this model” and “True at every live world in this model.” Console summaries use the same model-local concepts.
@@ -145,7 +145,13 @@ The normative developer guide is [`docs/CONFORMANCE.md`](CONFORMANCE.md). Audit 
 - **Verification wording:** on one finite explicit model, valuation-class definability is justified with a finite separator construction over the finitely many occurring exact-atom classes. It is not justified by an infinite complete-valuation conjunction and does not imply a finite-model property or general BAPAL decidability.
 - **Permanent regression:** `scripts/check-report-terminology.js` exercises actual evaluation and rendering. It checks exact fields, formulas true at some but not all live worlds, true at all live worlds, and false at all live worlds, accurate HTML/console labels, the visible disclaimer, absence of old result fields, tracked-report alignment, valid non-writing rendering, and preservation of the tracked report during ordinary deterministic execution.
 
-P1-06 remains open until the Round 7 Work Max closure audit passes. Stage 0 remains open; the closed Round 6 independent conformance contract remains protected.
+Audit 13 closes P1-06 and Round 7 at complete implementation candidate `91239f7340a330f4dc3c2b1d5546bcc3b666dc58`, with closure preserved at final reviewed log-only HEAD `8d0e64cafcfa690738fe3fdc15bea784c88ea9a0`. Stage 0 remains open pending the Round 8 final Work Max closure audit; the closed Round 6 independent conformance contract remains protected.
+
+### Round 8 — Final Stage 0 Closure
+
+**Status: PREPARING FINAL WORK MAX CLOSURE AUDIT.**
+
+All identified Stage 0 P0/P1 defects are individually closed, backed by Audits 04–13 under their exact scopes. Stage 0 has not yet received one final global closure verdict. Round 8 performs only cross-round acceptance, regression integrity, evidence freeze, and documentation/status consistency. No Stage 1 work may begin before the final PASS.
 
 ## 2. Product identity
 
@@ -376,7 +382,7 @@ The application currently has several non-identical formula interfaces.
 
 **NORMATIVE.** A within-model aggregation must not be presented as an implemented satisfiability or validity search. Failure at every live world of one model does not establish unsatisfiability; truth at every live world of one model does not establish validity. The sampled report, hand-authored core corpus, FAST profile, and FULL profile are distinct bounded artifacts, and none is an unbounded decision procedure or mathematical proof.
 
-**HISTORICAL BASELINE LIMITATION.** The baseline random report labelled within-one-model aggregates “satisfiable” and “globally true.” The Round 7 P1-06 implementation replaces those fields and labels, adds a visible nonclaim, and protects the contract with `scripts/check-report-terminology.js`; formal closure remains subject to the Round 7 review boundary.
+**HISTORICAL BASELINE LIMITATION.** The baseline random report labelled within-one-model aggregates “satisfiable” and “globally true.” The Round 7 P1-06 implementation replaces those fields and labels, adds a visible nonclaim, and protects the contract with `scripts/check-report-terminology.js`; Audit 13 closes P1-06 under that exact review boundary.
 
 ## 11. Verification claims
 
@@ -449,10 +455,10 @@ Small, separately reviewable changes are preferred. Multiple P0/P1 repairs must 
 - **P1-03 — CLOSED AT `3f27ac2` BY AUDIT 07:** Audit 06 passed the semantic/model S5 policy; Audit 07 passed the focused raw-label SVG rendering repair and closed Round 3.
 - **P1-04 — CLOSED AT `5c89ab5` — WORK MAX AUDIT 08:** the transactional parser/loader rejects malformed compact input explicitly and preserves the complete prior model.
 - **P1-05 — CLOSED AT `5c89ab5` — WORK MAX AUDIT 08:** the browser boundary rejects unsupported imported atoms and the semantic inspector discloses hidden supported keys, unsupported raw keys, relation labels, stored loops, and graph-projection differences.
-- **P1-06 — Round 7 implementation pending closure review:** the report now uses `truthAtWorld`, `trueSomewhereInModel`, and `trueAtEveryWorldInModel`, with accurate display labels, explicit nonclaims, and a permanent non-writing regression. The baseline defect remains historical evidence until the Round 7 closure boundary is certified.
+- **P1-06 — CLOSED AT `91239f7` — WORK MAX AUDIT 13:** the report uses `truthAtWorld`, `trueSomewhereInModel`, and `trueAtEveryWorldInModel`, with accurate display labels, explicit nonclaims, and a permanent non-writing regression. Audit 13 closes the defect narrowly under its exact terminology/report/documentation scope.
 - **P1-07 — CLOSED BY AUDIT 12:** Round 6 checks in the independent Python oracle, the explicit 73-case corpus, deterministic 50,000-case FAST and 500,000-case FULL profiles, sensitivity/reducer/manifests, and the CI gate. Candidate remote FAST and FULL runs and final-log-only-HEAD remote FAST succeeded with zero mismatches. Audit 11 passed the executable package subject to one documentary repair, and Audit 12 passed that repair and closed P1-07 and Round 6.
 
-**FUTURE REQUIREMENT.** Each defect must be closed by a separately reviewable repair with minimized regression coverage and a repair log. Closure of one item does not certify the others or complete Stage 0.
+**CURRENT STATUS.** Every identified Stage 0 P0/P1 defect has a separately reviewable closure under Audits 04–13 with minimized regression coverage and repair evidence. Those individual closures do not by themselves complete Stage 0; the Round 8 final global Work Max closure audit remains pending.
 
 ## 15. Deferred architecture
 
