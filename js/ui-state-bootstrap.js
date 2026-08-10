@@ -4,7 +4,8 @@
  * IMPORTANT:
  * app.js performs an initial onStateModified() before ui-polish.js is loaded.
  * That legacy update rewrites the query string using only model/formula.
- * Therefore s5/vars must be captured BEFORE app.js executes.
+ * Therefore s5/vars and the incoming hash fragment must be captured BEFORE
+ * app.js executes.
  *
  * This file changes no semantic model state.
  */
@@ -21,5 +22,6 @@
     s5Requested: params.get('s5') === '1',
     varsRequested: parsedVars,
     hadVarsParameter: params.has('vars'),
+    hash: window.location.hash || '',
   });
 })();

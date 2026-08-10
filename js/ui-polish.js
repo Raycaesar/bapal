@@ -14,7 +14,7 @@
  *   1. a larger soft-wrapping formula editor;
  *   2. long-formula rendering support;
  *   3. S5 edit-lock wording beside the S5 toggle;
- *   4. URL persistence for S5 mode and displayed atom-row count;
+ *   4. URL persistence for S5 mode, displayed atom-row count, and fragments;
  *   5. Chinese runtime labels on zh.html.
  */
 (function() {
@@ -40,6 +40,7 @@
       s5Requested: fallbackParams.get('s5') === '1',
       varsRequested: rawVars !== null && /^[1-5]$/.test(rawVars) ? Number(rawVars) : null,
       hadVarsParameter: fallbackParams.has('vars'),
+      hash: window.location.hash || '',
     };
   })();
 
@@ -94,7 +95,7 @@
    * app.js still writes model/formula.  This wrapper runs afterwards and uses
    * replaceState so it does not create a second history entry.
    */
-  function persistUiStateToUrl() {
+  function persistUiStateToUrl(hashOverride) {
     if (restoringUiState) return;
 
     const params = new URLSearchParams(window.location.search);
@@ -109,11 +110,21 @@
       params.delete('vars');
     }
 
+    /*
+     * Legacy app.js rebuilds the URL from pathname + model/formula and can
+     * therefore discard an existing fragment.  Callers that invoke legacy
+     * state writers capture the fragment first and pass it back here.
+     */
+    const hash =
+      typeof hashOverride === 'string'
+        ? hashOverride
+        : window.location.hash;
+
     const query = params.toString();
     const nextUrl =
       window.location.pathname +
       (query ? '?' + query : '') +
-      window.location.hash;
+      (hash || '');
 
     window.history.replaceState(window.history.state || {}, '', nextUrl);
     updateLanguageSwitchHref();
@@ -198,7 +209,7 @@
     refreshS5VisualProjection();
 
     restoringUiState = false;
-    persistUiStateToUrl();
+    persistUiStateToUrl(capturedUiState.hash || '');
   }
 
   function translateS5Message(message) {
@@ -491,6 +502,7 @@
 
   wrapGlobal('setS5Mode', function(original) {
     return function(enabled) {
+      const hashBeforeUpdate = window.location.hash;
       const result = original.apply(this, arguments);
       if (enabled && isS5On()) {
         refreshS5VisualProjection();
@@ -498,7 +510,7 @@
         refreshOrdinaryVisualProjection();
       }
       localizeS5Dom();
-      persistUiStateToUrl();
+      persistUiStateToUrl(hashBeforeUpdate);
       return result;
     };
   });
@@ -522,11 +534,12 @@
 
   wrapGlobal('onStateModified', function(original) {
     return function() {
+      const hashBeforeUpdate = window.location.hash;
       const snapshot = original.apply(this, arguments);
       localizeInspector(snapshot);
       localizeChecksTitle();
       localizeS5Dom();
-      persistUiStateToUrl();
+      persistUiStateToUrl(hashBeforeUpdate);
       return snapshot;
     };
   });
@@ -541,18 +554,20 @@
 
   wrapGlobal('evaluateFormula', function(original) {
     return function() {
+      const hashBeforeUpdate = window.location.hash;
       const result = original.apply(this, arguments);
       localizeEvalDom();
-      persistUiStateToUrl();
+      persistUiStateToUrl(hashBeforeUpdate);
       return result;
     };
   });
 
   wrapGlobal('announceFormula', function(original) {
     return function() {
+      const hashBeforeUpdate = window.location.hash;
       const result = original.apply(this, arguments);
       localizeEvalDom();
-      persistUiStateToUrl();
+      persistUiStateToUrl(hashBeforeUpdate);
       return result;
     };
   });

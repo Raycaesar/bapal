@@ -9,6 +9,7 @@ const commands = [
   ['node', ['scripts/check-bapal-valuation-class.js']],
   ['node', ['scripts/check-report-terminology.js']],
   ['node', ['scripts/check-report-links.js']],
+  ['node', ['scripts/check-ui-state-persistence.js']],
 ];
 
 for (const [command, args] of commands) {
